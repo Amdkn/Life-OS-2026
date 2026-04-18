@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🌉 The Bridge — Life OS Client (V0.9)
 
-# Run and deploy your AI Studio app
+This is the primary user interface and logic engine for the **A'Space Life OS**. It is a modern, high-fidelity Web OS shell built for speed, aesthetics, and agentic coordination.
 
-This contains everything you need to run your app locally.
+## 🛠️ Technical Stack
 
-View your app in AI Studio: https://ai.studio/apps/c237d587-4ea5-4570-9aae-985ec25023fa
+- **Core**: [React 19](https://react.dev/) + [Vite 6](https://vitejs.dev/)
+- **Logic**: [Zustand 5](https://github.com/pmndrs/zustand) (State Management)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) + [Motion](https://motion.dev/)
+- **Persistence**: [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (Domain isolation via `idb.ts`)
+- **API**: [Supabase JS](https://supabase.com/docs/guides/auth/auth-helpers/nextjs) (Dual-write sync)
 
-## Run Locally
+## 🏢 Internal Frameworks (Apps)
 
-**Prerequisites:**  Node.js
+| App ID | Ship Class | Purpose |
+| :--- | :--- | :--- |
+| `command-center` | USS Hood | The Bridge & Core Shell |
+| `para` | USS Enterprise | Project & Knowledge Management |
+| `ikigai` | USS Orville | Purpose & Vocation Tracking |
+| `life-wheel` | USS Discovery | 8 Domains of Life Metrics |
+| `agent-portal` | Fleet Admiral | Agent Orchestration (A0-A3) |
 
+## 🏗️ Development
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Local Setup
+1.  **Install**: `npm install`
+2.  **Config**: Create `.env` based on `.env.example`.
+3.  **Run**: `npm run dev` (Default port: **4444**)
+
+### Production Build
+1.  **Build**: `npm run build`
+2.  **Verify**: `npm run preview`
+3.  **Docker**: Use the included `Dockerfile` for Nginx-based deployment.
+
+## 📐 Architecture Note
+The **Bridge** uses a strictly **Spec-Driven Development (SDD)** approach. For architectural decisions, refer to the [ADR](./openspec/ADR/) or the root [**`REALITY_MAP.md`**](../REALITY_MAP.md).
+
+---
+<p align="center"><i>End of Transmission — A0 Amadeus</i></p>
