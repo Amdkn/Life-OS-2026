@@ -1,0 +1,8 @@
+{
+  "id": "para",
+  "name": "PARA Business",
+  "icon": "FolderKanban",
+  "version": "1.0.0",
+  "entry": "./ParaApp.tsx",
+  "description": "Enterprise-grade PARA management for LD01 domain."
+}

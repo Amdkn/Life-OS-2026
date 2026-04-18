@@ -1,0 +1,1 @@
+{ "id": "twelve-week", "name": "12WY Strategy", "icon": "CalendarCheck", "version": "1.0.0", "entry": "./twelveweekApp.tsx" }

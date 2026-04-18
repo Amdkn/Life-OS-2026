@@ -1,0 +1,1 @@
+{ "id": "life-wheel", "name": "Life Wheel", "icon": "CircleDot", "version": "1.0.0", "entry": "./lifewheelApp.tsx" }

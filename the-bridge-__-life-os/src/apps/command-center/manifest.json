@@ -1,0 +1,8 @@
+{
+  "id": "command-center",
+  "name": "Command Center",
+  "icon": "LayoutDashboard",
+  "version": "1.0.0",
+  "entry": "./CommandCenter.tsx",
+  "description": "Central OS Hub with AI context and Dashboard."
+}

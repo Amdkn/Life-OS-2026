@@ -1,0 +1,7 @@
+{
+  "id": "store",
+  "name": "App Store",
+  "icon": "ShoppingBag",
+  "version": "1.0.0",
+  "entry": "./AppStore.tsx"
+}

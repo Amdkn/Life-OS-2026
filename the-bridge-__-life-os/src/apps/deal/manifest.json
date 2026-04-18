@@ -1,0 +1,1 @@
+{ "id": "deal", "name": "DEAL Framework", "icon": "Unlock", "version": "1.0.0", "entry": "./dealApp.tsx" }
