@@ -1,64 +1,39 @@
-# 🌌 A'Space Life OS — Sovereign Web OS (2026)
+# 🌉 The Bridge — Life OS Client (V0.9)
 
-> **"The Sovereignty of Memory, the Autonomy of the Future."**
+This is the primary user interface and logic engine for the **A'Space Life OS**. It is a modern, high-fidelity Web OS shell built for speed, aesthetics, and agentic coordination.
 
-Welcome to the **A'Space Life OS**, a next-generation, local-first development environment designed for absolute data sovereignty and AI-driven life management. Built upon the **BMAD Methodology**, this OS acts as your Digital Twin and Sovereign Command Center.
+## 🛠️ Technical Stack
 
----
+- **Core**: [React 19](https://react.dev/) + [Vite 6](https://vitejs.dev/)
+- **Logic**: [Zustand 5](https://github.com/pmndrs/zustand) (State Management)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) + [Motion](https://motion.dev/)
+- **Persistence**: [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (Domain isolation via `idb.ts`)
+- **API**: [Supabase JS](https://supabase.com/docs/guides/auth/auth-helpers/nextjs) (Dual-write sync)
 
-## 🏛️ Architecture: The Nexus Convergence
+## 🏢 Internal Frameworks (Apps)
 
-Life OS operates on a **Dual-Write Architecture**, ensuring your data is both ultra-fast (Local-First) and eternally durable (Global-Sync).
-
-```mermaid
-graph TD
-    A[Human Interface] --> B[Web OS Glass UI]
-    B --> C{IDB Wrapper}
-    C -->|Immediate Write| D[(IndexedDB)]
-    C -->|Background Sync| E[(Supabase VPS)]
-    B --> F[Agent Portal]
-    F --> G[A1-Rick Orchestrator]
-    G --> H[A3-Technician Fleet]
-```
-
-### 🛰️ The Fleet (Agent Strata)
-- **A0 (Amadeus)**: The Visionary / Multiverse Architect (Strategic Oversight).
-- **A1 (Rick)**: The CEO / Gatekeeper (Orchestration & PRD).
-- **A2 (Doctors)**: The E-Myth Managers (ADR & DDD).
-- **A3 (Technicians)**: The Executors (Ralph Loop & Implementation).
-
----
-
-## 📂 Repository Structure
-
-| Folder | Content | Role |
+| App ID | Ship Class | Purpose |
 | :--- | :--- | :--- |
-| [**`the-bridge-__-life-os/`**](./the-bridge-__-life-os/) | React 19 + Vite + Tailwind 4 | The Frontend Engine & Shell UI |
-| [**`supabase/`**](./supabase/) | Config, Migrations & Seeds | The Persistence & Data Schema |
-| [**`scripts/`**](./scripts/) | Utility & Automation | System Management |
-| [**`REALITY_MAP.md`**](./REALITY_MAP.md) | Technical Specs | The Factual Source of Truth |
+| `command-center` | USS Hood | The Bridge & Core Shell |
+| `para` | USS Enterprise | Project & Knowledge Management |
+| `ikigai` | USS Orville | Purpose & Vocation Tracking |
+| `life-wheel` | USS Discovery | 8 Domains of Life Metrics |
+| `agent-portal` | Fleet Admiral | Agent Orchestration (A0-A3) |
+
+## 🏗️ Development
+
+### Local Setup
+1.  **Install**: `npm install`
+2.  **Config**: Create `.env` based on `.env.example`.
+3.  **Run**: `npm run dev` (Default port: **4444**)
+
+### Production Build
+1.  **Build**: `npm run build`
+2.  **Verify**: `npm run preview`
+3.  **Docker**: Use the included `Dockerfile` for Nginx-based deployment.
+
+## 📐 Architecture Note
+The **Bridge** uses a strictly **Spec-Driven Development (SDD)** approach. For architectural decisions, refer to the [ADR](./openspec/ADR/) or the root [**`REALITY_MAP.md`**](../REALITY_MAP.md).
 
 ---
-
-## 🚀 Deployment (Dokploy)
-
-This OS is optimized for **Dokploy** deployment. 
-
-1. **Dockerize**: Use the production [Dockerfile](./the-bridge-__-life-os/Dockerfile).
-2. **Persistence**: Configure Supabase Stack on your VPS.
-3. **Connect**: Inject `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` via Dokploy ENV variables.
-
----
-
-## 🛡️ Sovereignty & Security
-
-- **Local-First**: Works entirely offline via IndexedDB.
-- **Controlled Sync**: Supabase only receives what the Bridge allows.
-- **Glassmorphism UI**: High-fidelity aesthetic designed for the "Wow Effect".
-
----
-
-<p align="center">
-  <i>Developed with the Solarpunk Kernel — L0</i><br>
-  <b>Amadeuspace.com</b>
-</p>
+<p align="center"><i>End of Transmission — A0 Amadeus</i></p>
