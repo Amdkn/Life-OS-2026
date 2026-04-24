@@ -2,11 +2,16 @@ import React, { Component, ReactNode, StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+console.log("🧿 [Boot] main.tsx entry");
+
 import './lib/app-discovery'; // 🧿 ABSOLUTE APEX: Trigger side-effect registration
 import { getAllApps } from './lib/app-registry';
 
+console.log("🧿 [Boot] App Discovery triggered");
+
 // 🧿 APEX ROOT INITIALIZATION: Force registry discovery before React mounts
-getAllApps();
+const apps = getAllApps();
+console.log("🧿 [Boot] Registry initialized, apps found:", apps.length);
 
 class RootErrorBoundary extends Component<{children: ReactNode}, {error: Error | null, hasError: boolean}> {
   constructor(props: any) {

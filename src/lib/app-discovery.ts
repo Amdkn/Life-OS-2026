@@ -4,6 +4,8 @@
  * It MUST be imported at the root level (main.tsx) to avoid circular dependencies in app-registry.
  */
 
+console.log("🧿 [Boot] app-discovery.ts started");
+
 // APEX CORE DISCOVERY: Vite literal macro (MUST be a literal string for the compiler)
 // This side-effect eagerly imports all register.ts files in src/apps/
 // @ts-ignore - Vite Macro

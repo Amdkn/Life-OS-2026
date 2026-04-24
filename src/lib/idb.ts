@@ -1,4 +1,4 @@
-/** IDB Wrapper — isolated IndexedDB per area (D5/P3.1) */
+/** IDB Wrapper — isolated IndexedDB per area (Invariant #3) */
 import { supabase } from './supabase';
 
 export class DomainDB {
@@ -21,15 +21,12 @@ export class DomainDB {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
-        // Default PARA structure for LD01-LD08
-        if (!db.objectStoreNames.contains('projects')) db.createObjectStore('projects', { keyPath: 'id' });
-        if (!db.objectStoreNames.contains('areas'))    db.createObjectStore('areas',    { keyPath: 'id' });
-        if (!db.objectStoreNames.contains('resources'))db.createObjectStore('resources',{ keyPath: 'id' });
-        if (!db.objectStoreNames.contains('archives')) db.createObjectStore('archives', { keyPath: 'id' });
-        
-        // Universal metadata/settings
-        if (!db.objectStoreNames.contains('metadata')) db.createObjectStore('metadata', { keyPath: 'key' });
+        const stores = ['projects', 'areas', 'resources', 'archives', 'metadata'];
+        stores.forEach(s => {
+          if (!db.objectStoreNames.contains(s)) {
+            db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });
+          }
+        });
       };
 
       request.onsuccess = (event) => {
@@ -44,26 +41,30 @@ export class DomainDB {
   async getAll<T>(storeName: string): Promise<T[]> {
     await this.init();
     
-    // 1. Force pull from Supabase (Source of Truth)
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+
+      if (!userId) throw new Error('Unauthenticated access');
+
       const { data, error } = await supabase
         .from(this.tableName)
         .select('*')
+        .eq('user_id', userId)
         .eq('type', storeName);
       
       if (!error && data) {
-        // Sync local cache for next offline run
+        const transaction = this.db!.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
         for (const item of data) {
-          const transaction = this.db!.transaction(storeName, 'readwrite');
-          transaction.objectStore(storeName).put(item);
+          store.put(item);
         }
         return data as T[];
       }
     } catch (e) {
-      console.warn(`Initial pull failed for ${this.tableName}`, e);
+      console.warn(`Sync failed for ${this.tableName}, falling back to local`, e);
     }
 
-    // 2. Fallback to Local IDB
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(storeName, 'readonly');
       const store = transaction.objectStore(storeName);
@@ -76,7 +77,6 @@ export class DomainDB {
   async put<T>(storeName: string, data: T): Promise<void> {
     await this.init();
     
-    // 1. Local Write (Immediate)
     await new Promise<void>((resolve, reject) => {
       const transaction = this.db!.transaction(storeName, 'readwrite');
       const store = transaction.objectStore(storeName);
@@ -85,28 +85,23 @@ export class DomainDB {
       request.onerror = () => reject(request.error);
     });
 
-    // 2. Global Sync (Fire-and-forget for UI performance)
     try {
-      // In a real local-first app, we'd queue this, but for now we try directly
-      const { error } = await supabase
-        .from(this.tableName)
-        .upsert({ 
-          ...(data as any), 
-          // Metadata to help routing if we use a shared table, but we use per-domain tables
-          type: storeName,
-          updated_at: new Date().toISOString()
-        });
-      
-      if (error) console.error(`Sync error for ${this.tableName}:`, error);
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+
+      if (userId) {
+        await supabase
+          .from(this.tableName)
+          .upsert({ ...(data as any), user_id: userId, type: storeName, updated_at: new Date().toISOString() });
+      }
     } catch (e) {
-      console.warn(`Supabase unreachable for ${this.tableName}`, e);
+      console.warn(`Supabase sync deferred for ${this.tableName}`, e);
     }
   }
 
   async delete(storeName: string, id: string): Promise<void> {
     await this.init();
     
-    // 1. Local Delete
     await new Promise<void>((resolve, reject) => {
       const transaction = this.db!.transaction(storeName, 'readwrite');
       const store = transaction.objectStore(storeName);
@@ -115,17 +110,27 @@ export class DomainDB {
       request.onerror = () => reject(request.error);
     });
 
-    // 2. Global Sync
     try {
       const { error } = await supabase
         .from(this.tableName)
         .delete()
         .eq('id', id);
-      
-      if (error) console.error(`Delete sync error for ${this.tableName}:`, error);
+      if (error) throw error;
     } catch (e) {
-      console.warn(`Supabase unreachable for delete on ${this.tableName}`, e);
+      console.warn(`Delete sync deferred for ${this.tableName}`, e);
     }
+  }
+
+  async wipe(): Promise<void> {
+    await this.init();
+    const stores = Array.from(this.db!.objectStoreNames);
+    if (stores.length === 0) return;
+    
+    const transaction = this.db!.transaction(stores, 'readwrite');
+    stores.forEach(s => transaction.objectStore(s).clear());
+    return new Promise((resolve) => {
+      transaction.oncomplete = () => resolve();
+    });
   }
 }
 
@@ -138,3 +143,8 @@ export const ld05DB = new DomainDB('aspace_ld05_relations');
 export const ld06DB = new DomainDB('aspace_ld06_habitat');
 export const ld07DB = new DomainDB('aspace_ld07_creativity');
 export const ld08DB = new DomainDB('aspace_ld08_impact');
+
+export const ldDBs: Record<string, DomainDB> = {
+  ld01: ld01DB, ld02: ld02DB, ld03: ld03DB, ld04: ld04DB,
+  ld05: ld05DB, ld06: ld06DB, ld07: ld07DB, ld08: ld08DB
+};

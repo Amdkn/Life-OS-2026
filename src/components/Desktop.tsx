@@ -146,7 +146,8 @@ export function Desktop() {
                   app = matchedApp;
                   // Auto-Healing: Silently update the window ID in the store to the canonical ID
                   setTimeout(() => {
-                    useShellStore.getState().updateWindow(win.id, { id: matchedApp.id });
+                    useShellStore.getState().closeApp(win.id);
+                    useShellStore.getState().openApp(matchedApp.id, matchedApp.id);
                     console.info(`[Apex Healing] Repaired window ID: ${win.id} -> ${matchedApp.id}`);
                   }, 0);
                 }

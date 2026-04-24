@@ -1,8 +1,49 @@
 /** TopBar — global OS bar with Veto, Boot Clean, clock, badges */
 import { useState, useEffect } from 'react';
-import { Shield, ShieldOff, RotateCcw, Bell, Search, Leaf, Cpu } from 'lucide-react';
+import { Shield, ShieldOff, RotateCcw, Bell, Search, Leaf } from 'lucide-react';
 import { useShellStore } from '../stores/shell.store';
-import { glass } from '../lib/glass-tokens';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuth';
+import { useProfileStore } from '../stores/profile.store';
+
+function PilotBadge() {
+  const { logout } = useAuth();
+  const profile = useProfileStore((s) => s.profile);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const initials = (profile?.displayName?.[0] ?? '?').toUpperCase();
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setMenuOpen((o) => !o)}
+        className="w-6 h-6 rounded-full bg-green-500/15 border border-green-500/25 text-green-400 text-[10px] font-bold flex items-center justify-center hover:bg-green-500/25 transition-all"
+        title={profile?.displayName ?? 'Pilote'}
+      >
+        {initials}
+      </button>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-8 w-48 bg-black/90 border border-green-500/15 rounded-xl p-2 backdrop-blur-xl shadow-2xl z-50"
+          >
+            <p className="text-green-600/50 text-[9px] tracking-widest px-2 py-1 uppercase">
+              {profile?.displayName ?? 'Pilote'}
+            </p>
+            <button onClick={logout}
+              className="w-full text-left px-2 py-1.5 text-red-400/70 text-[10px] tracking-widest hover:bg-red-500/10 rounded-lg transition-all">
+              DÉCONNEXION VAISSEAU
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function TopBar() {
   const [time, setTime] = useState(new Date());
@@ -75,6 +116,8 @@ export function TopBar() {
                 </span>
               )}
             </button>
+
+            <PilotBadge />
           </div>
 
           {/* Clock & Date */}
@@ -91,5 +134,3 @@ export function TopBar() {
     </div>
   );
 }
-
-
