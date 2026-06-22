@@ -100,8 +100,9 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
             <Target className="w-5 h-5 text-teal-400" />
           </div>
           <div>
-            <h2 className="text-white font-bold tracking-wide">Forge Tactical Rock</h2>
-            <p className="text-[10px] uppercase tracking-widest text-white/40 font-black">12WY - 12 Week Horizon</p>
+            {/* A0 pivot 2026-06-22 — "Plan" au lieu de "Rock" pour alignement Una H10 canon */}
+            <h2 className="text-white font-bold tracking-wide">Forge Tactical Plan</h2>
+            <p className="text-[10px] uppercase tracking-widest text-white/40 font-black">12WY - 12 Week Horizon · Una H10 Planning</p>
           </div>
         </div>
 
@@ -132,7 +133,7 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-teal-400/50 focus:bg-white/10 transition-all font-medium resize-none"
             />
             <p className="text-[9px] text-white/40 px-1 italic leading-relaxed">
-              Una spec l.76: <span className="text-amber-400/80">&ldquo;Every Rock has a Definition of Done&rdquo;</span> — what observable artifact proves this Rock is achieved?
+              Una spec l.76: <span className="text-amber-400/80">&ldquo;Every Rock has a Definition of Done&rdquo;</span> — what observable artifact proves this Plan is achieved?
             </p>
           </div>
 
@@ -195,7 +196,7 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
             disabled={!title.trim() || !visionId || !definitionOfDone.trim()}
             className="w-full mt-2 bg-teal-500 hover:bg-teal-400 text-black font-black uppercase tracking-widest py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(20,184,166,0.3)]"
           >
-            Forge Tactical Rock
+            Forge Tactical Plan
           </button>
         </form>
       </div>

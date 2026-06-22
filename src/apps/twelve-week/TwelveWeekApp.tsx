@@ -23,10 +23,16 @@ import { useTwelveWeekStore } from '../../stores/fw-12wy.store';
 const twyNavItems: NavItem[] = [
   { id: 'overview',       label: 'Dashboard',      icon: LayoutDashboard },
   { id: 'vision',         label: 'Vision',         icon: Compass },
-  { id: 'rocks',          label: 'Rocks',          icon: Target },
+  // A0 pivot 2026-06-22 — Rename "Rocks" → "Planning" (Una H10 canon).
+  // "Rocks" reste alias legacy pour compat store id (cf. handleNewItem + render condition).
+  // Doctrine : Una = Planner of Rocks (cadre). L'UI affiche "Planning", le store interne garde `wy-goal`.
+  { id: 'planning',       label: 'Planning',       icon: Target },
   { id: 'process',        label: 'Tactics',        icon: Zap },
   { id: 'measurement',    label: 'Measurement',    icon: TrendingUp },
-  { id: 'accountability', label: 'Accountability', icon: MessageSquare },
+  // A0 pivot 2026-06-22 — Rename "Accountability" → "Time Use" (Ortegas H1 canon 50/30/20).
+  // Ortegas spec : Time Use discipline (Strategic 50% / Buffer 30% / Breakout 20%).
+  // L'ancienne accountability M'Benga (planning_overload, drift detection) migre vers Planning tab.
+  { id: 'time-use',       label: 'Time Use',       icon: MessageSquare },
 ];
 
 const weekFilters = [
@@ -97,7 +103,8 @@ export default function TwelveWeekApp() {
 
   const handleNewItem = () => {
     if (activeTab === 'vision') setIsVisionModalOpen(true);
-    if (activeTab === 'rocks' || activeTab === 'planning') setIsGoalModalOpen(true); // Phase 3b — Rocks alias for legacy 'planning'
+    // A0 pivot 2026-06-22 — 'planning' is canonical, 'rocks' kept as legacy alias.
+    if (activeTab === 'planning' || activeTab === 'rocks') setIsGoalModalOpen(true);
     if (activeTab === 'process') setIsTacticModalOpen(true);
   };
 
@@ -120,7 +127,7 @@ export default function TwelveWeekApp() {
             onClick={handleNewItem}
             className="flex items-center gap-2 px-5 py-2.5 bg-teal-500/10 border border-teal-500/20 rounded-xl text-teal-400 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-teal-500/20 transition-all active:scale-95 shadow-lg"
           >
-            <Plus className="w-3.5 h-3.5" /> New {activeTab === 'vision' ? 'Vision' : (activeTab === 'rocks' || activeTab === 'planning') ? 'Rock' : 'Tactic'}
+            <Plus className="w-3.5 h-3.5" /> New {activeTab === 'vision' ? 'Vision' : (activeTab === 'planning' || activeTab === 'rocks') ? 'Plan' : 'Tactic'}
           </button>
         </header>
 
@@ -170,7 +177,7 @@ export default function TwelveWeekApp() {
                 </button>
               </div>
             )
-          ) : (activeTab === 'rocks' || activeTab === 'planning') ? (
+          ) : (activeTab === 'planning' || activeTab === 'rocks') ? (
             activeGoalId ? (
               <GoalCommandCard goalId={activeGoalId} />
             ) : (
@@ -182,7 +189,8 @@ export default function TwelveWeekApp() {
                     className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-teal-500/20 transition-all cursor-pointer group"
                   >
                       <h3 className="text-lg font-bold text-white mb-2 group-hover:text-teal-400 transition-colors">{g.title}</h3>
-                      <p className="text-[9px] text-teal-400/60 uppercase tracking-widest">W{g.targetWeek} Rock</p>
+                      {/* A0 pivot 2026-06-22 — "Plan" au lieu de "Rock" pour alignement Una H10 canon */}
+                      <p className="text-[9px] text-teal-400/60 uppercase tracking-widest">W{g.targetWeek} Plan</p>
                   </div>
                 ))}
                 {visions.length > 0 && (
@@ -191,7 +199,7 @@ export default function TwelveWeekApp() {
                     className="p-6 rounded-3xl border border-dashed border-white/10 hover:bg-white/5 transition-all flex flex-col items-center justify-center opacity-40 hover:opacity-100"
                   >
                     <Plus className="w-8 h-8 mb-2" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">New Rock</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">New Plan</span>
                   </button>
                 )}
               </div>
@@ -222,46 +230,65 @@ export default function TwelveWeekApp() {
                  </button>
                )}
             </div>
-          ) : activeTab === 'accountability' ? (
+          ) : activeTab === 'time-use' ? (
             <div className="space-y-8 animate-in fade-in duration-500">
               <header>
-                <h3 className="text-2xl font-bold uppercase tracking-[0.3em] text-[var(--theme-text)]/80">Accountability — Process Control & Routing</h3>
-                <p className="text-xs text-white/40 mt-2">M'Benga H1 — Single owner, single proof, zero process drift.</p>
+                {/* A0 pivot 2026-06-22 — Time Use (Ortegas H1) remplace Accountability (M'Benga).
+                    50/30/20 doctrine : Strategic 50% / Buffer 30% / Breakout 20%. */}
+                <h3 className="text-2xl font-bold uppercase tracking-[0.3em] text-[var(--theme-text)]/80">Time Use — 50/30/20 Discipline</h3>
+                <p className="text-xs text-white/40 mt-2">Ortegas H1 — Strategic 50% / Buffer 30% / Breakout 20% time allocation per week.</p>
               </header>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Planning Overload Guard — Una spec l.30 */}
+                {/* Strategic Block — 50% — Direct execution on Rocks/Tactics */}
                 <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-amber-400">Planning Overload Guard</h4>
-                    <span className="text-[9px] font-black px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase tracking-widest">✅ Active</span>
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-teal-400">Strategic — 50%</h4>
+                    <span className="text-[9px] font-black px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase tracking-widest">🎯 Primary</span>
                   </div>
-                  <p className="text-xs text-white/60 leading-relaxed">Una enforces: if more than 3 Rocks compete on the same Vision, flag <code className="text-amber-400">planning_overload</code>.</p>
-                  <p className="text-[10px] text-white/30 uppercase tracking-widest">Threshold: 3 Rocks / Vision</p>
+                  <p className="text-xs text-white/60 leading-relaxed">Direct execution on Plans + Tactics. H1 deep-work blocks. Owner = Ortegas.</p>
+                  <p className="text-[10px] text-white/30 uppercase tracking-widest">Allocation: 50% of weekly hours</p>
                 </div>
 
-                {/* Cerritos Routing — Mariner → Boimler → Tendi */}
+                {/* Buffer Block — 30% — Reactive (Cerritos GTD routing) */}
                 <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-teal-400">Cerritos Routing</h4>
-                    <span className="text-[9px] font-black px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase tracking-widest">✅ Active</span>
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-amber-400">Buffer — 30%</h4>
+                    <span className="text-[9px] font-black px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase tracking-widest">🔄 Reactive</span>
                   </div>
-                  <ol className="text-xs text-white/60 leading-relaxed space-y-1 list-decimal list-inside">
-                    <li><span className="text-teal-400 font-semibold">Mariner</span> Capture — raw Rock intake</li>
-                    <li><span className="text-teal-400 font-semibold">Boimler</span> Clarify — Vision alignment check</li>
-                    <li><span className="text-teal-400 font-semibold">Tendi</span> Organize — Week + Tactic slot</li>
-                  </ol>
+                  <p className="text-xs text-white/60 leading-relaxed">Cerritos GTD routing: Mariner capture → Boimler clarify → Tendi organize. Owner = Cerritos.</p>
+                  <p className="text-[10px] text-white/30 uppercase tracking-widest">Allocation: 30% of weekly hours</p>
                 </div>
 
-                {/* Process Drift Detection — M'Benga H1 */}
+                {/* Breakout Block — 20% — Muse (DEAL / Discovery / Reflection) */}
                 <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-rose-400">Process Drift Detection</h4>
-                    <span className="text-[9px] font-black px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 uppercase tracking-widest">⚠️ Watch</span>
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-purple-400">Breakout — 20%</h4>
+                    <span className="text-[9px] font-black px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 uppercase tracking-widest">💡 Muse</span>
                   </div>
-                  <p className="text-xs text-white/60 leading-relaxed">H1 sampler — ZORA context-switch score. 0-1 green, 2-3 yellow, 4+ red (escalate Beth).</p>
-                  <p className="text-[10px] text-white/30 uppercase tracking-widest">H1 Poll: every 4h</p>
+                  <p className="text-xs text-white/60 leading-relaxed">DEAL Muse Libération + Discovery ZORA weekly reflection + Chapel scorecard.</p>
+                  <p className="text-[10px] text-white/30 uppercase tracking-widest">Allocation: 20% of weekly hours</p>
                 </div>
+              </div>
+
+              {/* TimeUseMatrix — récap 50/30/20 canon */}
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-teal-500/5 to-purple-500/5 border border-white/5 space-y-3">
+                <h4 className="text-sm font-bold uppercase tracking-widest text-white/80">Weekly Time Budget (Ortegas H1)</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-teal-400">50%</div>
+                    <div className="text-[10px] text-white/40 uppercase tracking-widest">Strategic</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-amber-400">30%</div>
+                    <div className="text-[10px] text-white/40 uppercase tracking-widest">Buffer</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-black text-purple-400">20%</div>
+                    <div className="text-[10px] text-white/40 uppercase tracking-widest">Breakout</div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-white/30 uppercase tracking-widest">Doctrine: A0 board observer, Morty Focus supervises Ortegas cadence</p>
               </div>
             </div>
           ) : (
