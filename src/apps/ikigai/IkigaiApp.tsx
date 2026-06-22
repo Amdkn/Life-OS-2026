@@ -127,11 +127,15 @@ export default function IkigaiApp() {
               <IkigaiItemCard key={item.id} item={item as any} onClick={setSelectedItem as any} />
             ))}
             {filteredItems.length === 0 && (
-              <div className="col-span-full py-40 flex flex-col items-center gap-4 opacity-20">
-                <Anchor className="w-12 h-12" />
-                <p className="text-[11px] uppercase tracking-[0.5em] font-bold">
+              <div className="col-span-full py-20 flex flex-col items-center gap-4">
+                <Anchor className="w-12 h-12 opacity-20" />
+                <p className="text-[11px] uppercase tracking-[0.5em] font-bold opacity-60">
                   {canForge ? 'Forge a new vision node for this intersection' : 'Select a Pillar and Horizon to forge principles'}
                 </p>
+                {/* [D6 FIX 2026-06-22] Visible diagnostics: state always shown when filter is empty */}
+                <div className="text-[10px] uppercase tracking-[0.2em] opacity-40 font-mono mt-4 p-3 border border-amber-500/20 rounded bg-amber-500/5">
+                  DEBUG: visions={visions.length} pillars=[{...new Set(visions.map(v => v.pillar))}].join(',')] filter=({activePillar}/{activeHorizon}) matched={filteredItems.length}
+                </div>
               </div>
             )}
           </div>
