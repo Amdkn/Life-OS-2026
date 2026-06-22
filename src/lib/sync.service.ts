@@ -52,17 +52,15 @@ export async function pullIkigaiVisions(): Promise<SyncResult> {
   const t0 = performance.now();
   const result: SyncResult = { pulled: 0, pushed: 0, errors: [], duration_ms: 0 };
   const userId = await getCurrentUserId();
-  // [D6 FIX 2026-06-22] Verbose debug logging — visible in DevTools Console
-  console.warn('[SYNC DEBUG] pullIkigaiVisions start', {
-    ts: new Date().toISOString(),
-    userId: userId ?? 'NULL',
-    supabaseUrl: (import.meta.env.VITE_SUPABASE_URL ?? 'UNDEFINED'),
-    hasAnonKey: !!(import.meta.env.VITE_SUPABASE_ANON_KEY),
-  });
+  if (import.meta.env.DEV) {
+    console.debug('[SYNC] pullIkigaiVisions start', {
+      userId: userId ?? 'NULL',
+      hasAnonKey: !!(import.meta.env.VITE_SUPABASE_ANON_KEY),
+    });
+  }
   if (!userId) {
     result.errors.push('No authenticated user (skip pull)');
     result.duration_ms = performance.now() - t0;
-    console.warn('[SYNC DEBUG] pullIkigaiVisions abort: no auth', { errors: result.errors });
     return result;
   }
 
@@ -117,15 +115,17 @@ export async function pullIkigaiVisions(): Promise<SyncResult> {
     result.visions = syncedVisions;
   } catch (e: any) {
     result.errors.push(e.message ?? String(e));
-    console.warn('[SYNC DEBUG] pullIkigaiVisions EXCEPTION', { msg: e?.message, stack: e?.stack?.slice(0, 200) });
+    console.error('[SYNC] pullIkigaiVisions exception', e);
   }
 
   result.duration_ms = performance.now() - t0;
-  console.warn('[SYNC DEBUG] pullIkigaiVisions end', {
-    pulled: result.pulled,
-    errors: result.errors,
-    duration_ms: Math.round(result.duration_ms),
-  });
+  if (import.meta.env.DEV) {
+    console.debug('[SYNC] pullIkigaiVisions end', {
+      pulled: result.pulled,
+      errors: result.errors,
+      duration_ms: Math.round(result.duration_ms),
+    });
+  }
   return result;
 }
 

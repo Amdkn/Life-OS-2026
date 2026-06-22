@@ -55,12 +55,6 @@ export const useIkigaiStore = create<IkigaiState>((set, get) => ({
       //    (avoids async race where IDB write hasn't committed before read).
       try {
         const syncResult = await pullIkigaiVisions();
-        console.warn('[IKIGAI DEBUG] sync.complete', {
-          pulled: syncResult.pulled,
-          pushed: syncResult.pushed,
-          errors: syncResult.errors,
-          duration_ms: Math.round(syncResult.duration_ms),
-        });
         if (syncResult.pulled > 0) {
           // Merge: existing IDB visions + remote visions (remote wins on conflict)
           const remoteVisions: IkigaiVision[] = (syncResult as any).visions ?? [];
@@ -71,10 +65,12 @@ export const useIkigaiStore = create<IkigaiState>((set, get) => ({
             for (const v of remoteVisions) byId.set(v.id, v); // remote wins
             const merged = Array.from(byId.values());
             set({ visions: merged });
-            console.warn('[IKIGAI DEBUG] store.updated', {
-              count: merged.length,
-              pillars: [...new Set(merged.map((v: any) => v.pillar))],
-            });
+            if (import.meta.env.DEV) {
+              console.debug('[IKIGAI] store.updated', {
+                count: merged.length,
+                pillars: [...new Set(merged.map((v: any) => v.pillar))],
+              });
+            }
           }
         }
       } catch (syncErr) {
