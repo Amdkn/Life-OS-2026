@@ -134,7 +134,7 @@ export default function IkigaiApp() {
                 </p>
                 {/* [D6 FIX 2026-06-22] Visible diagnostics: state always shown when filter is empty */}
                 <div className="text-[10px] uppercase tracking-[0.2em] opacity-40 font-mono mt-4 p-3 border border-amber-500/20 rounded bg-amber-500/5">
-                  DEBUG: visions={visions.length} pillars=[{...new Set(visions.map(v => v.pillar))}].join(',')] filter=({activePillar}/{activeHorizon}) matched={filteredItems.length}
+                  DEBUG: visions={visions.length} pillars=({Array.from(new Set(visions.map(v => v.pillar))).join(',') || 'none'}) filter=({activePillar}/{activeHorizon}) matched={filteredItems.length}
                 </div>
               </div>
             )}

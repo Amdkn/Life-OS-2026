@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ParaItem } from './ld01.store';
 import { writeToLD, readFromLD } from '../lib/ld-router';
-import { pullIkigaiVisions, pushVision, type SyncedVision } from '../lib/sync.service';
+import { pullIkigaiVisions, pushVision, type SyncedVision, type IkigaiPillar, type IkigaiHorizon } from '../lib/sync.service';
 
 /**
  * Ikigai Framework Store — V0.5.1 Sovereign Constitution
@@ -51,18 +51,31 @@ export const useIkigaiStore = create<IkigaiState>((set, get) => ({
       set({ visions: ikigaiNodes, isHydrated: true });
 
       // 2. Background sync with Supabase (D6 fix 2026-06-22).
-      //    Pulls remote visions not yet in IDB, merges by last-write-wins.
+      //    Pull returns the synced visions DIRECTLY — no need to re-read IDB
+      //    (avoids async race where IDB write hasn't committed before read).
       try {
         const syncResult = await pullIkigaiVisions();
+        console.warn('[IKIGAI DEBUG] sync.complete', {
+          pulled: syncResult.pulled,
+          pushed: syncResult.pushed,
+          errors: syncResult.errors,
+          duration_ms: Math.round(syncResult.duration_ms),
+        });
         if (syncResult.pulled > 0) {
-          // Re-hydrate after sync pulls new visions.
-          const updated = await readFromLD<ParaItem>('ld01', 'resources');
-          const updatedVisions = updated.filter(d => (d as any).type === 'vision') as IkigaiVision[];
-          set({ visions: updatedVisions });
-          console.info(`[Ikigai sync] pulled ${syncResult.pulled} visions in ${syncResult.duration_ms.toFixed(0)}ms`);
-        }
-        if (syncResult.errors.length > 0) {
-          console.warn('[Ikigai sync] non-fatal errors:', syncResult.errors);
+          // Merge: existing IDB visions + remote visions (remote wins on conflict)
+          const remoteVisions: IkigaiVision[] = (syncResult as any).visions ?? [];
+          if (remoteVisions.length > 0) {
+            // Concatenate, dedupe by id, keep latest updated_at
+            const byId = new Map<string, IkigaiVision>();
+            for (const v of ikigaiNodes) byId.set(v.id, v);
+            for (const v of remoteVisions) byId.set(v.id, v); // remote wins
+            const merged = Array.from(byId.values());
+            set({ visions: merged });
+            console.warn('[IKIGAI DEBUG] store.updated', {
+              count: merged.length,
+              pillars: [...new Set(merged.map((v: any) => v.pillar))],
+            });
+          }
         }
       } catch (syncErr) {
         // Non-fatal: UI works offline-first from IDB. Sync retries on next hydrate.

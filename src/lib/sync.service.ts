@@ -40,6 +40,8 @@ export interface SyncResult {
   pushed: number;
   errors: string[];
   duration_ms: number;
+  /** Visions fetched from Supabase (added 2026-06-22 to bypass IDB re-read race). */
+  visions?: SyncedVision[];
 }
 
 /**
@@ -81,6 +83,8 @@ export async function pullIkigaiVisions(): Promise<SyncResult> {
     const localVisions = localItems.filter(v => v.type === 'vision');
     const localById = new Map(localVisions.map(v => [v.id, v]));
 
+    const syncedVisions: SyncedVision[] = [];
+
     for (const r of remote) {
       const local = localById.get(r.id);
       const remoteTs = r.updated_at ? new Date(r.updated_at).getTime() : 0;
@@ -101,9 +105,16 @@ export async function pullIkigaiVisions(): Promise<SyncResult> {
           updated_at: r.updated_at,
         };
         await writeToLD('ld01', 'resources', 'add', vision, 'ikigai-sync');
+        syncedVisions.push(vision);
         result.pulled++;
+      } else {
+        // Local wins — still include in result for store merge
+        syncedVisions.push(local);
       }
     }
+
+    // Expose visions directly so caller can update store without IDB re-read race
+    result.visions = syncedVisions;
   } catch (e: any) {
     result.errors.push(e.message ?? String(e));
     console.warn('[SYNC DEBUG] pullIkigaiVisions EXCEPTION', { msg: e?.message, stack: e?.stack?.slice(0, 200) });
