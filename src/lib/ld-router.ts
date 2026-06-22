@@ -28,9 +28,17 @@ const PERMISSIONS: Record<string, Partial<Record<LDId, Permission[]>>> = {
     ld01: ['R', 'W'], ld02: ['R', 'W'], ld03: ['R', 'W'], ld04: ['R', 'W'],
     ld05: ['R', 'W'], ld06: ['R', 'W'], ld07: ['R', 'W'], ld08: ['R', 'W'] 
   },
-  ikigai: { 
+  ikigai: {
     ld01: ['R'], ld02: ['R'], ld03: ['R'], ld04: ['R'],
-    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R'] 
+    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
+  },
+  // 'ikigai-sync' : sync service writes back to ld01/resources (D6 fix 2026-06-22)
+  // Pulls from Supabase public.ikigai_visions, writes to IndexedDB ld01/resources.
+  // Push happens via pushVision() in sync.service.ts after writeToLD.
+  'ikigai-sync': {
+    ld01: ['R', 'W'],
+    ld02: ['R'], ld03: ['R'], ld04: ['R'],
+    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
   },
   gtd: { 
     ld01: ['R', 'W'], ld03: ['R', 'W'], ld04: ['R', 'W'], ld05: ['R', 'W'], ld06: ['R', 'W'] 
