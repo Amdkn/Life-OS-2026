@@ -48,6 +48,14 @@ const PERMISSIONS: Record<string, Partial<Record<LDId, Permission[]>>> = {
     ld02: ['R'], ld03: ['R'], ld04: ['R'],
     ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
   },
+  // '12wy-sync' : sync service writes Rocks to ld01/resources (D6 fix 2026-06-22).
+  // Pulls from Supabase public.fw_12wy.metrics.rocks[], writes to IndexedDB ld01/resources.
+  // Push happens via pushRock() in sync.service.ts after writeToLD.
+  '12wy-sync': {
+    ld01: ['R', 'W'],
+    ld02: ['R'], ld03: ['R'], ld04: ['R'],
+    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
+  },
   gtd: { 
     ld01: ['R', 'W'], ld03: ['R', 'W'], ld04: ['R', 'W'], ld05: ['R', 'W'], ld06: ['R', 'W'] 
   },

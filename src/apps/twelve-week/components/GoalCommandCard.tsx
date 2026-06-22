@@ -40,6 +40,18 @@ export function GoalCommandCard({ goalId }: { goalId: string }) {
          </div>
       </div>
 
+      {/* Phase 3b — Una spec l.76: Every Rock has a Definition of Done. Display-only surface. */}
+      {goal.definition_of_done && (
+        <div className="mb-8 p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 mb-2">
+            Definition of Done
+          </h3>
+          <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
+            {goal.definition_of_done}
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-12 gap-8">
         
         {/* L E F T   C O L U M N : TACTICS MATRIX */}

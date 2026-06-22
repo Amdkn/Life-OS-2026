@@ -9,14 +9,19 @@ interface GoalForgeModalProps {
   isOpen: boolean;
   onClose: () => void;
   // Optionnel si on ouvre la modale depuis une vision spécifique
-  prefilledVisionId?: string; 
+  prefilledVisionId?: string;
 }
+
+// D4 alias — Phase 3b Goals → Rocks rename (2026-06-22). Component kept for backward import compat.
+// Canonical name = RockForgeModal.tsx (to be created in next phase if needed); this file stays as alias.
+export const RockForgeModal = GoalForgeModal;
 
 export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForgeModalProps) {
   const [title, setTitle] = useState('');
   const [visionId, setVisionId] = useState<string>(prefilledVisionId || '');
   const [projectId, setProjectId] = useState<string>('');
   const [targetWeek, setTargetWeek] = useState(12);
+  const [definitionOfDone, setDefinitionOfDone] = useState(''); // Phase 3b — Una spec l.76 REQUIRED
   
   const addGoal = useTwelveWeekStore(s => s.addGoal);
   const visions = useTwelveWeekStore(s => s.visions);
@@ -37,6 +42,8 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
   const handleForge = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !visionId) return;
+    // D7 cost-of-escalation — Una spec l.76: Every Rock has a Definition of Done. REQUIRED.
+    if (!definitionOfDone.trim()) return;
 
     let finalProjectId = projectId;
 
@@ -69,12 +76,15 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
       projectId: finalProjectId !== '' && finalProjectId !== 'inject_new' ? finalProjectId : undefined,
       domain: 'life',
       pillars: [],
+      // Phase 3b — Una spec l.76: Every Rock has a Definition of Done (REQUIRED, validated above)
+      definition_of_done: definitionOfDone.trim(),
       createdAt: Date.now(),
       updatedAt: Date.now()
     } as any);
 
     setTitle('');
     setProjectId('');
+    setDefinitionOfDone('');
     onClose();
   };
 
@@ -90,7 +100,7 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
             <Target className="w-5 h-5 text-teal-400" />
           </div>
           <div>
-            <h2 className="text-white font-bold tracking-wide">Forge Tactical Goal</h2>
+            <h2 className="text-white font-bold tracking-wide">Forge Tactical Rock</h2>
             <p className="text-[10px] uppercase tracking-widest text-white/40 font-black">12WY - 12 Week Horizon</p>
           </div>
         </div>
@@ -98,14 +108,32 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
         <form onSubmit={handleForge} className="space-y-5">
           <div className="space-y-2">
             <label className="text-[10px] uppercase tracking-widest text-white/60 font-bold ml-1">Command Target</label>
-            <input 
+            <input
               autoFocus
-              type="text" 
-              value={title} 
+              type="text"
+              value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="e.g. Ship V1.0 of the Engine"
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-teal-400/50 focus:bg-white/10 transition-all font-medium"
             />
+          </div>
+
+          {/* Phase 3b — Una spec l.76: Every Rock has a Definition of Done (REQUIRED) */}
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest text-white/60 font-bold ml-1 flex justify-between">
+              <span>Definition of Done</span>
+              <span className="text-amber-400 font-black">REQUIRED</span>
+            </label>
+            <textarea
+              value={definitionOfDone}
+              onChange={e => setDefinitionOfDone(e.target.value)}
+              placeholder="e.g. Engine live on Vercel, /health endpoint returns 200, README published."
+              rows={3}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-teal-400/50 focus:bg-white/10 transition-all font-medium resize-none"
+            />
+            <p className="text-[9px] text-white/40 px-1 italic leading-relaxed">
+              Una spec l.76: <span className="text-amber-400/80">&ldquo;Every Rock has a Definition of Done&rdquo;</span> — what observable artifact proves this Rock is achieved?
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -162,12 +190,12 @@ export function GoalForgeModal({ isOpen, onClose, prefilledVisionId }: GoalForge
             )}
           </div>
 
-          <button 
-            type="submit" 
-            disabled={!title.trim() || !visionId}
+          <button
+            type="submit"
+            disabled={!title.trim() || !visionId || !definitionOfDone.trim()}
             className="w-full mt-2 bg-teal-500 hover:bg-teal-400 text-black font-black uppercase tracking-widest py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(20,184,166,0.3)]"
           >
-            Forge Tactical Goal
+            Forge Tactical Rock
           </button>
         </form>
       </div>

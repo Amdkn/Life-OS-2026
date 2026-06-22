@@ -318,3 +318,193 @@ export async function pushAmbitionDelete(ambitionId: string): Promise<void> {
 
   if (error) throw new Error(`Supabase delete failed: ${error.message}`);
 }
+
+// ============================================================================
+// 12WY Rocks (mirror of Ikigai/Life Wheel pattern, 2026-06-22)
+// ============================================================================
+//
+// Rocks are NOT top-level rows in Supabase public.fw_12wy. They live inside
+// each W1-W12 row's metrics.rocks[] JSONB column. Sync semantics:
+//   - pull12wyRocks()  → SELECT all W1-W12 rows, concat metrics.rocks[], write IDB
+//   - pushRock()       → fetch target week row by metrics->>'week_number', merge rock into metrics.rocks[] (upsert by id), update row
+//   - pushRockDelete() → fetch target week row, filter out rock.id from metrics.rocks[], update row
+//
+// Mirror pattern: Ikigai visions (top-level rows) + Life Wheel ambitions (top-level rows),
+// adapted to nested JSONB storage. See pullIkigaiVisions / pullLifeWheelAmbitions above.
+//
+// D6 root cause fix (2026-06-22): UI 12WY reads from IndexedDB (ld01/resources).
+// Without sync layer, user-created rocks live only in browser local storage.
+// This service mirrors them to Supabase public.fw_12wy for cross-device durability.
+
+/** Rock shape as stored in IndexedDB (matches WyGoal in fw-12wy.store). */
+export interface SyncedRock {
+  id: string;
+  type: 'rock';                       // matches WyGoal.type discriminator
+  week: number;                       // 1-12 (Q3 2026 cycle)
+  title: string;
+  definition_of_done: string;         // Una l.76 canon (mandatory)
+  owner: string;                      // A0 by default
+  status: 'planned' | 'in-progress' | 'achieved' | 'failed';
+  priority: 'high' | 'medium' | 'low';
+  horizon: 'H1' | 'H3' | 'H10' | 'H30' | 'H90';
+  twin?: string;                       // SNW crew (Pike, Una, etc.)
+  source?: string;                     // canon provenance (e.g., plan §4 E1)
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SyncRockResult extends SyncResult {
+  rocks?: SyncedRock[];
+}
+
+/**
+ * Pull all Rocks from Supabase fw_12wy.metrics.rocks[] into IndexedDB ld01/resources.
+ * Last-write-wins by updated_at.
+ * Note: Rocks are nested in metrics.rocks[] JSONB per W1-W12 row, NOT top-level.
+ */
+export async function pull12wyRocks(): Promise<SyncRockResult> {
+  const t0 = performance.now();
+  const result: SyncRockResult = { pulled: 0, pushed: 0, errors: [], duration_ms: 0 };
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    result.errors.push('No authenticated user (skip pull)');
+    result.duration_ms = performance.now() - t0;
+    return result;
+  }
+
+  try {
+    const { data: remote, error } = await supabase
+      .from('fw_12wy')
+      .select('id, metrics, updated_at')
+      .eq('user_id', userId);
+
+    if (error) throw new Error(`Supabase pull failed: ${error.message}`);
+    if (!remote || remote.length === 0) {
+      result.duration_ms = performance.now() - t0;
+      return result;
+    }
+
+    const synced: SyncedRock[] = [];
+
+    for (const r of remote) {
+      const rocks = (r.metrics as any)?.rocks ?? [];
+      const weekNum = (r.metrics as any)?.week_number ?? 0;
+      const remoteUpdated = r.updated_at ? new Date(r.updated_at).getTime() : 0;
+
+      for (const rock of rocks) {
+        const syncedRock: SyncedRock = {
+          id: rock.id,
+          type: 'rock',
+          week: rock.week ?? weekNum,
+          title: rock.title ?? '',
+          definition_of_done: rock.definition_of_done ?? '',
+          owner: rock.owner ?? 'Amadeus',
+          status: (rock.status as any) ?? 'planned',
+          priority: (rock.priority as any) ?? 'medium',
+          horizon: (rock.horizon as any) ?? 'H10',
+          twin: rock.twin ?? undefined,
+          source: rock.source ?? undefined,
+          created_at: rock.created_at,
+          updated_at: remoteUpdated ? new Date(remoteUpdated).toISOString() : undefined,
+        };
+        await writeToLD('ld01', 'resources', 'add', syncedRock, '12wy-sync');
+        synced.push(syncedRock);
+        result.pulled++;
+      }
+    }
+
+    result.rocks = synced;
+  } catch (e: any) {
+    result.errors.push(e.message ?? String(e));
+    console.error('[SYNC] pull12wyRocks exception', e);
+  }
+
+  result.duration_ms = performance.now() - t0;
+  if (import.meta.env.DEV) {
+    console.debug('[SYNC] pull12wyRocks end', {
+      pulled: result.pulled,
+      errors: result.errors,
+      duration_ms: Math.round(result.duration_ms),
+    });
+  }
+  return result;
+}
+
+/** Push a single Rock to Supabase fw_12wy.metrics.rocks[]. Upsert by rock.id within week row. */
+export async function pushRock(rock: SyncedRock): Promise<void> {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error('No authenticated user (cannot push)');
+
+  // Find the W# row that owns this rock
+  const { data: rows, error: fetchErr } = await supabase
+    .from('fw_12wy')
+    .select('id, metrics')
+    .eq('user_id', userId)
+    .eq('metrics->>week_number', String(rock.week))
+    .limit(1);
+
+  if (fetchErr) throw new Error(`Supabase fetch failed: ${fetchErr.message}`);
+  if (!rows || rows.length === 0) {
+    throw new Error(`No fw_12wy row found for week_number=${rock.week}. Seed W1-W12 first.`);
+  }
+
+  const targetRow = rows[0];
+  const existingRocks: any[] = (targetRow.metrics as any)?.rocks ?? [];
+  const now = new Date().toISOString();
+
+  // Upsert: replace if same id, else append
+  const newRocks = existingRocks.filter((r: any) => r.id !== rock.id);
+  newRocks.push({
+    id: rock.id,
+    week: rock.week,
+    title: rock.title,
+    definition_of_done: rock.definition_of_done,
+    owner: rock.owner ?? 'Amadeus',
+    status: rock.status,
+    priority: rock.priority,
+    horizon: rock.horizon,
+    twin: rock.twin ?? null,
+    source: rock.source ?? null,
+    created_at: rock.created_at ?? now,
+    updated_at: now,
+  });
+
+  const newMetrics = { ...(targetRow.metrics as any), rocks: newRocks };
+
+  const { error } = await supabase
+    .from('fw_12wy')
+    .update({ metrics: newMetrics, updated_at: now })
+    .eq('id', targetRow.id)
+    .eq('user_id', userId);
+
+  if (error) throw new Error(`Supabase push failed: ${error.message}`);
+}
+
+/** Push delete to Supabase. Filter out rock.id from metrics.rocks[] of target week row. */
+export async function pushRockDelete(rockId: string, week: number): Promise<void> {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error('No authenticated user (cannot delete)');
+
+  const { data: rows, error: fetchErr } = await supabase
+    .from('fw_12wy')
+    .select('id, metrics')
+    .eq('user_id', userId)
+    .eq('metrics->>week_number', String(week))
+    .limit(1);
+
+  if (fetchErr) throw new Error(`Supabase fetch failed: ${fetchErr.message}`);
+  if (!rows || rows.length === 0) return; // silently skip if row missing
+
+  const targetRow = rows[0];
+  const existingRocks: any[] = (targetRow.metrics as any)?.rocks ?? [];
+  const newRocks = existingRocks.filter((r: any) => r.id !== rockId);
+  const newMetrics = { ...(targetRow.metrics as any), rocks: newRocks };
+
+  const { error } = await supabase
+    .from('fw_12wy')
+    .update({ metrics: newMetrics, updated_at: new Date().toISOString() })
+    .eq('id', targetRow.id)
+    .eq('user_id', userId);
+
+  if (error) throw new Error(`Supabase delete failed: ${error.message}`);
+}
