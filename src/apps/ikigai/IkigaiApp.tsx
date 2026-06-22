@@ -31,7 +31,15 @@ const horizonFilters = [
 ];
 
 export default function IkigaiApp() {
-  const { visions, activePillar, setActivePillar, activeHorizon, setActiveHorizon, hydrate, isHydrated } = useIkigaiStore();
+  // [D6 FIX 2026-06-22] Zustand v5 selectors — one per slice. Destructuring without
+  // selectors can skip re-renders on partial state changes (v5 behavior change).
+  const visions = useIkigaiStore((state) => state.visions);
+  const activePillar = useIkigaiStore((state) => state.activePillar);
+  const setActivePillar = useIkigaiStore((state) => state.setActivePillar);
+  const activeHorizon = useIkigaiStore((state) => state.activeHorizon);
+  const setActiveHorizon = useIkigaiStore((state) => state.setActiveHorizon);
+  const hydrate = useIkigaiStore((state) => state.hydrate);
+  const isHydrated = useIkigaiStore((state) => state.isHydrated);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<IkigaiVision | null>(null);
   const [isForgeOpen, setIsForgeOpen] = useState(false);
@@ -40,6 +48,15 @@ export default function IkigaiApp() {
   useEffect(() => {
     if (!isHydrated) hydrate();
   }, [isHydrated, hydrate]);
+
+  // [D6 FIX 2026-06-22] Diagnostic: log visions count after re-render
+  console.warn('[IKIGAI DEBUG] render', {
+    ts: new Date().toISOString(),
+    visions_count: visions.length,
+    activePillar,
+    activeHorizon,
+    first_vision: visions[0] ? { pillar: visions[0].pillar, horizon: visions[0].horizon, title: visions[0].title?.slice(0, 30) } : null,
+  });
 
   const filteredItems = useMemo(() => {
     let items = visions.filter(v => 
