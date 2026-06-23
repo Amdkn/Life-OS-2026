@@ -150,11 +150,36 @@ export default function ParaApp() {
                 ))}
               </div>
               {filteredProjects.length === 0 && (
-                <div className="py-40 text-center opacity-20 flex flex-col items-center gap-4">
+                <div className="py-40 text-center opacity-50 flex flex-col items-center gap-6">
                   {isHydrated ? (
                     <>
-                      <Anchor className="w-12 h-12" />
-                      <p className="text-[11px] uppercase tracking-[0.5em] font-bold">No items identified</p>
+                      <Anchor className="w-12 h-12 opacity-40" />
+                      <p className="text-[11px] uppercase tracking-[0.5em] font-bold opacity-60">No items identified</p>
+                      <button
+                        onClick={async () => {
+                          // D6 fix 2026-06-23 (V0.7.1) : A0 pivot — amorce canon 3 AaaS Variants (ADR-AAAS-001).
+                          // Vide hardcoded seeds → vraie création via addProject() → écrit IndexedDB + visible dans Chrome/VS Code.
+                          const now = Date.now();
+                          await addProject({
+                            id: 'AAAS-SOLARIS', title: 'Solaris AaaS — Solarpunk Kernel',
+                            status: 'active', domain: 'business', pillars: ['meta'],
+                            resources: [], progress: 30, updatedAt: now,
+                          });
+                          await addProject({
+                            id: 'AAAS-NEXUS', title: 'Nexus AaaS — OMK Business OS',
+                            status: 'active', domain: 'business', pillars: ['operations', 'product'],
+                            resources: [], progress: 60, updatedAt: now,
+                          });
+                          await addProject({
+                            id: 'AAAS-ORBITER', title: 'Orbiter AaaS — ABC Community OS',
+                            status: 'paused', domain: 'impact', pillars: ['people'],
+                            resources: [], progress: 25, updatedAt: now,
+                          });
+                        }}
+                        className="mt-4 flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-emerald-500/20 transition-all active:scale-95 shadow-lg opacity-80 hover:opacity-100"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Amorcer 3 AaaS Variants
+                      </button>
                     </>
                   ) : (
                     <>
