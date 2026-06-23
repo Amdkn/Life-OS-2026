@@ -40,7 +40,7 @@ const domainFilters = [
 ];
 
 export default function ParaApp() {
-  const { activeTab, setActiveTab, activeLdFilter, setActiveLdFilter, projects, resources, addProject, addResource } = useParaStore();
+  const { activeTab, setActiveTab, activeLdFilter, setActiveLdFilter, projects, resources, addProject, addResource, hydrate, isHydrated } = useParaStore();
   const { absorbProjectAsFriction } = useDealStore();
   const openApp = useShellStore(s => s.openApp);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +49,13 @@ export default function ParaApp() {
   const [activePillarFilter, setActivePillarFilter] = useState<string | null>(null);
   const { setActivePage } = useContext(WindowContext);
 
+  // D6 fix 2026-06-23 (V0.7.0) : hydrate IndexedDB au mount, pattern canon 12WY (TwelveWeekApp.tsx:63-96).
+  // Sans cet useEffect, projects reste [] tant que hydrate() n'a pas été appelé.
+  useEffect(() => {
+    if (!isHydrated) {
+      hydrate();
+    }
+  }, [isHydrated, hydrate]);
 
   useEffect(() => {
     const domainLabel = domainFilters.find(f => f.id === activeLdFilter)?.label || 'All';
@@ -144,8 +151,17 @@ export default function ParaApp() {
               </div>
               {filteredProjects.length === 0 && (
                 <div className="py-40 text-center opacity-20 flex flex-col items-center gap-4">
-                  <Anchor className="w-12 h-12" />
-                  <p className="text-[11px] uppercase tracking-[0.5em] font-bold">No items identified</p>
+                  {isHydrated ? (
+                    <>
+                      <Anchor className="w-12 h-12" />
+                      <p className="text-[11px] uppercase tracking-[0.5em] font-bold">No items identified</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-12 h-12 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
+                      <p className="text-[11px] uppercase tracking-[0.5em] font-bold">Initializing IndexedDB...</p>
+                    </>
+                  )}
                 </div>
               )}
             </div>
