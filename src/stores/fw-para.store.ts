@@ -79,33 +79,33 @@ export const useParaStore = create<ParaState>()(
       activeLdFilter: 'all',
       projects: [
         {
-          id: 'SD-AGENT-PORTAL',
-          title: 'Nexus Architecture Deployment',
+          id: 'AAAS-SOLARIS',
+          title: 'Solaris AaaS — Solarpunk Kernel',
           status: 'active',
           domain: 'business',
-          pillars: ['growth', 'operations'],
-          resources: [],
-          progress: 100,
-          updatedAt: Date.now()
-        },
-        {
-          id: 'SD-FW-PARA',
-          title: 'PARA Transversal Sync Hooks',
-          status: 'active',
-          domain: 'business',
-          pillars: ['operations'],
-          resources: [],
-          progress: 85,
-          updatedAt: Date.now()
-        },
-        {
-          id: 'SD-LIFE-OS',
-          title: 'Life Domains IndexedDB Schema',
-          status: 'paused',
-          domain: 'impact',
           pillars: ['meta'],
           resources: [],
-          progress: 40,
+          progress: 30,
+          updatedAt: Date.now()
+        },
+        {
+          id: 'AAAS-NEXUS',
+          title: 'Nexus AaaS — OMK Business OS',
+          status: 'active',
+          domain: 'business',
+          pillars: ['operations', 'product'],
+          resources: [],
+          progress: 60,
+          updatedAt: Date.now()
+        },
+        {
+          id: 'AAAS-ORBITER',
+          title: 'Orbiter AaaS — ABC Community OS',
+          status: 'paused',
+          domain: 'impact',
+          pillars: ['people'],
+          resources: [],
+          progress: 25,
           updatedAt: Date.now()
         }
       ], 
@@ -192,37 +192,39 @@ export const useParaStore = create<ParaState>()(
           // PEPIITES Armor (D6 fix 2026-06-23): Zustand persist hydrates FIRST, then invokes this callback.
           // Mutating `hydratedState.projects` post-hoc only rewrites localStorage; the active store keeps [].
           // Fix: call set() so the store actually reflects the seed.
+          // D6 nuance 2026-06-23 : A0 pivot — replace 3 Sovereign Pépites with AaaS 3 Variants
+          // (Solaris Solarpunk / Nexus OMK / Orbiter ABC) per ADR-AAAS-001 canon.
           if (hydratedState && (!hydratedState.projects || hydratedState.projects.length === 0)) {
-            console.warn('[PARA Store] State found empty. Injecting Sovereign Pépites.');
+            console.warn('[PARA Store] State found empty. Injecting AaaS Variants.');
             const seedProjects: Project[] = [
               {
-                id: 'SD-AGENT-PORTAL',
-                title: 'Nexus Architecture Deployment',
+                id: 'AAAS-SOLARIS',
+                title: 'Solaris AaaS — Solarpunk Kernel',
                 status: 'active',
                 domain: 'business',
-                pillars: ['growth', 'operations'],
-                resources: [],
-                progress: 100,
-                updatedAt: Date.now()
-              },
-              {
-                id: 'SD-FW-PARA',
-                title: 'PARA Transversal Sync Hooks',
-                status: 'active',
-                domain: 'business',
-                pillars: ['operations'],
-                resources: [],
-                progress: 85,
-                updatedAt: Date.now()
-              },
-              {
-                id: 'SD-LIFE-OS',
-                title: 'Life Domains IndexedDB Schema',
-                status: 'paused',
-                domain: 'impact',
                 pillars: ['meta'],
                 resources: [],
-                progress: 40,
+                progress: 30,
+                updatedAt: Date.now()
+              },
+              {
+                id: 'AAAS-NEXUS',
+                title: 'Nexus AaaS — OMK Business OS',
+                status: 'active',
+                domain: 'business',
+                pillars: ['operations', 'product'],
+                resources: [],
+                progress: 60,
+                updatedAt: Date.now()
+              },
+              {
+                id: 'AAAS-ORBITER',
+                title: 'Orbiter AaaS — ABC Community OS',
+                status: 'paused',
+                domain: 'impact',
+                pillars: ['people'],
+                resources: [],
+                progress: 25,
                 updatedAt: Date.now()
               }
             ];
