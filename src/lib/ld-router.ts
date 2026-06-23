@@ -104,12 +104,24 @@ export async function writeToLD(
 }
 
 /** Unified read operation */
+// D6 fix 2026-06-23 (V0.7.7) : log explicite sur erreur pour débugger pourquoi
+// readFromLD retourne [] silencieusement. Sans ce log, on ne sait pas si (a)
+// getAll throw parce que IDB verrouillé, (b) domainMap[ldId] est undefined, ou
+// (c) dbCache entry stale. Le `console.error` remonte la cause exacte.
 export async function readFromLD<T>(
-  ldId: LDId, 
+  ldId: LDId,
   store: LDStore
 ): Promise<T[]> {
   const db = domainMap[ldId];
-  if (!db) throw new Error(`[LD-Router] Unknown Life Domain: ${ldId}`);
-  
-  return await db.getAll<T>(store);
+  if (!db) {
+    console.error(`[LD-Router V0.7.7] Unknown Life Domain: ${ldId} (domainMap entry missing)`);
+    throw new Error(`[LD-Router] Unknown Life Domain: ${ldId}`);
+  }
+
+  try {
+    return await db.getAll<T>(store);
+  } catch (e) {
+    console.error(`[LD-Router V0.7.7] readFromLD(${ldId}, ${store}) failed :`, e);
+    return [];  // graceful degradation : empty array per LD
+  }
 }

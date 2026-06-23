@@ -98,7 +98,13 @@ export const useParaStore = create<ParaState>((set, get) => ({
       const LDS: Array<'ld01'|'ld02'|'ld03'|'ld04'|'ld05'|'ld06'|'ld07'|'ld08'> =
         ['ld01','ld02','ld03','ld04','ld05','ld06','ld07','ld08'];
       const allProjectArrays = await Promise.all(
-        LDS.map(ld => readFromLD<any>(ld, 'projects').catch(() => []))
+        LDS.map(ld => readFromLD<any>(ld, 'projects').catch((e) => {
+          console.error(`[PARA Store V0.7.7] readFromLD(${ld}, projects) rejected :`, e);
+          return [];
+        }))
+      );
+      console.debug('[PARA Store V0.7.7] Per-LD projects count :',
+        Object.fromEntries(LDS.map((ld, i) => [ld, allProjectArrays[i]?.length || 0]))
       );
       const allResourceArrays = await Promise.all(
         LDS.map(ld => readFromLD<any>(ld, 'resources').catch(() => []))
@@ -126,7 +132,16 @@ export const useParaStore = create<ParaState>((set, get) => ({
       // canon 12WY (les items sont créés via addProject → writeToLD = vrai canon).
       const CANON_IDS = ['AAAS-SOLARIS', 'AAAS-NEXUS', 'AAAS-ORBITER'];
       const missingCanon = CANON_IDS.filter(id => !idbProjects.some((p: any) => p.id === id));
-      if (missingCanon.length > 0) {
+      // D6 fix V0.7.7 : si IDB TOTALEMENT vide (0 projects), forcer le re-seed canon.
+      // Le bug : si canon seed V0.7.5 a échoué silencieusement à écrire IDB (Promise.all
+      // silent reject), idbProjects = [] même après plusieurs refresh. On détecte ce cas
+      // et on déclenche le bootstrap. Idempotent : si IDB contient déjà les 3 seeds,
+      // missingCanon.length === 0 → skip.
+      const forceReseed = idbProjects.length === 0;
+      if (forceReseed) {
+        console.warn('[PARA Store V0.7.7] IDB totally empty after 8-LD hydrate — forcing canon bootstrap');
+      }
+      if (missingCanon.length > 0 || forceReseed) {
         const now = Date.now();
         const canonSeeds: Project[] = [
           { id: 'AAAS-SOLARIS', title: 'Solaris AaaS — Solarpunk Kernel', status: 'active', domain: 'business', pillars: ['meta'], resources: [], progress: 30, updatedAt: now },
@@ -136,7 +151,13 @@ export const useParaStore = create<ParaState>((set, get) => ({
         // D6 fix 2026-06-23 (V0.7.5) : set() AVANT writeToLD async pour éviter race condition
         // où un re-hydrate post-await écrase les items en mémoire avec un IDB pas encore commité.
         for (const seed of canonSeeds) {
-          await get().addProject(seed);
+          try {
+            await get().addProject(seed);
+            console.debug(`[PARA Store V0.7.7] Canon seed ${seed.id} written to ${DOMAIN_TO_LD[seed.domain]}`);
+          } catch (e) {
+            console.error(`[PARA Store V0.7.7] Canon seed ${seed.id} write FAILED :`, e);
+            // Continue avec les autres seeds — un échec ne tue pas le bootstrap
+          }
         }
         // Force re-sync state depuis IDB pour confirmer tous les seeds persistés (post-await).
         // D6 fix V0.7.6 : re-lit depuis les 8 LDs en parallèle (merge).
