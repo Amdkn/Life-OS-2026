@@ -96,15 +96,14 @@ export const useParaStore = create<ParaState>((set, get) => ({
       const resourceItems = await readFromLD<any>('ld01', 'resources');
 
       // D6 fix 2026-06-23 (V0.7.3) : one-shot canon bootstrap des 3 AaaS Variants
-      // si IDB projects est vide ET aucune amorce n'a déjà eu lieu (flag localStorage).
+      // IDEMPOTENT : si IDB contient déjà les 3 seeds (par id), skip. Sinon amorce.
       // D9 self-choice : A0 a rejeté le bouton amorcer (V0.7.1) — auto-amorce invisible,
-      // ne s'exécute qu'une seule fois par browser context, ne touche pas le pattern
+      // n'écrase PAS les items user-created existants, ne touche pas le pattern
       // canon 12WY (les items sont créés via addProject → writeToLD = vrai canon).
-      const BOOTSTRAP_FLAG = 'aspace_para_canon_bootstrap_v1';
-      const alreadyBootstrapped = typeof localStorage !== 'undefined' &&
-        localStorage.getItem(BOOTSTRAP_FLAG) === 'done';
       const idbProjects = (projectItems || []).filter((d: any) => d?.type === 'project' || d?.status);
-      if (idbProjects.length === 0 && !alreadyBootstrapped) {
+      const CANON_IDS = ['AAAS-SOLARIS', 'AAAS-NEXUS', 'AAAS-ORBITER'];
+      const missingCanon = CANON_IDS.filter(id => !idbProjects.some((p: any) => p.id === id));
+      if (missingCanon.length > 0) {
         const now = Date.now();
         const canonSeeds = [
           { id: 'AAAS-SOLARIS', title: 'Solaris AaaS — Solarpunk Kernel', status: 'active', domain: 'business', pillars: ['meta'], resources: [], progress: 30, updatedAt: now },
@@ -115,10 +114,7 @@ export const useParaStore = create<ParaState>((set, get) => ({
         for (const seed of canonSeeds) {
           await get().addProject(seed as Project);
         }
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem(BOOTSTRAP_FLAG, 'done');
-        }
-        console.debug('[PARA Store] One-shot canon bootstrap : 3 AaaS Variants amorcés');
+        console.debug('[PARA Store] Canon bootstrap (idempotent) :', missingCanon.length, 'missing seeds amorcés');
         // Re-hydrate après bootstrap
         const refreshed = await readFromLD<any>('ld01', 'projects');
         set({
