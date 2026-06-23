@@ -105,23 +105,27 @@ export const useParaStore = create<ParaState>((set, get) => ({
       const missingCanon = CANON_IDS.filter(id => !idbProjects.some((p: any) => p.id === id));
       if (missingCanon.length > 0) {
         const now = Date.now();
-        const canonSeeds = [
+        const canonSeeds: Project[] = [
           { id: 'AAAS-SOLARIS', title: 'Solaris AaaS — Solarpunk Kernel', status: 'active', domain: 'business', pillars: ['meta'], resources: [], progress: 30, updatedAt: now },
           { id: 'AAAS-NEXUS',   title: 'Nexus AaaS — OMK Business OS',    status: 'active', domain: 'business', pillars: ['operations', 'product'], resources: [], progress: 60, updatedAt: now },
           { id: 'AAAS-ORBITER', title: 'Orbiter AaaS — ABC Community OS', status: 'paused', domain: 'impact', pillars: ['people'], resources: [], progress: 25, updatedAt: now },
         ];
-        // Écriture canonique via addProject pipeline (pattern 12WY : writeToLD).
+        // D6 fix 2026-06-23 (V0.7.5) : set() AVANT writeToLD async pour éviter race condition
+        // où un re-hydrate post-await écrase les items en mémoire avec un IDB pas encore commité.
+        // addProject() fait déjà set() optimiste — on attend la fin puis on set une 2e fois avec
+        // l'union IDB ∪ canon seeds (au cas où IDB a déjà des items user-created).
         for (const seed of canonSeeds) {
-          await get().addProject(seed as Project);
+          await get().addProject(seed);
         }
-        console.debug('[PARA Store] Canon bootstrap (idempotent) :', missingCanon.length, 'missing seeds amorcés');
-        // Re-hydrate après bootstrap
+        // Force re-sync state depuis IDB pour confirmer tous les seeds persistés (post-await).
         const refreshed = await readFromLD<any>('ld01', 'projects');
+        const allIdbProjects = (refreshed || []).filter((d: any) => d?.type === 'project' || d?.status);
         set({
-          projects: (refreshed || []).filter((d: any) => d?.type === 'project' || d?.status) as Project[],
+          projects: allIdbProjects as Project[],
           resources: (resourceItems || []).filter((d: any) => d?.type === 'resource') as Resource[],
           isHydrated: true
         });
+        console.debug('[PARA Store] Canon bootstrap (idempotent) done :', missingCanon.length, 'missing seeds amorcés, IDB now', allIdbProjects.length, 'projects');
         return;
       }
 
