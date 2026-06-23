@@ -90,17 +90,40 @@ export const useParaStore = create<ParaState>((set, get) => ({
 
   hydrate: async () => {
     try {
-      // Lecture depuis IndexedDB 'ld01' type 'projects' et 'resources'
-      // (voir fw-12wy.store.ts:97-112 pattern identique)
-      const projectItems = await readFromLD<any>('ld01', 'projects');
-      const resourceItems = await readFromLD<any>('ld01', 'resources');
+      // D6 fix 2026-06-23 (V0.7.6) : hydrate() lit depuis les 8 LDs en parallèle.
+      // Bug V0.7.5 : ne lisait QUE 'ld01' → items domain='impact' (Orbiter) invisibles
+      // car écrits dans 'ld08'. Faut balayer tous les LDs canon puis dédupliquer par id.
+      // D3 nuance : chaque item vit dans UN seul LD (son domain via DOMAIN_TO_LD),
+      // donc le merge par id est idempotent (last-write-wins par updatedAt).
+      const LDS: Array<'ld01'|'ld02'|'ld03'|'ld04'|'ld05'|'ld06'|'ld07'|'ld08'> =
+        ['ld01','ld02','ld03','ld04','ld05','ld06','ld07','ld08'];
+      const allProjectArrays = await Promise.all(
+        LDS.map(ld => readFromLD<any>(ld, 'projects').catch(() => []))
+      );
+      const allResourceArrays = await Promise.all(
+        LDS.map(ld => readFromLD<any>(ld, 'resources').catch(() => []))
+      );
+      // Flatten + dedupe by id (idempotent merge across LDs)
+      const mergedProjectsRaw = allProjectArrays.flat().filter((d: any) => d?.type === 'project' || d?.status);
+      const seenProjectIds = new Set<string>();
+      const idbProjects = mergedProjectsRaw.filter((p: any) => {
+        if (seenProjectIds.has(p.id)) return false;
+        seenProjectIds.add(p.id);
+        return true;
+      });
+      const mergedResourcesRaw = allResourceArrays.flat().filter((d: any) => d?.type === 'resource');
+      const seenResourceIds = new Set<string>();
+      const idbResources = mergedResourcesRaw.filter((r: any) => {
+        if (seenResourceIds.has(r.id)) return false;
+        seenResourceIds.add(r.id);
+        return true;
+      });
 
       // D6 fix 2026-06-23 (V0.7.3) : one-shot canon bootstrap des 3 AaaS Variants
       // IDEMPOTENT : si IDB contient déjà les 3 seeds (par id), skip. Sinon amorce.
       // D9 self-choice : A0 a rejeté le bouton amorcer (V0.7.1) — auto-amorce invisible,
       // n'écrase PAS les items user-created existants, ne touche pas le pattern
       // canon 12WY (les items sont créés via addProject → writeToLD = vrai canon).
-      const idbProjects = (projectItems || []).filter((d: any) => d?.type === 'project' || d?.status);
       const CANON_IDS = ['AAAS-SOLARIS', 'AAAS-NEXUS', 'AAAS-ORBITER'];
       const missingCanon = CANON_IDS.filter(id => !idbProjects.some((p: any) => p.id === id));
       if (missingCanon.length > 0) {
@@ -112,31 +135,48 @@ export const useParaStore = create<ParaState>((set, get) => ({
         ];
         // D6 fix 2026-06-23 (V0.7.5) : set() AVANT writeToLD async pour éviter race condition
         // où un re-hydrate post-await écrase les items en mémoire avec un IDB pas encore commité.
-        // addProject() fait déjà set() optimiste — on attend la fin puis on set une 2e fois avec
-        // l'union IDB ∪ canon seeds (au cas où IDB a déjà des items user-created).
         for (const seed of canonSeeds) {
           await get().addProject(seed);
         }
         // Force re-sync state depuis IDB pour confirmer tous les seeds persistés (post-await).
-        const refreshed = await readFromLD<any>('ld01', 'projects');
-        const allIdbProjects = (refreshed || []).filter((d: any) => d?.type === 'project' || d?.status);
+        // D6 fix V0.7.6 : re-lit depuis les 8 LDs en parallèle (merge).
+        const refreshedProjects = await Promise.all(
+          LDS.map(ld => readFromLD<any>(ld, 'projects').catch(() => []))
+        );
+        const refreshedResources = await Promise.all(
+          LDS.map(ld => readFromLD<any>(ld, 'resources').catch(() => []))
+        );
+        const allIdbProjectsRaw = refreshedProjects.flat().filter((d: any) => d?.type === 'project' || d?.status);
+        const seenRefreshedIds = new Set<string>();
+        const allIdbProjects = allIdbProjectsRaw.filter((p: any) => {
+          if (seenRefreshedIds.has(p.id)) return false;
+          seenRefreshedIds.add(p.id);
+          return true;
+        });
+        const allIdbResourcesRaw = refreshedResources.flat().filter((d: any) => d?.type === 'resource');
+        const seenRefreshedResIds = new Set<string>();
+        const allIdbResources = allIdbResourcesRaw.filter((r: any) => {
+          if (seenRefreshedResIds.has(r.id)) return false;
+          seenRefreshedResIds.add(r.id);
+          return true;
+        });
         set({
           projects: allIdbProjects as Project[],
-          resources: (resourceItems || []).filter((d: any) => d?.type === 'resource') as Resource[],
+          resources: allIdbResources as Resource[],
           isHydrated: true
         });
-        console.debug('[PARA Store] Canon bootstrap (idempotent) done :', missingCanon.length, 'missing seeds amorcés, IDB now', allIdbProjects.length, 'projects');
+        console.debug('[PARA Store V0.7.6] Canon bootstrap (idempotent) done :', missingCanon.length, 'missing seeds amorcés, IDB now', allIdbProjects.length, 'projects across 8 LDs');
         return;
       }
 
       set({
         projects: idbProjects as Project[],
-        resources: (resourceItems || []).filter((d: any) => d?.type === 'resource') as Resource[],
+        resources: idbResources as Resource[],
         isHydrated: true
       });
-      console.debug('[PARA Store] Hydrated', idbProjects.length, 'projects,', resourceItems?.length || 0, 'resources');
+      console.debug('[PARA Store V0.7.6] Hydrated 8 LDs :', idbProjects.length, 'projects,', idbResources.length, 'resources');
     } catch (e) {
-      console.error('[PARA Store] Hydration failed', e);
+      console.error('[PARA Store V0.7.6] Hydration failed', e);
       set({ isHydrated: true });
     }
   },

@@ -1,4 +1,10 @@
 /** IDB Wrapper — isolated IndexedDB per area (Invariant #3) */
+// D6 fix 2026-06-23 (V0.7.6) : module-level singleton cache so multiple DomainDB instances
+// share the same IDBDatabase connection. Without this, HMR Vite rebuild creates orphan
+// instances with stale `this.db` references → transaction() throws InvalidStateError →
+// empty IDB at hydrate time. Shared promise cache = atomic init, immune to HMR.
+const dbCache: Map<string, Promise<IDBDatabase>> = new Map();
+
 import { supabase } from './supabase';
 
 export class DomainDB {
@@ -16,26 +22,37 @@ export class DomainDB {
   async init(): Promise<void> {
     if (this.db) return;
 
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version);
+    let dbPromise = dbCache.get(this.dbName);
+    if (!dbPromise) {
+      dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open(this.dbName, this.version);
 
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        const stores = ['projects', 'areas', 'resources', 'archives', 'metadata'];
-        stores.forEach(s => {
-          if (!db.objectStoreNames.contains(s)) {
-            db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });
-          }
-        });
-      };
+        request.onupgradeneeded = (event) => {
+          const db = (event.target as IDBOpenDBRequest).result;
+          const stores = ['projects', 'areas', 'resources', 'archives', 'metadata'];
+          stores.forEach(s => {
+            if (!db.objectStoreNames.contains(s)) {
+              db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });
+            }
+          });
+        };
 
-      request.onsuccess = (event) => {
-        this.db = (event.target as IDBOpenDBRequest).result;
-        resolve();
-      };
+        request.onsuccess = (event) => {
+          const db = (event.target as IDBOpenDBRequest).result;
+          // D6 fix V0.7.6 : close handler so cache stays fresh if browser closes connection
+          db.onclose = () => {
+            dbCache.delete(this.dbName);
+          };
+          resolve(db);
+        };
 
-      request.onerror = () => reject(request.error);
-    });
+        request.onerror = () => reject(request.error);
+        request.onblocked = () => reject(new Error(`IDB open blocked for ${this.dbName}`));
+      });
+      dbCache.set(this.dbName, dbPromise);
+    }
+
+    this.db = await dbPromise;
   }
 
   async getAll<T>(storeName: string): Promise<T[]> {
