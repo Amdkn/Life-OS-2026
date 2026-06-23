@@ -189,14 +189,12 @@ export const useParaStore = create<ParaState>()(
             console.error('[PARA Store] Pre-load hydration failure:', error);
             return;
           }
-          // PEPIITES Armor: If after hydration the projects are empty, inject the seed data
-          // This prevents localStorage from serving an 'empty' state if user has some old data.
+          // PEPIITES Armor (D6 fix 2026-06-23): Zustand persist hydrates FIRST, then invokes this callback.
+          // Mutating `hydratedState.projects` post-hoc only rewrites localStorage; the active store keeps [].
+          // Fix: call set() so the store actually reflects the seed.
           if (hydratedState && (!hydratedState.projects || hydratedState.projects.length === 0)) {
             console.warn('[PARA Store] State found empty. Injecting Sovereign Pépites.');
-            // Note: We use the seed data defined in the create() template
-            // For safety, we redeclare them here or trust the current state if we can't find them
-            // But better to just use a small list here for absolute certainty
-            hydratedState.projects = [
+            const seedProjects: Project[] = [
               {
                 id: 'SD-AGENT-PORTAL',
                 title: 'Nexus Architecture Deployment',
@@ -228,6 +226,11 @@ export const useParaStore = create<ParaState>()(
                 updatedAt: Date.now()
               }
             ];
+            // set() mutates the ACTIVE store — required so useParaStore().projects.length > 0
+            // This re-runs through set() callback; passing projects[] directly is the canonical Zustand way.
+            // We capture set via outer scope closure: use storeApi.setState as fallback.
+            // Outer scope has access via `useParaStore.setState`:
+            useParaStore.setState({ projects: seedProjects });
           }
         };
       }
