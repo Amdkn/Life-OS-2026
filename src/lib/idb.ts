@@ -29,7 +29,12 @@ export class DomainDB {
 
         request.onupgradeneeded = (event) => {
           const db = (event.target as IDBOpenDBRequest).result;
-          const stores = ['projects', 'areas', 'resources', 'archives', 'metadata'];
+          // D6 fix V0.7.8 (2026-06-23) : add 'items' + 'metrics' + 'overview' stores.
+          // Root cause V0.7.7 smoke test (Playwright 2026-06-23 20:35 UTC) :
+          // 9 NotFoundError console errors from readFromLD(ld, 'overview'/'metrics'/'items')
+          // because LDStore type union declared 7 stores but init() only created 5.
+          // Result: V0.7.6/V0.7.7 auto-seed never triggered → "No items identified".
+          const stores = ['projects', 'areas', 'resources', 'archives', 'metadata', 'items', 'metrics', 'overview'];
           stores.forEach(s => {
             if (!db.objectStoreNames.contains(s)) {
               db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });
@@ -152,14 +157,16 @@ export class DomainDB {
 }
 
 // Global instances for Areas LD01-LD08
-export const ld01DB = new DomainDB('aspace_ld01_business');
-export const ld02DB = new DomainDB('aspace_ld02_finance');
-export const ld03DB = new DomainDB('aspace_ld03_health');
-export const ld04DB = new DomainDB('aspace_ld04_cognition');
-export const ld05DB = new DomainDB('aspace_ld05_relations');
-export const ld06DB = new DomainDB('aspace_ld06_habitat');
-export const ld07DB = new DomainDB('aspace_ld07_creativity');
-export const ld08DB = new DomainDB('aspace_ld08_impact');
+// D6 fix V0.7.8 (2026-06-23) : bump version 1 → 2 to force onupgradeneeded
+// on browsers that already have v1 IDB open (without 'items'/'metrics'/'overview' stores).
+export const ld01DB = new DomainDB('aspace_ld01_business', 2);
+export const ld02DB = new DomainDB('aspace_ld02_finance', 2);
+export const ld03DB = new DomainDB('aspace_ld03_health', 2);
+export const ld04DB = new DomainDB('aspace_ld04_cognition', 2);
+export const ld05DB = new DomainDB('aspace_ld05_relations', 2);
+export const ld06DB = new DomainDB('aspace_ld06_habitat', 2);
+export const ld07DB = new DomainDB('aspace_ld07_creativity', 2);
+export const ld08DB = new DomainDB('aspace_ld08_impact', 2);
 
 export const ldDBs: Record<string, DomainDB> = {
   ld01: ld01DB, ld02: ld02DB, ld03: ld03DB, ld04: ld04DB,
