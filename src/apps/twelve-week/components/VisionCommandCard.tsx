@@ -22,6 +22,17 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
   const wheelDomains = useLifeWheelStore(s => s.domains);
   const domainRef = wheelDomains.find(v => v.id === vision?.domainId);
 
+  const getHorizonLabel = (horizon?: string) => {
+    switch (horizon) {
+      case 'H1': return 'H1 (1 an)';
+      case 'H3': return 'H3 (3 ans)';
+      case 'H10': return 'H10 (10 ans)';
+      case 'H30': return 'H30 (30 ans)';
+      case 'H90': return 'H90 (90 ans)';
+      default: return 'A SOURCER';
+    }
+  };
+
   if (!vision) return null;
 
   return (
@@ -44,7 +55,7 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
            <div>
              <h1 className="text-4xl font-black text-white tracking-tight">{vision.title}</h1>
              <div className="flex items-center gap-3 mt-2">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500/80 bg-amber-500/10 px-2 py-0.5 rounded">3-Year Horizon</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500/80 bg-amber-500/10 px-2 py-0.5 rounded">{getHorizonLabel(ikigaiRef?.horizon)}</span>
                 {domainRef && <span className="text-[10px] uppercase font-bold tracking-widest text-white/40">{domainRef.name} Domain</span>}
              </div>
            </div>
@@ -56,6 +67,19 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
              <p className="text-sm font-bold text-white/80 mt-1">{ikigaiRef.title}</p>
           </div>
         )}
+      </div>
+
+      {/* Provenance Historique & Statut */}
+      <div className="mb-8 p-5 border border-white/10 rounded-2xl bg-black/40 backdrop-blur-md">
+        <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/40 flex items-center gap-2 mb-3">
+          <Box className="w-3.5 h-3.5 text-amber-400/80" /> Provenance Historique & Statut
+        </h3>
+        <p className="text-sm text-white/70 italic mb-4 leading-relaxed">
+          « Quarter Intent (Q3-2026, statut source: historique (W1 2026-06-15-&gt;07-05); aucune re-lecture au 2026-09-11): Activer le triptyque MORTY (12WY superset PARA superset DEAL) sur Life-OS-2026 avec 6 frameworks Life OS canoniques orchestres par 2 A1 Gatekeepers (Beth Ikigai + Morty Focus). »
+        </p>
+        <span className="text-[9px] uppercase font-bold tracking-widest text-amber-400/80 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+          Statut: Historique (Non promu en engagement actif)
+        </span>
       </div>
 
       {/* Child Goals Grid */}
