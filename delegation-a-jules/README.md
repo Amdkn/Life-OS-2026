@@ -18,6 +18,7 @@ Il structure le développement en **domaines complets (blocs de PRD cohérents)*
 | **Catégorie 6** | **A3 Multi-Dimensional Swarm Factory (Skills, Hooks, MCP, Crons)**| PRD-061 à PRD-065 | [categorie-6-a3-multidimensional-swarm-factory/](./categorie-6-a3-multidimensional-swarm-factory) |
 | **Catégorie 7** | **B1 Summer-Verse CEO (Direction, Holding & Franchises)** | PRD-071 à PRD-075 | [categorie-7-b1-summer-verse-ceo/](./categorie-7-b1-summer-verse-ceo) |
 | **Catégorie 8** | **Conseil des 8 VP Managers B2 (Orchestration, Uplink & DEAL)** | PRD-081 à PRD-085 | [categorie-8-b2-council-vp-managers/](./categorie-8-b2-council-vp-managers) |
+| **Catégorie 9** | **B3 Polymorphic Matrix Engine (Intelligence vs Déterminisme)** | PRD-091 à PRD-095 | [categorie-9-b3-polymorphic-matrix/](./categorie-9-b3-polymorphic-matrix) |
 
 ---
 
