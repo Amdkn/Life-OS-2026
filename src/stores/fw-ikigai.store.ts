@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 import type { ParaItem } from './ld01.store';
 import { writeToLD, readFromLD } from '../lib/ld-router';
-import { pullIkigaiVisions, pushVision, type SyncedVision, type IkigaiPillar, type IkigaiHorizon } from '../lib/sync.service';
 
-/**
+/** 
  * Ikigai Framework Store — V0.5.1 Sovereign Constitution
  * Matrix: 4 Pillars x 5 Horizons
  * Migrated from localStorage to IndexedDB (LD01/resources)
- * D6 fix (2026-06-22): bidirectional Supabase sync via sync.service.ts.
  */
 
 export type IkigaiPillar = 'craft' | 'mission' | 'passion' | 'vocation';
@@ -45,40 +43,12 @@ export const useIkigaiStore = create<IkigaiState>((set, get) => ({
 
   hydrate: async () => {
     try {
-      // 1. Hydrate from IndexedDB first (fast, offline-first).
-      const data = await readFromLD<ParaItem>('ld01', 'resources');
+      // Lit les visions depuis LD01 (stockées en tant que ressources de type 'vision')
+      const data = await readFromLD<ParaItem>('ld01', 'resources'); 
       const ikigaiNodes = data.filter(d => (d as any).type === 'vision') as IkigaiVision[];
       set({ visions: ikigaiNodes, isHydrated: true });
-
-      // 2. Background sync with Supabase (D6 fix 2026-06-22).
-      //    Pull returns the synced visions DIRECTLY — no need to re-read IDB
-      //    (avoids async race where IDB write hasn't committed before read).
-      try {
-        const syncResult = await pullIkigaiVisions();
-        if (syncResult.pulled > 0) {
-          // Merge: existing IDB visions + remote visions (remote wins on conflict)
-          const remoteVisions: IkigaiVision[] = (syncResult as any).visions ?? [];
-          if (remoteVisions.length > 0) {
-            // Concatenate, dedupe by id, keep latest updated_at
-            const byId = new Map<string, IkigaiVision>();
-            for (const v of ikigaiNodes) byId.set(v.id, v);
-            for (const v of remoteVisions) byId.set(v.id, v); // remote wins
-            const merged = Array.from(byId.values());
-            set({ visions: merged });
-            if (import.meta.env.DEV) {
-              console.debug('[IKIGAI] store.updated', {
-                count: merged.length,
-                pillars: [...new Set(merged.map((v: any) => v.pillar))],
-              });
-            }
-          }
-        }
-      } catch (syncErr) {
-        // Non-fatal: UI works offline-first from IDB. Sync retries on next hydrate.
-        console.warn('[Ikigai sync] background pull failed (will retry):', syncErr);
-      }
-    } catch (e) {
-      console.error('Ikigai DB hydration failed', e);
+    } catch (e) { 
+      console.error('Ikigai DB hydration failed', e); 
       set({ isHydrated: true });
     }
   },
@@ -86,16 +56,8 @@ export const useIkigaiStore = create<IkigaiState>((set, get) => ({
   setActivePillar: (activePillar) => set({ activePillar }),
   setActiveHorizon: (activeHorizon) => set({ activeHorizon }),
   addVision: async (v) => {
-    // Optimistic local update first (UI stays snappy).
     set(s => ({ visions: [...s.visions, v] }));
-    // Persist to IndexedDB via ld-router.
+    // Synchronisation IDB via ld-router
     await writeToLD('ld01', 'resources', 'add', v, 'ikigai');
-    // Push to Supabase for multi-device sync (D6 fix 2026-06-22).
-    try {
-      await pushVision(v as SyncedVision);
-    } catch (pushErr) {
-      // Non-fatal: local-first write succeeded. Sync retries on next hydrate.
-      console.warn('[Ikigai] Supabase push failed (will retry on next sync):', pushErr);
-    }
   }
 }));

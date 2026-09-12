@@ -28,33 +28,9 @@ const PERMISSIONS: Record<string, Partial<Record<LDId, Permission[]>>> = {
     ld01: ['R', 'W'], ld02: ['R', 'W'], ld03: ['R', 'W'], ld04: ['R', 'W'],
     ld05: ['R', 'W'], ld06: ['R', 'W'], ld07: ['R', 'W'], ld08: ['R', 'W'] 
   },
-  ikigai: {
+  ikigai: { 
     ld01: ['R'], ld02: ['R'], ld03: ['R'], ld04: ['R'],
-    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
-  },
-  // 'ikigai-sync' : sync service writes back to ld01/resources (D6 fix 2026-06-22)
-  // Pulls from Supabase public.ikigai_visions, writes to IndexedDB ld01/resources.
-  // Push happens via pushVision() in sync.service.ts after writeToLD.
-  'ikigai-sync': {
-    ld01: ['R', 'W'],
-    ld02: ['R'], ld03: ['R'], ld04: ['R'],
-    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
-  },
-  // 'wheel-sync' : mirror Ikigai pattern for Life Wheel ambitions.
-  // Pulls from Supabase public.life_wheel_ambitions, writes to IndexedDB ld01/resources.
-  // Push happens via pushAmbition() in sync.service.ts after writeToLD.
-  'wheel-sync': {
-    ld01: ['R', 'W'],
-    ld02: ['R'], ld03: ['R'], ld04: ['R'],
-    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
-  },
-  // '12wy-sync' : sync service writes Rocks to ld01/resources (D6 fix 2026-06-22).
-  // Pulls from Supabase public.fw_12wy.metrics.rocks[], writes to IndexedDB ld01/resources.
-  // Push happens via pushRock() in sync.service.ts after writeToLD.
-  '12wy-sync': {
-    ld01: ['R', 'W'],
-    ld02: ['R'], ld03: ['R'], ld04: ['R'],
-    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R']
+    ld05: ['R'], ld06: ['R'], ld07: ['R'], ld08: ['R'] 
   },
   gtd: { 
     ld01: ['R', 'W'], ld03: ['R', 'W'], ld04: ['R', 'W'], ld05: ['R', 'W'], ld06: ['R', 'W'] 
@@ -104,24 +80,12 @@ export async function writeToLD(
 }
 
 /** Unified read operation */
-// D6 fix 2026-06-23 (V0.7.7) : log explicite sur erreur pour débugger pourquoi
-// readFromLD retourne [] silencieusement. Sans ce log, on ne sait pas si (a)
-// getAll throw parce que IDB verrouillé, (b) domainMap[ldId] est undefined, ou
-// (c) dbCache entry stale. Le `console.error` remonte la cause exacte.
 export async function readFromLD<T>(
-  ldId: LDId,
+  ldId: LDId, 
   store: LDStore
 ): Promise<T[]> {
   const db = domainMap[ldId];
-  if (!db) {
-    console.error(`[LD-Router V0.7.7] Unknown Life Domain: ${ldId} (domainMap entry missing)`);
-    throw new Error(`[LD-Router] Unknown Life Domain: ${ldId}`);
-  }
-
-  try {
-    return await db.getAll<T>(store);
-  } catch (e) {
-    console.error(`[LD-Router V0.7.7] readFromLD(${ldId}, ${store}) failed :`, e);
-    return [];  // graceful degradation : empty array per LD
-  }
+  if (!db) throw new Error(`[LD-Router] Unknown Life Domain: ${ldId}`);
+  
+  return await db.getAll<T>(store);
 }

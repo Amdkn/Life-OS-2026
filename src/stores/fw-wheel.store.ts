@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { LDId, writeToLD, readFromLD } from '../lib/ld-router';
 import type { ParaItem } from './ld01.store';
-import { pullLifeWheelAmbitions, pushAmbition, type SyncedAmbition } from '../lib/sync.service';
 
 /** 
  * Life Wheel Framework Store — V0.5.1 Sovereign Constitution
@@ -69,52 +68,18 @@ export const useLifeWheelStore = create<LifeWheelState>((set, get) => ({
 
   hydrate: async () => {
     try {
-      // 1. Hydrate from IndexedDB first (fast, offline-first).
       const data = await readFromLD<ParaItem>('ld01', 'resources');
       const nodes = data.filter(d => (d as any).type === 'ambition') as WheelAmbition[];
       set({ ambitions: nodes, isHydrated: true });
-
-      // 2. Background sync with Supabase (2026-06-22 — mirror Ikigai pattern).
-      //    pull returns the synced ambitions DIRECTLY (no IDB re-read race).
-      try {
-        const syncResult = await pullLifeWheelAmbitions();
-        if (syncResult.pulled > 0) {
-          const remoteAmbitions: WheelAmbition[] = (syncResult as any).ambitions ?? [];
-          if (remoteAmbitions.length > 0) {
-            // Merge: existing IDB + remote (remote wins on conflict)
-            const byId = new Map<string, WheelAmbition>();
-            for (const a of nodes) byId.set(a.id, a);
-            for (const a of remoteAmbitions) byId.set(a.id, a);
-            const merged = Array.from(byId.values());
-            set({ ambitions: merged });
-            // Update domain scores based on ambitions (1 ambition = 100% per domain)
-            set((state) => ({
-              domains: state.domains.map((d) => {
-                const hasAmbition = merged.some((a) => a.domainId === d.id);
-                return { ...d, score: hasAmbition ? 100 : d.score };
-              }),
-            }));
-            get().calculateGlobalScore();
-          }
-        }
-      } catch (syncErr) {
-        console.warn('[WHEEL sync] background pull failed (will retry):', syncErr);
-      }
-    } catch (e) {
+    } catch (e) { 
       console.error('LifeWheel hydration failed', e);
-      set({ isHydrated: true });
+      set({ isHydrated: true }); 
     }
   },
 
   addAmbition: async (a) => {
     set(s => ({ ambitions: [...s.ambitions, a] }));
     await writeToLD('ld01', 'resources', 'add', a, 'wheel');
-    // Push to Supabase for multi-device sync.
-    try {
-      await pushAmbition(a as SyncedAmbition);
-    } catch (pushErr) {
-      console.warn('[WHEEL] Supabase push failed (will retry on next sync):', pushErr);
-    }
   },
 
   updateDomainWeight: (id, weight) => {

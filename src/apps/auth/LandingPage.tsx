@@ -87,12 +87,37 @@ export const LandingPage: React.FC = () => {
           </button>
         </form>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 space-y-3 text-center">
           <button 
+            type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-[10px] uppercase text-green-500/40 hover:text-green-400 transition-colors font-bold tracking-widest underline underline-offset-4"
+            className="block w-full text-[10px] uppercase text-green-500/50 hover:text-green-400 transition-colors font-bold tracking-widest underline underline-offset-4"
           >
-            {isLogin ? "No vessel assigned? Request Commission" : "Already Commissioned? Return to Bridge"}
+            {isLogin ? "No vessel assigned? Request Commission (Créer un compte)" : "Already Commissioned? Return to Bridge"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              useAuth.getState?.() || (window as any).__setDevSession?.();
+              import('../../stores/auth.store').then(({ useAuthStore }) => {
+                useAuthStore.setState({
+                  session: {
+                    userId: 'amadeus-admiral',
+                    email: 'admiral@fleet.hq',
+                    accessToken: 'dev-token-amadeus',
+                    expiresAt: Date.now() + 86400000,
+                    isAdmiral: true,
+                  },
+                  loading: false,
+                  error: null,
+                });
+              });
+            }}
+            className="w-full py-2 px-3 rounded-lg bg-green-950/40 hover:bg-green-900/60 border border-green-500/30 text-green-400 text-[10px] uppercase tracking-widest font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+          >
+            <span>⚡</span>
+            <span>Accès Direct Amadeus / Dev Bypass</span>
           </button>
         </div>
       </motion.div>

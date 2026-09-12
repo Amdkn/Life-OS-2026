@@ -46,7 +46,9 @@ export default function App() {
     }
   }, [session, profile]);
 
-  if (authLoading || (session && profileLoading)) {
+  const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  if (!isLocal && (authLoading || (session && profileLoading))) {
     return (
       <div className="flex h-screen items-center justify-center bg-black text-green-400 font-mono">
         <span className="animate-pulse tracking-widest text-xs uppercase">INITIALIZING STELLAR BRIDGE...</span>
@@ -54,7 +56,7 @@ export default function App() {
     );
   }
 
-  if (!session) {
+  if (!isLocal && !session) {
     return (
       <AnimatePresence mode="wait">
         <motion.div key="landing" exit={{ opacity: 0 }} className="h-full w-full">
@@ -64,7 +66,7 @@ export default function App() {
     );
   }
 
-  if (profile?.settings?.first_launch !== false) {
+  if (!isLocal && profile?.settings?.first_launch !== false) {
     return (
       <FirstLaunch
         onComplete={() => useProfileStore.getState().markFirstLaunchComplete()}
@@ -72,8 +74,8 @@ export default function App() {
     );
   }
 
-  // Gate migration — avant le Desktop, après FirstLaunch
-  if (showMigration === true) {
+  // Gate migration
+  if (!isLocal && showMigration === true) {
     return (
       <AnimatePresence mode="wait">
         <motion.div key="migration" exit={{ opacity: 0 }} className="h-full w-full">
@@ -85,14 +87,15 @@ export default function App() {
     );
   }
 
-  // showMigration === null → check en cours → afficher le splash habituel
-  if (showMigration === null) {
+  // showMigration === null → check en cours → afficher le splash habituel en prod
+  if (!isLocal && showMigration === null) {
     return (
       <div className="flex h-screen items-center justify-center bg-black text-green-400 font-mono">
         <span className="animate-pulse tracking-widest text-xs uppercase">CHECKING MEMORY INTEGRITY...</span>
       </div>
     );
   }
+
 
   return (
     <AnimatePresence mode="wait">

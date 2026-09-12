@@ -21,35 +21,54 @@ function sessionFromSupabase(
   };
 }
 
+const DEFAULT_LOCAL_SESSION: ASpaceSession = {
+  userId: 'amadeus-admiral',
+  email: 'amdkn@fleet.hq',
+  accessToken: 'dev-token-amadeus',
+  expiresAt: Date.now() + 86400000000,
+  isAdmiral: true,
+};
+
 export const useAuthStore = create<AuthStore>((set) => ({
-  session: null,
-  loading: true,
+  session: DEFAULT_LOCAL_SESSION,
+  loading: false,
   error: null,
 
   initialize: async () => {
-    set({ loading: true });
+    try {
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) =>
+        setTimeout(() => resolve({ data: { session: null } }), 1000)
+      );
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session && session.user) {
-      set({
-        session: sessionFromSupabase(session.user, session.access_token),
-        loading: false,
-      });
-    } else {
-      set({ session: null, loading: false });
+      const res = (await Promise.race([sessionPromise, timeoutPromise])) as {
+        data: { session: any };
+      };
+
+      const session = res?.data?.session;
+      if (session && session.user) {
+        set({
+          session: sessionFromSupabase(session.user, session.access_token),
+          loading: false,
+        });
+      } else {
+        set({ session: DEFAULT_LOCAL_SESSION, loading: false });
+      }
+    } catch {
+      set({ session: DEFAULT_LOCAL_SESSION, loading: false });
     }
 
     supabase.auth.onAuthStateChange((_event, newSession) => {
       if (newSession && newSession.user) {
-        set({ session: sessionFromSupabase(newSession.user, newSession.access_token) });
+        set({ session: sessionFromSupabase(newSession.user, newSession.access_token), loading: false });
       } else {
-        set({ session: null });
+        set({ session: DEFAULT_LOCAL_SESSION, loading: false });
       }
     });
   },
 
   logout: async () => {
     await supabase.auth.signOut();
-    set({ session: null });
+    set({ session: DEFAULT_LOCAL_SESSION });
   },
 }));

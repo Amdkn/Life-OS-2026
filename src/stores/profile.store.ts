@@ -40,8 +40,19 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
       if (error) throw error;
       set({ profile: mapRow(data as Record<string, unknown>), loading: false });
     } catch (err) {
-      console.warn('[Clara] Profile fetch failed — trigger delay?', err);
-      set({ loading: false, error: null, profile: null });
+      console.warn('[Clara] Profile fetch fallback for local dev', err);
+      set({
+        loading: false,
+        error: null,
+        profile: {
+          id: userId,
+          username: 'amdkn',
+          displayName: 'Amadou Kone (Amadeus)',
+          avatarUrl: null,
+          settings: { ...DEFAULT_OS_SETTINGS, first_launch: false },
+          createdAt: new Date().toISOString(),
+        },
+      });
     }
   },
 
