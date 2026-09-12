@@ -6,19 +6,19 @@ import { useLifeWheelStore } from '../../../stores/fw-wheel.store';
 
 export function VisionCommandCard({ visionId }: { visionId: string }) {
   const setActiveVisionId = useTwelveWeekStore(s => s.setActiveVisionId);
-  const setActiveGoalId = useTwelveWeekStore(s => s.setActiveGoalId); 
-  
+  const setActiveGoalId = useTwelveWeekStore(s => s.setActiveGoalId);
+
   const allVisions = useTwelveWeekStore(s => s.visions);
   const vision = allVisions.find(v => v.id === visionId);
-  
+
   const allGoals = useTwelveWeekStore(s => s.goals);
   const childGoals = allGoals.filter(g => g.visionId === visionId);
-  
+
   const allTactics = useTwelveWeekStore(s => s.tactics);
 
   const ikigaiVisions = useIkigaiStore(s => s.visions);
   const ikigaiRef = ikigaiVisions.find(v => v.id === vision?.ikigaiVisionId);
-  
+
   const wheelDomains = useLifeWheelStore(s => s.domains);
   const domainRef = wheelDomains.find(v => v.id === vision?.domainId);
 
@@ -27,6 +27,7 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
       case 'H1': return 'H1 (1 an)';
       case 'H3': return 'H3 (3 ans)';
       case 'H10': return 'H10 (10 ans)';
+      case 'H25': return 'H25 (25 ans)';
       case 'H30': return 'H30 (30 ans)';
       case 'H90': return 'H90 (90 ans)';
       default: return 'A SOURCER';
@@ -37,9 +38,9 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
 
   return (
     <div className="flex-1 flex flex-col p-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-      
+
       {/* Header and Back Button */}
-      <button 
+      <button
         onClick={() => setActiveVisionId(null)}
         className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white/80 transition-colors mb-8 w-max"
       >
@@ -55,12 +56,17 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
            <div>
              <h1 className="text-4xl font-black text-white tracking-tight">{vision.title}</h1>
              <div className="flex items-center gap-3 mt-2">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500/80 bg-amber-500/10 px-2 py-0.5 rounded">{getHorizonLabel(ikigaiRef?.horizon)}</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500/80 bg-amber-500/10 px-2 py-0.5 rounded">{getHorizonLabel(vision.meaningHorizon || ikigaiRef?.horizon)}</span>
+                {vision.operationalCadence && (
+                   <span className="text-[10px] uppercase font-bold tracking-widest text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
+                     {vision.operationalCadence}
+                   </span>
+                )}
                 {domainRef && <span className="text-[10px] uppercase font-bold tracking-widest text-white/40">{domainRef.name} Domain</span>}
              </div>
            </div>
         </div>
-        
+
         {ikigaiRef && (
           <div className="text-right">
              <p className="text-[9px] uppercase tracking-widest text-white/30 font-bold">Ikigai Protocol Nexus</p>
@@ -74,11 +80,15 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
         <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/40 flex items-center gap-2 mb-3">
           <Box className="w-3.5 h-3.5 text-amber-400/80" /> Provenance Historique & Statut
         </h3>
-        <p className="text-sm text-white/70 italic mb-4 leading-relaxed">
-          « Quarter Intent (Q3-2026, statut source: historique (W1 2026-06-15-&gt;07-05); aucune re-lecture au 2026-09-11): Activer le triptyque MORTY (12WY superset PARA superset DEAL) sur Life-OS-2026 avec 6 frameworks Life OS canoniques orchestres par 2 A1 Gatekeepers (Beth Ikigai + Morty Focus). »
-        </p>
+        {vision.provenance ? (
+          <p className="text-sm text-white/70 italic mb-4 leading-relaxed">« {vision.provenance} »</p>
+        ) : (
+          <p className="text-sm text-white/70 italic mb-4 leading-relaxed">
+            « Quarter Intent (Q3-2026, statut source: historique (W1 2026-06-15-&gt;07-05); aucune re-lecture au 2026-09-11): Activer le triptyque MORTY (12WY superset PARA superset DEAL) sur Life-OS-2026 avec 6 frameworks Life OS canoniques orchestres par 2 A1 Gatekeepers (Beth Ikigai + Morty Focus). »
+          </p>
+        )}
         <span className="text-[9px] uppercase font-bold tracking-widest text-amber-400/80 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
-          Statut: Historique (Non promu en engagement actif)
+          {vision.provenance ? "Statut: A SOURCER / Actif" : "Statut: Historique (Non promu en engagement actif)"}
         </span>
       </div>
 
@@ -93,8 +103,8 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
                const done = gTactics.filter(t => t.status === 'completed').length;
                const progress = gTactics.length ? (done / gTactics.length) * 100 : 0;
                return (
-                  <div 
-                    key={goal.id} 
+                  <div
+                    key={goal.id}
                     onClick={() => setActiveGoalId?.(goal.id)}
                     className="p-6 rounded-3xl bg-black/40 border border-white/10 hover:border-teal-500/40 hover:bg-[#111] transition-all cursor-pointer group shadow-xl"
                   >
@@ -102,7 +112,7 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
                        <h3 className="font-bold text-white/90 group-hover:text-teal-400 transition-colors">{goal.title}</h3>
                        <span className="text-[9px] font-black tracking-widest bg-teal-500/10 text-teal-400 px-2 py-0.5 rounded">W{goal.targetWeek}</span>
                     </div>
-                    
+
                     <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mt-6">
                        <div className="h-full bg-teal-400 transition-all" style={{ width: `${progress}%` }} />
                     </div>

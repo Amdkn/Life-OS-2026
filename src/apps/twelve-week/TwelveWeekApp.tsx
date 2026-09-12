@@ -17,6 +17,7 @@ import { GoalForgeModal } from './components/GoalForgeModal';
 import { TacticForgeModal } from './components/TacticForgeModal';
 import { VisionCommandCard } from './components/VisionCommandCard';
 import { GoalCommandCard } from './components/GoalCommandCard';
+import { VisionAlignmentMatrix } from './components/VisionAlignmentMatrix';
 
 const twyNavItems: NavItem[] = [
   { id: 'overview',       label: 'Dashboard',      icon: LayoutDashboard },

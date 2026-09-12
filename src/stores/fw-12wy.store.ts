@@ -10,6 +10,9 @@ import { readFromLD, writeToLD } from '../lib/ld-router';
 
 // NOUVEAUX CONTRATS
 export interface WyVision extends ParaItem {
+  meaningHorizon?: string; // H1, H3, H10, H25, H90
+  operationalCadence?: string; // weekly, cycle
+  provenance?: string;
   type: 'wy-vision';
   domainId: string; // V0.6.7 REQUIRED
   ikigaiVisionId?: string; 
