@@ -99,7 +99,7 @@ export const LandingPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              useAuth.getState?.() || (window as any).__setDevSession?.();
+              (useAuth as any).getState?.() || (window as any).__setDevSession?.();
               import('../../stores/auth.store').then(({ useAuthStore }) => {
                 useAuthStore.setState({
                   session: {

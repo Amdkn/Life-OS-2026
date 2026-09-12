@@ -41,31 +41,33 @@ export class DomainDB {
   async getAll<T>(storeName: string): Promise<T[]> {
     await this.init();
     
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id;
+    // Background sync with Supabase
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
 
-      let query = supabase.from(this.tableName).select('*');
-      if (storeName && storeName !== 'items') {
-        query = query.or(`type.eq.${storeName},type.is.null`);
-      }
-      if (userId && userId !== 'amadeus-admiral') {
-        query = query.or(`user_id.eq.${userId},user_id.is.null`);
-      }
-
-      const { data, error } = await query;
-      
-      if (!error && data && data.length > 0) {
-        const transaction = this.db!.transaction(storeName, 'readwrite');
-        const store = transaction.objectStore(storeName);
-        for (const item of data) {
-          store.put(item);
+        let query = supabase.from(this.tableName).select('*');
+        if (storeName && storeName !== 'items') {
+          query = query.or(`type.eq.${storeName},type.is.null`);
         }
-        return data as T[];
+        if (userId && userId !== 'amadeus-admiral') {
+          query = query.or(`user_id.eq.${userId},user_id.is.null`);
+        }
+
+        const { data, error } = await query;
+
+        if (!error && data && data.length > 0) {
+          const transaction = this.db!.transaction(storeName, 'readwrite');
+          const store = transaction.objectStore(storeName);
+          for (const item of data) {
+            store.put(item);
+          }
+        }
+      } catch (e) {
+        console.warn(`Sync failed for ${this.tableName}, deferred.`, e);
       }
-    } catch (e) {
-      console.warn(`Sync failed for ${this.tableName}, falling back to local`, e);
-    }
+    })();
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(storeName, 'readonly');
@@ -87,18 +89,20 @@ export class DomainDB {
       request.onerror = () => reject(request.error);
     });
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
 
-      if (userId) {
-        await supabase
-          .from(this.tableName)
-          .upsert({ ...(data as any), user_id: userId, type: storeName, updated_at: new Date().toISOString() });
+        if (userId) {
+          await supabase
+            .from(this.tableName)
+            .upsert({ ...(data as any), user_id: userId, type: storeName, updated_at: new Date().toISOString() });
+        }
+      } catch (e) {
+        console.warn(`Supabase sync deferred for ${this.tableName}`, e);
       }
-    } catch (e) {
-      console.warn(`Supabase sync deferred for ${this.tableName}`, e);
-    }
+    })();
   }
 
   async delete(storeName: string, id: string): Promise<void> {
@@ -112,15 +116,17 @@ export class DomainDB {
       request.onerror = () => reject(request.error);
     });
 
-    try {
-      const { error } = await supabase
-        .from(this.tableName)
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    } catch (e) {
-      console.warn(`Delete sync deferred for ${this.tableName}`, e);
-    }
+    (async () => {
+      try {
+        const { error } = await supabase
+          .from(this.tableName)
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+      } catch (e) {
+        console.warn(`Delete sync deferred for ${this.tableName}`, e);
+      }
+    })();
   }
 
   async wipe(): Promise<void> {
