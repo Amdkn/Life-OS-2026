@@ -1,45 +1,29 @@
-# Délégations Jules — contrôle avant lancement
+# Guide d'Orchestration des Délégations Jules & Blocs de PRD
 
-Statut : briefs corrigés localement, non publiés. Aucun lancement autorisé par cet index seul.
+Ce document est le **Meta-Routeur de Délégation de Life OS 2026**.
+Il structure le développement en **domaines complets (blocs de PRD cohérents)**, où la numérotation des catégories est strictement alignée sur les préfixes numériques des PRDs.
 
-## Ordre et Catégories de Délégation
-### Catégorie 2 : Structuration 12WY (En cours d'achèvement)
-| Ordre | Brief | Dépendances |
-|---|---|---|
-| 1 | [PRD-001](PRD-12WY-SQLITE-GLASSMORPHISM.md) — local-first | Inspecter persistance et consommateurs existants (FUSIONNÉ) |
-| 2 | [PRD-002](PRD-002-12WY-VISION-SOLARPUNK.md) — vision | Contrat de données/persistance de 001 stabilisé (FUSIONNÉ) |
-| 3 | [PRD-003](PRD-003-12WY-PLANNING-OBJECTIFS.md) — planning | 001 + séparation horizons de 002 (EN COURS JULES) |
-| 4 | [PRD-004](PRD-004-12WY-PROCESS-CONTROL-TACTICS.md) — tactiques | Objectifs et cycle de 003 |
-| 5 | [PRD-005](PRD-005-12WY-MEASUREMENT-85PERCENT.md) — mesure | États/engagements de 004 |
-| 6 | [PRD-006](PRD-006-12WY-TIME-USE-BLOCKS.md) — temps | Liens tactique/cycle de 004 ; score compatible 005 |
+---
 
-### Catégorie 3 : Agent Portal & Blackboard (Workspace Local SQLite & QG Linear)
-Dossier : `categorie-3-agent-portal/`
-- **PRD-011 :** Blackboard Workspace Local SQLite & Event Store (`src/lib/blackboard/`).
-- **PRD-012 :** Linear comme Holding de Workspaces & QG de Flotte (`src/lib/linear/`).
-- **PRD-013 :** Agent Portal : Remplacement des Mocks du Cron Registry (`CronsView.tsx`).
-- **PRD-014 :** Agent Portal : ScoreCard Transversal & Télémétrie A0-A2 (`ScoreCard.tsx`).
-- **PRD-015 :** Agent Portal : Nexus Relation Diagram & Skill Tree Dynamique (`RelationDiagram.tsx`, `SkillsView.tsx`).
+## 1. Cartographie Alignée des Catégories & PRDs
 
-### Catégorie 4 : Évolution AI-Native de Life OS (Harness & Adaptateurs Business OS)
-Dossier : `categorie-4-ai-native-business-bridge/`
-- **PRD-021 :** Socle Tooling & Adaptateur CLI unifié `life-os` (`src/lib/tooling/adapters/cli.ts`).
-- **PRD-022 :** Serveur MCP STDIO natif pour Life OS (`mcp/server.mjs`).
-- **PRD-023 :** AssistantOverlay multi-agents & Roster dynamique (`src/agent/`).
-- **PRD-024 :** Scoped Storage, Gestion des Rôles & Isolation Défensive issue de Business OS.
-- **PRD-025 :** Pont API REST & Harness d'orchestration entre Life OS et Business OS.
+| Catégorie | Domaine Fonctionnel | Plage de PRD | Dossier Dédié |
+| :--- | :--- | :--- | :--- |
+| **Catégorie 0** | **12 Week Year & Tactical Focus (SNW)** | PRD-001 à PRD-006 | [categorie-0-12wy-snw/](./categorie-0-12wy-snw) |
+| **Catégorie 1** | **Agent Portal & Blackboard Local** | PRD-011 à PRD-015 | [categorie-1-agent-portal/](./categorie-1-agent-portal) |
+| **Catégorie 2** | **AI-Native Business Bridge (BOS Adapters)** | PRD-021 à PRD-025 | [categorie-2-ai-native-business-bridge/](./categorie-2-ai-native-business-bridge) |
+| **Catégorie 3** | **PARA Enterprise V2 Distillation** | PRD-031 à PRD-035 | [categorie-3-para-enterprise-distillation/](./categorie-3-para-enterprise-distillation) |
+| **Catégorie 4** | **Life OS 6 Frameworks (Identités & Vaisseaux)** | PRD-041 à PRD-045 | [categorie-4-life-os-6-frameworks/](./categorie-4-life-os-6-frameworks) |
+| **Catégorie 5** | **Convergence Life/Business via Blackboard & Jules API** | PRD-051 à PRD-055 | [categorie-5-convergence-blackboard-jules-api/](./categorie-5-convergence-blackboard-jules-api) |
 
-Un seul worker écrivain initial : les briefs partagent composants/stores. Pas de plancher de sessions. Chaque lancement éventuel reçoit un seul PRD, une branche et un commit source exacts, périmètre, budget plafond, preuve attendue et condition d'arrêt. Vérifier PRs/sessions déjà ouvertes avant lancement ; ne pas doubler un travail en cours. Une dépendance n'est satisfaite qu'après revue/tests et disponibilité dans le commit source suivant, pas sur annonce d'un worker.
+---
 
-## Contrat données
-`../vue.html` est une vue dérivée historique, non une source de ratification. Aucun `plan.json` n'est présumé livré au clone. Les sources V3 citées par cette vue ne sont pas accessibles à Jules : références de provenance seulement, A SOURCER si non consultables. Ne pas transférer de corpus privé supplémentaire. Historique, proposition, engagement actif et certification humaine restent distincts.
+## 2. Directives Déterministes pour Jules (Google Labs)
 
-## Contrôle local
-Depuis la racine : `python delegation-a-jules/scripts/validate_briefs.py` puis `python delegation-a-jules/scripts/validate_briefs.py --self-test`.
-Ces tests vérifient des invariants documentaires limités, PAS le fonctionnement de Life OS ni la disponibilité distante. Les PRD contiennent les tests fonctionnels que Jules devra exécuter en plus de `npm run lint` et `npm run build`.
-
-## Porte distante
-Avant tout lancement : revue du diff et de la confidentialité du contenu déjà présent dans vue.html ; publier uniquement le périmètre choisi après autorisation appropriée, puis vérifier le SHA et la présence des briefs sur la branche distante effectivement fournie à Jules. Une modification locale n'est pas visible dans son clone. Aucun push, merge, déploiement, élargissement de budget ou signature human:amdkn automatique.
-
-## Remplacement et retour arrière
-Ces briefs remplacent les consignes antérieures contradictoires ; ils n'ajoutent ni cadence, ni base, ni moteur SQLite obligatoire. Les versions précédentes restent dans Git. Restaurer uniquement les fichiers de ce dossier depuis la révision antérieure après revue du diff, sans toucher aux autres travaux.
+1. **Un mandat par catégorie :** Jules reçoit l'instruction de traiter l'intégralité du brief d'une catégorie sans saucissonnement flou.
+2. **Pas d'écrasement monolithique :** Interdiction d'écraser des stores (w-12wy.store.ts) ou des composants vitaux d'un seul bloc pour éviter les échecs de diffs git.
+3. **Vérification systématique :** Chaque session doit valider 
+pm run lint et 
+pm run build à 0 erreur avant la création de la Pull Request.
+4. **Local-First & Zéro Dette :** Aucune dépendance 
+ode_modules lourde ni mock statique n'est toléré dans le code source.
