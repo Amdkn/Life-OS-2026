@@ -33,7 +33,7 @@ interface LifeWheelState {
   domains: WheelDomain[];
   ambitions: WheelAmbition[];
   history: WheelHistoryEntry[];
-  activeTab: 'overview' | 'domains' | 'analytics' | 'growth';
+  activeTab: 'overview' | 'domains' | 'analytics' | 'growth' | 'discovery';
   isHydrated: boolean;
   globalScore: number;
 

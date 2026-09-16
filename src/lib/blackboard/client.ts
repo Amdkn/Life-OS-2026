@@ -1,4 +1,5 @@
-const SERVER_URL = 'http://localhost:4445/api/blackboard';
+let SERVER_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BLACKBOARD_API_URL) ? import.meta.env.VITE_BLACKBOARD_API_URL : 'http://localhost:4445/api/blackboard';
+export function setServerUrl(url: string) { SERVER_URL = url; }
 
 export interface Workspace {
   id: string;
@@ -106,4 +107,23 @@ export async function createArtifact(artifact: Artifact): Promise<Artifact> {
   });
   if (!res.ok) throw new Error('Failed to create artifact');
   return res.json();
+}
+
+
+export async function tryAcquireLock(resourceKey: string, lockedBy: string, ttlMs: number): Promise<boolean> {
+  const expiresAt = Date.now() + ttlMs;
+  return acquireLock({ id: crypto.randomUUID(), resource_key: resourceKey, locked_by: lockedBy, expires_at: expiresAt });
+}
+
+export async function recordActionReceipt(workspaceId: string | null, actorId: string, actorLayer: string, payload: any): Promise<BlackboardEvent> {
+  const event: BlackboardEvent = {
+    id: crypto.randomUUID(),
+    workspace_id: workspaceId,
+    actor_id: actorId,
+    actor_layer: actorLayer,
+    event_type: 'action_receipt',
+    payload_json: JSON.stringify(payload),
+    timestamp: Date.now()
+  };
+  return appendEvent(event);
 }
