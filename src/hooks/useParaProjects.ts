@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParaStore } from '../stores/fw-para.store';
 import { readFromLD, writeToLD, LDId, LDStore } from '../lib/ld-router';
 import { ParaItem } from '../stores/ld01.store';
+import { DOMAIN_TO_LD, projectToParaItem } from '../utils/paraAdapter';
 
 export function useParaProjects() {
   const { activeTab, activeLdFilter } = useParaStore();
@@ -23,7 +24,31 @@ export function useParaProjects() {
       );
 
       // Flatten results and sort by date
-      const flatItems = results.flat().sort((a, b) => b.updatedAt - a.updatedAt);
+      let flatItems = results.flat().sort((a, b) => b.updatedAt - a.updatedAt);
+
+      // IDEMPOTENCY / SEED SYNC TO IDB (Picard Distillation)
+      if (storeName === "projects") {
+        const storeProjects = useParaStore.getState().projects;
+        const picardProjects = storeProjects.filter(p => p.id.startsWith("PRJ-PICARD"));
+        let updatedIDB = false;
+
+        for (const p of picardProjects) {
+          if (!flatItems.find(i => i.id === p.id)) {
+            const ldId = DOMAIN_TO_LD[p.domain] || "ld01";
+            await writeToLD(ldId, "projects", "add", projectToParaItem(p), "para");
+            updatedIDB = true;
+          }
+        }
+
+        if (updatedIDB) {
+          // Re-fetch to include injected seeded projects
+          const resultsAfter = await Promise.all(
+            domains.map(ld => readFromLD<ParaItem>(ld, storeName))
+          );
+          flatItems = resultsAfter.flat().sort((a, b) => b.updatedAt - a.updatedAt);
+        }
+      }
+
       setItems(flatItems);
     } catch (err) {
       console.error("[useParaProjects] Failed to fetch items:", err);

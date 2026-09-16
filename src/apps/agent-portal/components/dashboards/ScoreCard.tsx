@@ -5,6 +5,7 @@ import { twMerge } from 'tailwind-merge';
 import { Layout, CheckCircle2, Clock, Eye, AlertCircle, MoreHorizontal } from 'lucide-react';
 import { useParaStore } from '../../../../stores/fw-para.store';
 import { useDealStore } from '../../../../stores/fw-deal.store';
+import { useAgentsStore } from '../../../../stores/agents.store';
 import { useOsSettingsStore } from '../../../../stores/os-settings.store';
 import { LDId } from '../../../../lib/ld-router';
 import { LD_TO_DOMAIN } from '../../../../utils/paraAdapter';
@@ -14,8 +15,9 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const ScoreCard: React.FC = () => {
-  const { projects } = useParaStore();
+  const { projects, updateProject } = useParaStore();
   const { muses } = useDealStore();
+  const { tasks: agentTasks, assignTask, agents: realAgents } = useAgentsStore();
   const { activeLdFilter } = useOsSettingsStore();
 
   // 🧿 V0.9 — REVENUE BRIDGE & TIME TAX CALCULATION
@@ -37,6 +39,7 @@ const ScoreCard: React.FC = () => {
     })
     .map(p => ({
       id: p.id.substring(0, 8).toUpperCase(),
+      realId: p.id,
       title: p.title,
       status: p.status === 'completed' ? 'done' : 
               p.status === 'paused' ? 'review' :
@@ -44,7 +47,8 @@ const ScoreCard: React.FC = () => {
       steps: ['PLAN', 'BUILD', 'TEST', 'DEPLOY'], // Standard Protocol
       activeStep: Math.floor((p.progress / 100) * 3),
       label: p.domain.toUpperCase(),
-      progress: p.progress
+      progress: p.progress,
+      agentTask: agentTasks.find(at => at.title === p.title)
     }));
 
   const columns = [
@@ -63,6 +67,16 @@ const ScoreCard: React.FC = () => {
   };
 
   const percentComplete = Math.round((stats.done / stats.total) * 100);
+
+  // Watch for completed tasks in agents store to update PARA projects
+  React.useEffect(() => {
+    agentTasks.filter(t => t.status === 'completed').forEach(at => {
+      const project = projects.find(p => p.title === at.title);
+      if (project && project.progress < 100 && project.status !== 'completed') {
+        updateProject(project.id, { progress: 100, status: 'completed' });
+      }
+    });
+  }, [agentTasks, projects, updateProject]);
 
   return (
     <div className="h-full flex flex-col p-8 pb-0 overflow-hidden">
@@ -164,6 +178,12 @@ const ScoreCard: React.FC = () => {
                   key={task.id}
                   whileHover={{ y: -2, scale: 1.01 }}
                   className="glass-card p-4 border border-[var(--glass-border-subtle)] relative group cursor-pointer hover:border-[var(--glass-border)] transition-all duration-300"
+                  onClick={() => {
+                    if (task.status === 'todo') {
+                      assignTask(task.title, 'A2');
+                      updateProject(task.realId, { progress: 10 }); // move to in-progress
+                    }
+                  }}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">{task.id}</span>
@@ -190,7 +210,14 @@ const ScoreCard: React.FC = () => {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center gap-2">
+                      {task.agentTask && (
+                        <div className="flex items-center gap-1 bg-[var(--brass)]/10 px-1.5 py-0.5 rounded border border-[var(--brass)]/20">
+                           <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse shadow-[0_0_5px_var(--accent-primary)]" />
+                           <span className="text-[8px] font-black text-[var(--brass)] uppercase tracking-widest truncate max-w-[60px]">{realAgents.find(a => a.id === task.agentTask?.agentId)?.name || 'Agent'}</span>
+                        </div>
+                      )}
                     <div className={cn(
                       "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest",
                       task.label === 'BUSINESS' || task.label === 'FINANCE'
@@ -198,6 +225,7 @@ const ScoreCard: React.FC = () => {
                         : "bg-blue-500/10 text-blue-500/80"
                     )}>
                       {task.label}
+                    </div>
                     </div>
                     {task.progress > 0 && (
                       <span className="text-[9px] font-black text-[var(--brass)]">{task.progress}%</span>
