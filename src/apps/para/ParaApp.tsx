@@ -104,7 +104,7 @@ export default function ParaApp() {
           ) : activeTab === 'areas' ? (
             <div className="flex flex-col gap-8">
               {domainFilters.filter(f => f.id !== 'all' && (activeLdFilter === 'all' || f.id === activeLdFilter)).map(domain => {
-                const domainLabel = domain.label.toLowerCase() as any;
+                const domainLabel = (LD_TO_DOMAIN[domain.id as keyof typeof LD_TO_DOMAIN] || domain.label.toLowerCase()) as typeof LD_TO_DOMAIN[keyof typeof LD_TO_DOMAIN];
                 const dProjects = areasFilteredProjects.filter(p => p.domain === domainLabel);
                 return (
                   <DomainCard 
