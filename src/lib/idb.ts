@@ -7,7 +7,7 @@ export class DomainDB {
   private version: number;
   private db: IDBDatabase | null = null;
 
-  constructor(dbName: string, version: number = 1) {
+  constructor(dbName: string, version: number = 2) {
     this.dbName = dbName;
     this.version = version;
     this.tableName = dbName.replace('aspace_', '');
@@ -27,6 +27,9 @@ export class DomainDB {
             db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });
           }
         });
+        if (!db.objectStoreNames.contains('outbox')) {
+          db.createObjectStore('outbox', { keyPath: 'idempotencyKey' });
+        }
       };
 
       request.onsuccess = (event) => {
@@ -34,6 +37,17 @@ export class DomainDB {
         resolve();
       };
 
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async get<T>(storeName: string, id: string): Promise<T | undefined> {
+    await this.init();
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(storeName, 'readonly');
+      const store = transaction.objectStore(storeName);
+      const request = store.get(id);
+      request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
   }
@@ -58,75 +72,150 @@ export class DomainDB {
         const { data, error } = await query;
 
         if (!error && data && data.length > 0) {
-          const transaction = this.db!.transaction(storeName, 'readwrite');
+          const transaction = this.db!.transaction([storeName, 'outbox'], 'readwrite');
           const store = transaction.objectStore(storeName);
-          for (const item of data) {
-            store.put(item);
-          }
+          const outboxStore = transaction.objectStore('outbox');
+
+          // Check outbox entries to avoid overwriting pending local changes
+          const pendingEntriesRequest = outboxStore.getAll();
+
+          pendingEntriesRequest.onsuccess = () => {
+            const pending = pendingEntriesRequest.result as any[];
+            // Only apply server data if there isn't a pending local outbox entry for that item
+            // or if the server version is strictly greater.
+            for (const item of data) {
+               const hasPendingLocal = pending.find(p => p.payload.id === item.id && p.storeName === storeName);
+
+               if (!hasPendingLocal) {
+                 // Even without a pending local queue, do not blindly overwrite if local DB has a HIGHER version (e.g. outbox cleared but sync delay, or older server snapshot replayed)
+                 const req = store.get(item.id);
+                 req.onsuccess = () => {
+                    const localItem = req.result;
+                    if (!localItem || item.version >= (localItem.version || 0)) {
+                      store.put(item);
+                    }
+                 };
+               }
+            }
+          };
         }
       } catch (e) {
         console.warn(`Sync failed for ${this.tableName}, deferred.`, e);
       }
     })();
 
+    // Always attempt outbox sync in the background
+    (async () => {
+       try {
+         const { data: { session } } = await supabase.auth.getSession();
+         const userId = session?.user?.id;
+         if (userId && this.db) {
+            const { processOutbox } = await import('./outbox/sync');
+            await processOutbox(this.db, this.tableName, userId);
+         }
+       } catch (e) {}
+    })();
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(storeName, 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        const results = request.result as any[];
+        // Filter out tombstones
+        resolve(results.filter(item => !item._deleted) as T[]);
+      };
       request.onerror = () => reject(request.error);
     });
   }
 
-  async put<T>(storeName: string, data: T): Promise<void> {
+  async put<T extends { id?: string, version?: number }>(storeName: string, data: T): Promise<void> {
     await this.init();
     
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+
+    const id = data.id || crypto.randomUUID();
+    const existing = await this.get<any>(storeName, id);
+    const version = (existing?.version || 0) + 1;
+    const finalData = { ...data, id, version };
+
     await new Promise<void>((resolve, reject) => {
-      const transaction = this.db!.transaction(storeName, 'readwrite');
+      const transaction = this.db!.transaction([storeName, 'outbox'], 'readwrite');
+
       const store = transaction.objectStore(storeName);
-      const request = store.put(data);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      const storeRequest = store.put(finalData);
+
+      if (userId) {
+        const outboxStore = transaction.objectStore('outbox');
+        const entry = {
+           idempotencyKey: crypto.randomUUID(),
+           storeName,
+           operation: 'put',
+           payload: finalData,
+           userId,
+           version,
+           status: 'pending',
+           retryCount: 0,
+           createdAt: Date.now()
+        };
+        outboxStore.put(entry);
+      }
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
     });
 
-    (async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const userId = session?.user?.id;
-
-        if (userId) {
-          await supabase
-            .from(this.tableName)
-            .upsert({ ...(data as any), user_id: userId, type: storeName, updated_at: new Date().toISOString() });
-        }
-      } catch (e) {
-        console.warn(`Supabase sync deferred for ${this.tableName}`, e);
-      }
-    })();
+    if (userId && this.db) {
+      const { processOutbox } = await import('./outbox/sync');
+      processOutbox(this.db, this.tableName, userId).catch(() => {});
+    }
   }
 
   async delete(storeName: string, id: string): Promise<void> {
     await this.init();
     
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+
+    const existing = await this.get<any>(storeName, id);
+    if (!existing) return; // Nothing to delete
+
+    const version = (existing.version || 0) + 1;
+    const tombstoneData = { ...existing, _deleted: true, version };
+
+
     await new Promise<void>((resolve, reject) => {
-      const transaction = this.db!.transaction(storeName, 'readwrite');
+      const transaction = this.db!.transaction([storeName, 'outbox'], 'readwrite');
+
+      // We do a logical delete (tombstone) locally
       const store = transaction.objectStore(storeName);
-      const request = store.delete(id);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      store.put(tombstoneData);
+
+      if (userId) {
+        const outboxStore = transaction.objectStore('outbox');
+        const entry = {
+           idempotencyKey: crypto.randomUUID(),
+           storeName,
+           operation: 'delete', // Or put, since syncToSupabase treats them the same for upserting tombstones
+           payload: tombstoneData,
+           userId,
+           version,
+           status: 'pending',
+           retryCount: 0,
+           createdAt: Date.now()
+        };
+        outboxStore.put(entry);
+      }
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
     });
 
-    (async () => {
-      try {
-        const { error } = await supabase
-          .from(this.tableName)
-          .delete()
-          .eq('id', id);
-        if (error) throw error;
-      } catch (e) {
-        console.warn(`Delete sync deferred for ${this.tableName}`, e);
-      }
-    })();
+    if (userId && this.db) {
+      const { processOutbox } = await import('./outbox/sync');
+      processOutbox(this.db, this.tableName, userId).catch(() => {});
+    }
   }
 
   async wipe(): Promise<void> {

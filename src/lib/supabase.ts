@@ -1,8 +1,13 @@
 // src/lib/supabase.ts
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (typeof import.meta !== "undefined" && import.meta.env) ? import.meta.env.VITE_SUPABASE_URL : (process.env.VITE_SUPABASE_URL || 'http://mock.supabase.co');
-const supabaseAnonKey = (typeof import.meta !== "undefined" && import.meta.env) ? import.meta.env.VITE_SUPABASE_ANON_KEY : (process.env.VITE_SUPABASE_ANON_KEY || 'mock');
+const supabaseUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SUPABASE_URL)
+  ? import.meta.env.VITE_SUPABASE_URL
+  : (process.env.VITE_SUPABASE_URL || 'http://mock.supabase.co');
+
+const supabaseAnonKey = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SUPABASE_ANON_KEY)
+  ? import.meta.env.VITE_SUPABASE_ANON_KEY
+  : (process.env.VITE_SUPABASE_ANON_KEY || 'mock');
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
