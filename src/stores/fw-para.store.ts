@@ -72,43 +72,24 @@ interface ParaState {
   deleteProject: (id: string) => Promise<void>;
 }
 
+const PICARD_PROJECTS: Project[] = [
+  { id: 'PRJ-PICARD-01', title: 'OMK Business OS (B2/B3 Core)', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-02', title: 'ABC OS & Child Care BOS (Franchise)', status: 'active', domain: 'business', pillars: ['operations', 'product'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-03', title: 'RILCOT Members Space OS', status: 'active', domain: 'relations', pillars: ['people', 'product'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-04', title: 'Alikaly Bana Holding to LLC', status: 'active', domain: 'finance', pillars: ['legal', 'finance'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-05', title: 'Marina Cleaning BOS & SOP', status: 'active', domain: 'habitat', pillars: ['operations', 'people'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-06', title: 'Cerritos Plane Onboarding', status: 'active', domain: 'cognition', pillars: ['meta', 'it'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-07', title: 'ClaudeClaw Agent & Mission Control', status: 'active', domain: 'creativity', pillars: ['it', 'product'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-08', title: 'Graphify Out Context Graphs', status: 'active', domain: 'creativity', pillars: ['it', 'meta'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-09', title: 'OMK Services BOS', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now() },
+];
+
 export const useParaStore = create<ParaState>()(
   persist(
     (set, get) => ({
       activeTab: 'overview',
       activeLdFilter: 'all',
-      projects: [
-        {
-          id: 'SD-AGENT-PORTAL',
-          title: 'Nexus Architecture Deployment',
-          status: 'active',
-          domain: 'business',
-          pillars: ['growth', 'operations'],
-          resources: [],
-          progress: 100,
-          updatedAt: Date.now()
-        },
-        {
-          id: 'SD-FW-PARA',
-          title: 'PARA Transversal Sync Hooks',
-          status: 'active',
-          domain: 'business',
-          pillars: ['operations'],
-          resources: [],
-          progress: 85,
-          updatedAt: Date.now()
-        },
-        {
-          id: 'SD-LIFE-OS',
-          title: 'Life Domains IndexedDB Schema',
-          status: 'paused',
-          domain: 'impact',
-          pillars: ['meta'],
-          resources: [],
-          progress: 40,
-          updatedAt: Date.now()
-        }
-      ], 
+      projects: [...PICARD_PROJECTS],
       resources: [], 
       customResourceTypes: [],
 
@@ -189,45 +170,24 @@ export const useParaStore = create<ParaState>()(
             console.error('[PARA Store] Pre-load hydration failure:', error);
             return;
           }
-          // PEPIITES Armor: If after hydration the projects are empty, inject the seed data
-          // This prevents localStorage from serving an 'empty' state if user has some old data.
-          if (hydratedState && (!hydratedState.projects || hydratedState.projects.length === 0)) {
-            console.warn('[PARA Store] State found empty. Injecting Sovereign Pépites.');
-            // Note: We use the seed data defined in the create() template
-            // For safety, we redeclare them here or trust the current state if we can't find them
-            // But better to just use a small list here for absolute certainty
-            hydratedState.projects = [
-              {
-                id: 'SD-AGENT-PORTAL',
-                title: 'Nexus Architecture Deployment',
-                status: 'active',
-                domain: 'business',
-                pillars: ['growth', 'operations'],
-                resources: [],
-                progress: 100,
-                updatedAt: Date.now()
-              },
-              {
-                id: 'SD-FW-PARA',
-                title: 'PARA Transversal Sync Hooks',
-                status: 'active',
-                domain: 'business',
-                pillars: ['operations'],
-                resources: [],
-                progress: 85,
-                updatedAt: Date.now()
-              },
-              {
-                id: 'SD-LIFE-OS',
-                title: 'Life Domains IndexedDB Schema',
-                status: 'paused',
-                domain: 'impact',
-                pillars: ['meta'],
-                resources: [],
-                progress: 40,
-                updatedAt: Date.now()
+          // PEPIITES Armor / Picard Distillation
+          // Ensure all Picard projects are present
+          if (hydratedState) {
+            if (!hydratedState.projects) {
+              hydratedState.projects = [];
+            }
+
+            let missingProjects = false;
+            for (const picardProj of PICARD_PROJECTS) {
+              if (!hydratedState.projects.some(p => p.id === picardProj.id)) {
+                hydratedState.projects.push({ ...picardProj });
+                missingProjects = true;
               }
-            ];
+            }
+
+            if (missingProjects) {
+              console.warn('[PARA Store] Injected missing Picard Distillation Projects.');
+            }
           }
         };
       }
