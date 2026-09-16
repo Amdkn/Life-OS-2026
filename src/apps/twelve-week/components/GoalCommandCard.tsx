@@ -116,7 +116,7 @@ export function GoalCommandCard({ goalId }: { goalId: string }) {
               </h3>
               <div className="flex flex-col items-center justify-center py-6">
                 <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse mb-3" />
-                <p className="text-[9px] font-bold uppercase tracking-widest text-indigo-400">Awaiting V0.7 Neural Link</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-indigo-400">En attente de connexion</p>
               </div>
            </div>
 
