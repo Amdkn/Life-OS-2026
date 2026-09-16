@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-16T13:22:03.206841+00:00",
-  "command": "tick",
+  "generated_at": "2026-09-16T13:30:16.997782+00:00",
+  "command": "status",
   "mode": "LIVE",
   "registry": {
     "status": "OK",
@@ -299,7 +299,7 @@
         "env_observed": "true",
         "activity_cursor": 0,
         "pr_refs": "[]",
-        "observed_at": "2026-09-16T13:20:49.556807+00:00"
+        "observed_at": "2026-09-16T13:29:22.222769+00:00"
       },
       {
         "session_name": "sessions/7587937436525114170",
@@ -312,7 +312,7 @@
         "env_observed": "true",
         "activity_cursor": 0,
         "pr_refs": "[]",
-        "observed_at": "2026-09-16T13:20:53.365918+00:00"
+        "observed_at": "2026-09-16T13:29:25.375449+00:00"
       },
       {
         "session_name": "sessions/11474992290619374879",
@@ -325,7 +325,7 @@
         "env_observed": "true",
         "activity_cursor": 187,
         "pr_refs": "[]",
-        "observed_at": "2026-09-16T13:20:53.385275+00:00"
+        "observed_at": "2026-09-16T13:29:25.398471+00:00"
       },
       {
         "session_name": "sessions/1391687838750096362",
@@ -338,7 +338,7 @@
         "env_observed": "true",
         "activity_cursor": 0,
         "pr_refs": "[]",
-        "observed_at": "2026-09-16T13:21:59.536033+00:00"
+        "observed_at": "2026-09-16T13:30:08.909021+00:00"
       },
       {
         "session_name": "sessions/16535342956649164453",
@@ -351,7 +351,7 @@
         "env_observed": "true",
         "activity_cursor": 0,
         "pr_refs": "[]",
-        "observed_at": "2026-09-16T13:21:59.559986+00:00"
+        "observed_at": "2026-09-16T13:30:08.935489+00:00"
       },
       {
         "session_name": "sessions/9986816530458005889",
@@ -364,7 +364,7 @@
         "env_observed": "true",
         "activity_cursor": 0,
         "pr_refs": "[]",
-        "observed_at": "2026-09-16T13:22:03.148877+00:00"
+        "observed_at": "2026-09-16T13:30:13.352859+00:00"
       },
       {
         "session_name": "sessions/500080852609952254",
@@ -377,7 +377,7 @@
         "env_observed": "true",
         "activity_cursor": 59,
         "pr_refs": "[]",
-        "observed_at": "2026-09-16T13:20:46.442235+00:00"
+        "observed_at": "2026-09-16T13:29:18.619191+00:00"
       }
     ],
     "active_all_sources": "4",
@@ -430,17 +430,17 @@
   ],
   "events": {
     "pending": 7,
-    "processed": 23,
+    "processed": 26,
     "rejected": 0
   },
   "decisions": {
-    "total": 106,
-    "authorized": 25
+    "total": 124,
+    "authorized": 28
   },
   "llm": {
     "model": "z-ai/glm-5.3-flash",
     "budget_day": "2026-09-16",
-    "calls_used": 107,
+    "calls_used": 125,
     "daily_limit": null,
     "note": "null = plafond d'appels local desactive ; le plafond financier de la cle n'est pas modifie"
   },
@@ -449,36 +449,52 @@
       "name": "manager",
       "interval_minutes": 1,
       "consecutive_useful": 0,
-      "last_run_at": "2026-09-16T13:20:28.103031+00:00",
+      "last_run_at": "2026-09-16T13:29:18.452866+00:00",
       "last_outcome": "PROCESSED_0_REJECTED_0",
       "note": null
     },
     "gatekeeper": {
       "name": "gatekeeper",
       "interval_minutes": 1,
-      "consecutive_useful": 2,
-      "last_run_at": "2026-09-16T13:22:03.187622+00:00",
-      "last_outcome": "useful",
-      "note": "progress=0 events=1"
+      "consecutive_useful": 0,
+      "last_run_at": "2026-09-16T13:30:15.539569+00:00",
+      "last_outcome": "ok_empty",
+      "note": "progress=0 events=0"
     },
     "supervisor": {
       "name": "supervisor",
       "interval_minutes": 5,
       "consecutive_useful": 0,
-      "last_run_at": "2026-09-16T13:20:36.860880+00:00",
-      "last_outcome": "INCIDENT_SIGNALLED",
+      "last_run_at": "2026-09-16T13:26:01.209523+00:00",
+      "last_outcome": "STABLE_NO_OUTPUT",
       "note": null
     },
     "prompt_library": {
       "name": "prompt_library",
       "interval_minutes": 10,
       "consecutive_useful": 0,
-      "last_run_at": "2026-09-16T13:14:25.593706+00:00",
+      "last_run_at": "2026-09-16T13:29:10.662291+00:00",
       "last_outcome": "REFRESHED_55",
       "note": null
     }
   },
   "outbox_recent": [
+    {
+      "id": 14,
+      "at": "2026-09-16T13:29:25.425836+00:00",
+      "kind": "SESSION_BLOCKED",
+      "level": "error",
+      "subject": "sessions/11474992290619374879",
+      "detail": "state=FAILED"
+    },
+    {
+      "id": 13,
+      "at": "2026-09-16T13:22:59.957865+00:00",
+      "kind": "SESSION_BLOCKED",
+      "level": "error",
+      "subject": "sessions/11474992290619374879",
+      "detail": "state=FAILED"
+    },
     {
       "id": 12,
       "at": "2026-09-16T13:20:53.410269+00:00",
@@ -542,22 +558,6 @@
       "level": "error",
       "subject": "open_incidents",
       "detail": "{\"active_sessions_all_sources\": \"4\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 44, \"BLOCKED_SCOPE\": 4, \"PLANNED_MESSAGE\": 1, \"SESSION_TERMINAL\": 6}, \"open_incidents\": 8, \"program_categories_active\": [], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
-    },
-    {
-      "id": 4,
-      "at": "2026-09-16T12:00:19.718968+00:00",
-      "kind": "SUPERVISION_INCIDENT",
-      "level": "error",
-      "subject": "open_incidents",
-      "detail": "{\"active_sessions_all_sources\": \"5\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 44, \"BLOCKED_SCOPE\": 5, \"SESSION_TERMINAL\": 5, \"SUBMITTED\": 1}, \"open_incidents\": 7, \"program_categories_active\": [2], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
-    },
-    {
-      "id": 3,
-      "at": "2026-09-16T11:23:48.944002+00:00",
-      "kind": "CREDENTIAL_MISSING",
-      "level": "error",
-      "subject": "openrouter_key",
-      "detail": "cle OPENROUTER_API_KEY absente (env ou hermes_env_file) ; BLOCKED_CREDENTIAL, zero fallback"
     }
   ],
   "known_sessions": [
@@ -585,90 +585,5 @@
     "Aucun cron Hermes n'est modifie : les cadences vivent dans state.sqlite3.",
     "DRY_RUN par defaut : aucune mutation reseau sans --live explicite."
   ],
-  "report": {
-    "command": "tick",
-    "mode": "LIVE",
-    "registry_status": "OK",
-    "prompt_library": "NOT_DUE",
-    "sessions_history_complete": true,
-    "active_sessions_all_sources": 4,
-    "known_sessions": [
-      {
-        "session": "sessions/1391687838750096362",
-        "prd_id": "PRD-003",
-        "source_ref": "mission pole0 2026-09-12 + delegation-a-jules/CONTRAT-COMMUN.md",
-        "observed": "COMPLETED"
-      },
-      {
-        "session": "sessions/7587937436525114170",
-        "prd_id": "PRD-011",
-        "source_ref": "delegation-a-jules/audit/dispatch-state.json (statut UNCERTAIN consigne)",
-        "observed": "COMPLETED"
-      }
-    ],
-    "program_sessions_observed": [
-      {
-        "session": "sessions/500080852609952254",
-        "state": "COMPLETED",
-        "category": 2,
-        "prd": "PRD-024",
-        "pr_refs": []
-      },
-      {
-        "session": "sessions/3716194391895641129",
-        "state": "COMPLETED",
-        "category": 4,
-        "prd": "PRD-041",
-        "pr_refs": []
-      },
-      {
-        "session": "sessions/7587937436525114170",
-        "state": "COMPLETED",
-        "category": 1,
-        "prd": "PRD-011",
-        "pr_refs": []
-      },
-      {
-        "session": "sessions/11474992290619374879",
-        "state": "FAILED",
-        "category": 0,
-        "prd": "PRD-002",
-        "pr_refs": []
-      },
-      {
-        "session": "sessions/1391687838750096362",
-        "state": "COMPLETED",
-        "category": 0,
-        "prd": "PRD-003",
-        "pr_refs": []
-      },
-      {
-        "session": "sessions/16535342956649164453",
-        "state": "FAILED",
-        "category": 0,
-        "prd": "PRD-002",
-        "pr_refs": []
-      },
-      {
-        "session": "sessions/9986816530458005889",
-        "state": "COMPLETED",
-        "category": 0,
-        "prd": "PRD-001",
-        "pr_refs": []
-      }
-    ],
-    "uncertain_reconciled": [],
-    "events_created": 1,
-    "plans": [],
-    "planned_creations": 0,
-    "planned_messages": 0,
-    "events_admission_created": 0,
-    "execution_results": [],
-    "gatekeeper": {
-      "ok": true,
-      "useful": true,
-      "consecutive_useful": 2,
-      "note": "progress=0 events=1"
-    }
-  }
+  "report": {}
 }
