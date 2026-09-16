@@ -1,15 +1,20 @@
-import React from 'react';
-import { JSDOM } from 'jsdom';
-import "fake-indexeddb/auto";
-
 // Mock browser globals BEFORE importing components
-const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-global.window = dom.window as any;
-global.document = dom.window.document;
-Object.defineProperty(global, 'navigator', {
-  value: dom.window.navigator,
-  writable: true
-});
+if (typeof global.window === 'undefined') {
+  (global as any).window = {
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    matchMedia: () => ({ matches: false, addListener: () => {}, removeListener: () => {} }),
+  };
+}
+if (typeof global.document === 'undefined') {
+  (global as any).document = {
+    createElement: () => ({}),
+    documentElement: {},
+  };
+}
+if (typeof (global as any).navigator === 'undefined') {
+  (global as any).navigator = { userAgent: 'node' };
+}
 
 // Mock window resize observer
 global.ResizeObserver = class ResizeObserver {
@@ -19,6 +24,7 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 // We don't have react testing library here so we just test rendering to string
+import React from 'react';
 import { renderToString } from 'react-dom/server';
 
 import SkillsView from '../src/apps/agent-portal/components/SkillsView';

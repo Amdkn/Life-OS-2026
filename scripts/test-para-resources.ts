@@ -1,4 +1,78 @@
-import 'fake-indexeddb/auto';
+if (typeof (global as any).window === 'undefined') {
+  (global as any).window = global;
+}
+if (typeof (global as any).localStorage === 'undefined') {
+  const store: Record<string, string> = {};
+  (global as any).localStorage = {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, val: string) => { store[key] = val; },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+  };
+}
+if (typeof (global as any).indexedDB === 'undefined') {
+  const memoryDb: Record<string, Record<string, any>> = {};
+  (global as any).indexedDB = {
+    open: (name: string, _version: number) => {
+      const req: any = {};
+      setTimeout(() => {
+        if (!memoryDb[name]) memoryDb[name] = {};
+        const fakeDb = {
+          objectStoreNames: { contains: () => true },
+          createObjectStore: () => {},
+          transaction: (_storeNames: any, _mode: any) => {
+            const tx: any = {
+              oncomplete: null,
+              onerror: null,
+              objectStore: (_storeName: string) => ({
+                put: (item: any) => {
+                  const putReq: any = {};
+                  setTimeout(() => {
+                    memoryDb[name][item.id || item.key || 'item'] = item;
+                    if (putReq.onsuccess) putReq.onsuccess({ target: putReq });
+                  }, 0);
+                  return putReq;
+                },
+                get: (key: string) => {
+                  const getReq: any = {};
+                  setTimeout(() => {
+                    getReq.result = memoryDb[name][key];
+                    if (getReq.onsuccess) getReq.onsuccess({ target: getReq });
+                  }, 0);
+                  return getReq;
+                },
+                getAll: () => {
+                  const getAllReq: any = {};
+                  setTimeout(() => {
+                    getAllReq.result = Object.values(memoryDb[name]);
+                    if (getAllReq.onsuccess) getAllReq.onsuccess({ target: getAllReq });
+                  }, 0);
+                  return getAllReq;
+                },
+                delete: (key: string) => {
+                  const delReq: any = {};
+                  setTimeout(() => {
+                    delete memoryDb[name][key];
+                    if (delReq.onsuccess) delReq.onsuccess({ target: delReq });
+                  }, 0);
+                  return delReq;
+                }
+              }),
+            };
+            setTimeout(() => {
+              if (tx.oncomplete) tx.oncomplete();
+            }, 5);
+            return tx;
+          }
+        };
+        req.result = fakeDb;
+        if (req.onupgradeneeded) req.onupgradeneeded({ target: req });
+        if (req.onsuccess) req.onsuccess({ target: req });
+      }, 0);
+      return req;
+    }
+  };
+}
 import { useParaStore } from '../src/stores/fw-para.store';
 
 async function testParaResources() {
