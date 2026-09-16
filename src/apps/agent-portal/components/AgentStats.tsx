@@ -89,15 +89,6 @@ const ArmadaFolderAccordion: React.FC<{
   const [isOpen, setIsOpen] = useState(folder.id === 'a0');
   const Icon = folder.icon;
 
-  // Calculate folder status based on real agents
-  const folderRealAgents = folder.agents.map(a => {
-    const real = realAgents.find(ra => ra.name.includes(a.name) || (a.name.includes(ra.name)));
-    return real ? { ...a, status: real.status, role: real.specialty || real.role || a.role } : a;
-  });
-
-  const isFolderActive = folderRealAgents.some(a => a.status === 'online' || a.status === 'busy' || a.status === 'Active');
-  const displayStatus = isFolderActive ? 'Active' : 'Idle';
-
   if (isCollapsed) {
     return (
       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#020617] border border-[var(--glass-border)] text-[var(--brass)] mx-auto mb-2 group relative">
@@ -122,7 +113,7 @@ const ArmadaFolderAccordion: React.FC<{
       >
         <div className="flex-1 flex items-center gap-2">
           {isOpen ? <ChevronDown className="w-3 h-3 text-[var(--brass)]" /> : <ChevronRight className="w-3 h-3 text-[var(--text-muted)]" />}
-          <Icon className={cn("w-4 h-4", displayStatus === 'Active' ? "text-[var(--accent-primary)]" : "text-[var(--brass)]")} />
+          <Icon className={cn("w-4 h-4", folder.status === 'Active' ? "text-[var(--accent-primary)]" : "text-[var(--brass)]")} />
           <span className={cn(
             "text-xs font-black uppercase tracking-tighter group-hover:text-[var(--brass)] leading-none",
             folder.id === 'a0' && "text-[var(--accent-primary)]"
@@ -132,9 +123,9 @@ const ArmadaFolderAccordion: React.FC<{
         </div>
         <div className={cn(
           "px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest",
-          displayStatus === 'Active' ? "text-[var(--accent-primary)]" : "text-[var(--text-muted)]"
+          folder.status === 'Active' ? "text-[var(--accent-primary)]" : "text-[var(--text-muted)]"
         )}>
-          {displayStatus}
+          {folder.status}
         </div>
       </button>
       
@@ -146,7 +137,7 @@ const ArmadaFolderAccordion: React.FC<{
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden pl-4 space-y-1 border-l border-[var(--glass-border-subtle)] ml-2 mb-2"
           >
-            {folderRealAgents.map((agent) => (
+            {folder.agents.map((agent) => (
               <AgentCard 
                 key={agent.name} 
                 agent={agent} 
@@ -164,7 +155,7 @@ const ArmadaFolderAccordion: React.FC<{
 
 const AgentChatView: React.FC<{ agent: any, onBack: () => void }> = ({ agent, onBack }) => {
   const { logs } = useAgentsStore();
-  const agentLogs = logs.filter(l => agent.name.includes(l.agentName) || l.agentName.includes(agent.name) || (agent.id && l.agentId === agent.id));
+  const agentLogs = logs.filter(l => l.agentName.includes(agent.name.split(' ')[0]));
 
   return (
     <motion.div 
@@ -246,15 +237,6 @@ const AgentStats: React.FC<{ isCollapsed: boolean, onToggle: () => void }> = ({ 
     setActiveAgent(agent);
   };
 
-  const totalAgents = realAgents.length;
-  const activeAgents = realAgents.filter(a => a.status === 'busy' || a.status === 'online').length;
-  const hasWarnings = realAgents.some(a => a.status === 'warning' || a.status === 'offline');
-
-  const nexusLoad = totalAgents > 0 ? Math.round((activeAgents / totalAgents) * 100) : 0;
-  const nexusStatus = totalAgents === 0 ? "non mesuré" : (hasWarnings ? "WARN" : "OK");
-  const nexusStatusColor = nexusStatus === 'OK' ? "text-[var(--accent-primary)]" : (nexusStatus === 'WARN' ? "text-amber-500" : "text-[var(--text-muted)]");
-  const displayLoad = totalAgents === 0 ? "non mesuré" : `${nexusLoad < 10 ? '0' : ''}${nexusLoad}%`;
-
   return (
     <aside 
       className={cn(
@@ -330,11 +312,11 @@ const AgentStats: React.FC<{ isCollapsed: boolean, onToggle: () => void }> = ({ 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="glass-card p-2 text-center border-[var(--brass)]/10 shadow-lg bg-black/40">
                       <div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Load</div>
-                      <div className={cn("text-sm font-black", totalAgents === 0 ? "text-[var(--text-muted)] text-[10px]" : "text-white")}>{displayLoad}</div>
+                      <div className="text-sm font-black text-white">09%</div>
                     </div>
                     <div className="glass-card p-2 text-center border-[var(--brass)]/10 shadow-lg bg-black/40">
                       <div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Status</div>
-                      <div className={cn("text-sm font-black font-mono", nexusStatusColor, totalAgents === 0 && "text-[10px]")}>{nexusStatus}</div>
+                      <div className="text-sm font-black text-[var(--accent-primary)] font-mono">OK</div>
                     </div>
                   </div>
                 </div>
