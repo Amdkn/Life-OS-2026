@@ -1,5 +1,26 @@
 # PRD-024 — Scoped Storage & Moteur de Persistance Défensive
 
+
+## Correctif de délégation (audit 2026-09-12)
+
+> Cadre général : `../CONTRAT-COMMUN.md` (arborescence `delegation-a-jules/`, à créer par le parent). En cas de conflit, le présent correctif prime sur le corps initial du PRD, qui reste préservé.
+
+**Dépendances PRD :** PRD-023 (assistant.store persiste sous scope) ; PRD-001 (idb.ts reste la couche IndexedDB ; le scoping s'applique aux clés, pas un second moteur) ; PRD-011 (un scope de blackboard multi-profils s'appuie sur le service, pas sur des clés localStorage).
+
+**Périmètre d'écriture (write_scope) :**
+- Existant (touché) : `src/components/ViewportGuard.tsx` (vérifié présent) ; `LAYOUT_KEY = 'life-os-layout-v1'` : A SOURCER dans le code réel avant d'envelopper (clé à localiser).
+- Proposé (à créer, jamais présumé existant) : aucun nouveau fichier obligatoire — modifications dans les fichiers existants uniquement
+
+**Critères d'acceptation positifs :** charge corrompue injectée => réinitialisation de la vue par défaut sans écran blanc au reload ; isolation stricte des scopes ; enveloppe versionnée décodée et assainie au boot.
+
+**Critères d'acceptation négatifs (doivent rester vrais) :** **« vérifiée par tests Jest/Vitest » est invalide au 2026-09-12 : aucun runner (jest, vitest) n'est déclaré dans package.json.** Soit ajouter vitest comme travail séparé et le déclarer, soit requalifier en vérification manuelle scriptée + npm run lint/build ; ne jamais présenter ces commandes comme des tests ; pas de réinitialisation silencieuse qui détruit des données utilisateur sans trace.
+
+**Sécurité / isolation / idempotence / persistance :** réinitialisation défensive bornée à la zone corrompue, journalisée, jamais l'ensemble des données ; isolation multi-profils (Life OS perso vs Business OS pro) par préfixe de clé ; aucune migration destructrice sans sauvegarde préalable.
+
+**Commandes :** `npm run lint` (exegese : `lint` = `tsc --noEmit`, verification de types — **pas un test**) et `npm run build` (`vite build`) sont obligatoires avant toute livraison. Aucun runner de test n'est declare dans `package.json` au 2026-09-12 (pas de script `test`, pas de jest/vitest) : ne presenter ni l'un ni l'autre comme des tests fonctionnels, et ne pas inventer un script de test comme deja existant.
+
+**Reprise et rollback non destructifs :** enveloppement réversible : revert = les clés brutes redeviennent lisibles (conserver la compatibilité de lecture au premier boot post-rollback).
+
 ## 1. Valeur et Remplacement
 - **Origine Business OS :** `src/lib/auth/storage-scope.ts`, `src/stores/migrationDefensive.ts`.
 - **Obstacle dans Life OS :** Risque de collision de données localStorage/IndexedDB lors des montées de version de schémas ou de bascule multi-profils (ex: Life OS perso vs Business OS pro).

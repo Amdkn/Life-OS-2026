@@ -1,5 +1,26 @@
 # PRD-001 — Persistance local-first sans second moteur
 
+
+## Correctif de délégation (audit 2026-09-12)
+
+> Cadre général : `../CONTRAT-COMMUN.md` (arborescence `delegation-a-jules/`, à créer par le parent). En cas de conflit, le présent correctif prime sur le corps initial du PRD, qui reste préservé.
+
+**Dépendances PRD :** PRD-011 (catégorie 1) est le SEUL propriétaire du schéma blackboard SQLite (service) ; PRD-052 (catégorie 5) en consomme sans second schéma. Cette PR (ID canonique PRD-001, nom de fichier historique `PRD-12WY-SQLITE-GLASSMORPHISM.md` conservé) reste sur DomainDB/IndexedDB navigateur et n'installe aucun moteur SQLite — pas de migration par décret.
+
+**Périmètre d'écriture (write_scope) :**
+- Existant (touché) : `src/lib/idb.ts` — chemin cloud-first vérifié (getAll attend Supabase avant de retourner les données locales) ; `src/lib/ld-router.ts`, `src/lib/db/core-db.ts`, consommateurs Ikigai/Wheel/PARA/12WY.
+- Proposé (à créer, jamais présumé existant) : aucun nouveau fichier obligatoire — modifications dans les fichiers existants uniquement
+
+**Critères d'acceptation positifs :** lecture locale immédiate avant tout appel réseau ; écriture confirmée après transaction ; Supabase inaccessible n'empêche ni ouverture ni édition ; retries idempotents sans doublon ; conflits visibles sans écrasement silencieux.
+
+**Critères d'acceptation négatifs (doivent rester vrais) :** aucun faux succès si IndexedDB échoue ; aucune clé serveur embarquée (VITE_SUPABASE_ANON_KEY reste anon, jamais service_key) ; aucun chiffre de latence ou % offline sans mesure réelle ; pas de service parallèle ni de suppression distante.
+
+**Sécurité / isolation / idempotence / persistance :** isolation utilisateur déjà filtrée dans idb.ts (user_id) à préserver ; outbox persistante avec identifiants idempotents si sync activée ; suppressions représentées sans résurrection ; échec quota visible.
+
+**Commandes :** `npm run lint` (exegese : `lint` = `tsc --noEmit`, verification de types — **pas un test**) et `npm run build` (`vite build`) sont obligatoires avant toute livraison. Aucun runner de test n'est declare dans `package.json` au 2026-09-12 (pas de script `test`, pas de jest/vitest) : ne presenter ni l'un ni l'autre comme des tests fonctionnels, et ne pas inventer un script de test comme deja existant.
+
+**Reprise et rollback non destructifs :** le chemin cloud-first reste fonctionnel tant que la PR n'est pas fusionnée ; rollback = revert de idb.ts et consommateurs ; sauvegarde IndexedDB (export) avant toute modification de schéma de store.
+
 ## Valeur et remplacement
 Obstacle : lecture locale retardée par le cloud. Remplacer le chemin cloud-first, pas IndexedDB par défaut. `src/lib/idb.ts:41-64` attend actuellement Supabase avant de retourner les données ; vérifier tous ses consommateurs et `src/lib/ld-router.ts`, `src/lib/db/core-db.ts`.
 

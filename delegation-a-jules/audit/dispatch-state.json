@@ -1,0 +1,24 @@
+{
+  "jobs": {
+    "1": {
+      "status": "COMPLETED_OBSERVED_NOT_INTEGRATED",
+      "title": "LifeOS:C1 | PRD-011 tranche racine | audit 2026-09-12",
+      "sha256": "4a7b835da337e599da9b91418d7efc061f0cfb313fe7fdee7d37c051789320ac",
+      "at": "2026-09-12T15:30:34.887887+00:00",
+      "session": "sessions/7587937436525114170",
+      "provider_state": "COMPLETED",
+      "environment_observed": true,
+      "reconciled_at": "2026-09-14T18:45:32.855767+00:00",
+      "prs": [
+        "https://github.com/Amdkn/Life-OS-2026/pull/3"
+      ]
+    },
+    "4": {
+      "status": "UNCERTAIN",
+      "title": "LifeOS:C4 | PRD-041 tranche racine | audit 2026-09-12",
+      "sha256": "57ba37cd517f39d08d57805af14840128925589e14a4e8f9ae69094ef9d08de8",
+      "at": "2026-09-14T18:45:42.276112+00:00",
+      "session": "sessions/3716194391895641129"
+    }
+  }
+}

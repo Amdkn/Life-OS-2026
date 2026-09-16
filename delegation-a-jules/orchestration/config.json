@@ -1,0 +1,74 @@
+{
+  "source": "sources/github/Amdkn/Life-OS-2026",
+  "repo_slug": "Amdkn/Life-OS-2026",
+  "starting_branch": "main",
+  "registry_file": "governance/work-items.json",
+  "integration_receipts_file": "integrations.json",
+  "limits": {
+    "max_active_sessions_account": 15,
+    "max_active_categories_program": 10,
+    "max_creations_per_tick": 4,
+    "max_messages_per_tick": 4,
+    "submission_expiry_horizon_hours": 24,
+    "claim_ttl_seconds": 600,
+    "activities_pages_max": 50,
+    "list_pages_max": 50,
+    "cap_note": "aligne mandat utilisateur 2026-09-16 : parallelisme jusqu au plafond compte 15, sessions toutes sources incluses"
+  },
+  "managers": [
+    "manager-a",
+    "manager-b",
+    "manager-c"
+  ],
+  "manager_routing": "modulo3",
+  "llm": {
+    "provider": "openrouter",
+    "base_url": "https://openrouter.ai/api/v1/chat/completions",
+    "model": "z-ai/glm-5.3-flash",
+    "max_tokens": 4096,
+    "temperature": 0.0,
+    "daily_budget_calls": null,
+    "budget_note": "null = plafond d'appels local desactive ; le plafond financier de la cle n'est pas modifie",
+    "env_key": "OPENROUTER_API_KEY",
+    "hermes_env_file": "C:/Users/amado/AppData/Local/hermes/.env",
+    "max_events_per_run": 3,
+    "max_invalid_attempts_per_event": 3
+  },
+  "cadences": {
+    "manager_intervals_minutes": [
+      1,
+      5,
+      15
+    ],
+    "gatekeeper_useful_required": 4,
+    "supervisor_intervals_minutes": [
+      5,
+      15,
+      30,
+      60
+    ],
+    "prompt_library_refresh_minutes": 10
+  },
+  "api": {
+    "automation_mode": "AUTO_CREATE_PR",
+    "require_plan_approval": false,
+    "input_only_note": "automationMode et requirePlanApproval sont des champs input-only : envoyes explicitement dans le payload, jamais verifies par comparaison de champs absents dans GET."
+  },
+  "known_sessions": [
+    {
+      "session": "sessions/1391687838750096362",
+      "prd_id": "PRD-003",
+      "category": 0,
+      "source_ref": "mission pole0 2026-09-12 + delegation-a-jules/CONTRAT-COMMUN.md"
+    },
+    {
+      "session": "sessions/7587937436525114170",
+      "prd_id": "PRD-011",
+      "category": 1,
+      "source_ref": "delegation-a-jules/audit/dispatch-state.json (statut UNCERTAIN consigne)"
+    }
+  ],
+  "paths": {
+    "dispatch_scripts": "../scripts"
+  }
+}

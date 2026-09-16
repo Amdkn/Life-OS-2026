@@ -1,0 +1,80 @@
+{
+  "receipts": [
+    {
+      "receipt_id": "r-prd001-merged",
+      "prd_id": "PRD-001",
+      "kind": "integration",
+      "approved_by": "human:amdkn",
+      "at": "2026-09-16T08:14:14.168076+00:00",
+      "source": "verifie via API GitHub 2026-09-16",
+      "evidence": {
+        "pr": 1,
+        "state": "merged",
+        "head_sha": "1ffc2f0e7f92da53e26f0cbf01239f36a4325211"
+      }
+    },
+    {
+      "receipt_id": "r-prd002-merged",
+      "prd_id": "PRD-002",
+      "kind": "integration",
+      "approved_by": "human:amdkn",
+      "at": "2026-09-16T08:14:14.168076+00:00",
+      "source": "verifie via API GitHub 2026-09-16",
+      "evidence": {
+        "pr": 2,
+        "state": "merged",
+        "head_sha": "fb758f8256b614d11468b6264842d47f475826c9"
+      }
+    },
+    {
+      "receipt_id": "r-prd024-pr-published",
+      "prd_id": "PRD-024",
+      "kind": "pr_published",
+      "approved_by": "human:amdkn",
+      "at": "2026-09-16T12:35:46.924991+00:00",
+      "source": "PR5 verifiee via API GitHub 2026-09-16; autorisation continuation donnee en chat",
+      "evidence": {
+        "pr": 5,
+        "state": "open",
+        "url": "https://github.com/Amdkn/Life-OS-2026/pull/5"
+      }
+    },
+    {
+      "receipt_id": "r-prd025-pr-published",
+      "prd_id": "PRD-025",
+      "kind": "pr_published",
+      "approved_by": "human:amdkn",
+      "at": "2026-09-16T12:37:50.805013+00:00",
+      "source": "PR5 (meme session que 024, branche empilee); API GitHub 2026-09-16",
+      "evidence": {
+        "pr": 5,
+        "state": "open",
+        "url": "https://github.com/Amdkn/Life-OS-2026/pull/5"
+      }
+    },
+    {
+      "receipt_id": "r-prd011-merged",
+      "prd_id": "PRD-011",
+      "kind": "integration",
+      "approved_by": "human:amdkn",
+      "at": "2026-09-16T12:47:53.394984+00:00",
+      "source": "merge verifie via API GitHub 2026-09-16",
+      "evidence": {
+        "pr": 3,
+        "state": "merged"
+      }
+    },
+    {
+      "receipt_id": "r-prd041-merged",
+      "prd_id": "PRD-041",
+      "kind": "integration",
+      "approved_by": "human:amdkn",
+      "at": "2026-09-16T12:47:53.394984+00:00",
+      "source": "merge verifie via API GitHub 2026-09-16",
+      "evidence": {
+        "pr": 4,
+        "state": "merged"
+      }
+    }
+  ]
+}

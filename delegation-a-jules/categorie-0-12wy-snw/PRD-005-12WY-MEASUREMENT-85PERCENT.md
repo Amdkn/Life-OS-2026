@@ -1,5 +1,26 @@
 # PRD-005 — Scorecard : mesure sans faux vert
 
+
+## Correctif de délégation (audit 2026-09-12)
+
+> Cadre général : `../CONTRAT-COMMUN.md` (arborescence `delegation-a-jules/`, à créer par le parent). En cas de conflit, le présent correctif prime sur le corps initial du PRD, qui reste préservé.
+
+**Dépendances PRD :** PRD-004 (dénominateur = tactiques persistées ; le filtre par semaine doit porter cycleId+week) ; PRD-003 (les cartes historiques importées ne comptent pas) ; PRD-021 (`life-os 12wy status` expose ce même score, ne pas recalculer).
+
+**Périmètre d'écriture (write_scope) :**
+- Existant (touché) : `src/apps/twelve-week/hooks/useWeeklyScore.ts` — constats vérifiés au 2026-09-12 : `totalCount === 0` retourne `{ score: 0, isCrit: true, hasTactics: false }` (score=0/isCrit sans tactique) et `Math.round` est appliqué avant le seuil ; `src/apps/twelve-week/components/MeasurementBar.tsx` présent ; store `src/stores/fw-12wy.store.ts`.
+- Proposé (à créer, jamais présumé existant) : aucun nouveau fichier obligatoire — modifications dans les fichiers existants uniquement
+
+**Critères d'acceptation positifs :** dénominateur nul => score null et affichage « Non mesuré » ; 17/20 => 85 ; 14/20 => 70 ; 11/13 reste sous 85 malgré l'arrondi d'affichage ; pending/failed comptent au dénominateur ; score par (cycleId, week) sans mélange de cycles.
+
+**Critères d'acceptation négatifs (doivent rester vrais) :** aucun faux vert généré ; aucune métrique santé/finance plausible ; lag measures jamais déduites du score ; aucune manipulation du score historique via ajout/retrait rétroactif sans révision visible.
+
+**Sécurité / isolation / idempotence / persistance :** seuils appliqués à la valeur non arrondie ; figeage des engagements à la revue avec révision visible ; déduplication des tactiques par identifiant.
+
+**Commandes :** `npm run lint` (exegese : `lint` = `tsc --noEmit`, verification de types — **pas un test**) et `npm run build` (`vite build`) sont obligatoires avant toute livraison. Aucun runner de test n'est declare dans `package.json` au 2026-09-12 (pas de script `test`, pas de jest/vitest) : ne presenter ni l'un ni l'autre comme des tests fonctionnels, et ne pas inventer un script de test comme deja existant.
+
+**Reprise et rollback non destructifs :** correction du calcul = un hook et ses consommateurs ; rollback git des fichiers listés ; aucune donnée persistée n'est réécrite par ce correctif.
+
 ## Valeur et remplacement
 Obstacle : absence de tactiques interprétée comme échec et résultat métier confondu avec activité. Corriger `src/apps/twelve-week/hooks/useWeeklyScore.ts` et ses consommateurs plutôt que créer un second calcul.
 Constat source : filtre par numéro de semaine seul, score=0/isCrit=true sans tactique, arrondi avant seuil. Vérifier les types et `src/apps/twelve-week/components/MeasurementBar.tsx`.

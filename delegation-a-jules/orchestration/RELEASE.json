@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "activated_at": "2026-09-16T08:14:14.168076+00:00",
+  "approved_by": "human:amdkn (chat 2026-09-16 : continue l orchestration Jules, fais ce qu il faut)",
+  "sha256": {
+    "runtime.py": "aaf577b535a496749ff91758821cc49ad6a6608ec1f3d09b00b210fcebd9bc90",
+    "store.py": "13a06703cf22cc8df3c70052c651c29253e244461f6e794998e2d648f9f8969e",
+    "registry.py": "d04df92d41b122ae1f7fa83d3f177f775e2e7759dff81842ba8221b4d807d08a",
+    "manager_llm.py": "c2c5a175c4cff844dd3043d0c8327f3b9340a602dda87c1efde6438df0262eba",
+    "jules_client.py": "4b57378b9295a4077b952f2b9a9dae5bd1aae32e3ec1e27f36cedab7c19b88d5",
+    "worker.py": "79f9a5b9f7cf6131dfe4805457b908f4115ec26a9f313fe59de622b9a4c78290",
+    "config.json": "8aaaa2c0b9c7f22e59fd95b9f7359db43c1423c755b1403c069c3fffe6388029"
+  },
+  "rearmed_at": "2026-09-16T11:56:56.758612+00:00"
+}

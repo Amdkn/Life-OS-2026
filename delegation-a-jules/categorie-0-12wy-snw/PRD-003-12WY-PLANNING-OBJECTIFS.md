@@ -1,5 +1,26 @@
 # PRD-003 — Historique distinct du plan actif
 
+
+## Correctif de délégation (audit 2026-09-12)
+
+> Cadre général : `../CONTRAT-COMMUN.md` (arborescence `delegation-a-jules/`, à créer par le parent). En cas de conflit, le présent correctif prime sur le corps initial du PRD, qui reste préservé.
+
+**Dépendances PRD :** PRD-002 (provenance et horizons) ; PRD-005 (le score ne compte que les engagements du plan actif, jamais les cartes historiques importées) ; PRD-001 pour la persistance locale.
+
+**Périmètre d'écriture (write_scope) :**
+- Existant (touché) : `src/apps/twelve-week/components/GoalCommandCard.tsx`, `GoalForgeModal.tsx`, store 12WY `src/stores/fw-12wy.store.ts`, source `vue.html` (racine repo).
+- Proposé (à créer, jamais présumé existant) : aucun nouveau fichier obligatoire — modifications dans les fichiers existants uniquement
+
+**Critères d'acceptation positifs :** second import sans doublon ; aucun objectif actif créé par le seul import ; sélection utilisateur explicite retrouvée identique après reload ; historique intact après édition du plan actif.
+
+**Critères d'acceptation négatifs (doivent rester vrais) :** aucun OBJ-01..07 inventé ; aucune activation ni antidatation automatique de septembre 2026 ; les huit jauges vertes de l'ancien sprint restent une citation historique, jamais une condition de succès ; aucune bannière de validation humaine générée par le code.
+
+**Sécurité / isolation / idempotence / persistance :** identifiants d'import stables explicitement non canoniques liés à leur repère de source ; espace historique séparé du plan actif ; idempotence par identifiant déterministe.
+
+**Commandes :** `npm run lint` (exegese : `lint` = `tsc --noEmit`, verification de types — **pas un test**) et `npm run build` (`vite build`) sont obligatoires avant toute livraison. Aucun runner de test n'est declare dans `package.json` au 2026-09-12 (pas de script `test`, pas de jest/vitest) : ne presenter ni l'un ni l'autre comme des tests fonctionnels, et ne pas inventer un script de test comme deja existant.
+
+**Reprise et rollback non destructifs :** l'import est additif et isolé : rollback = suppression des enregistrements d'import par leur marqueur de provenance, sans toucher le plan actif ni l'historique Ikigai.
+
 ## Valeur et remplacement
 Obstacle : faux engagements préremplis. Remplacer les sept objectifs codés en dur et les alias inventés par un import explicite, traçable et idempotent des cartes historiques de `vue.html`.
 

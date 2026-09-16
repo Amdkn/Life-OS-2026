@@ -1,0 +1,674 @@
+{
+  "generated_at": "2026-09-16T13:22:03.206841+00:00",
+  "command": "tick",
+  "mode": "LIVE",
+  "registry": {
+    "status": "OK",
+    "file": "C:\\Users\\amado\\Life-OS-2026\\delegation-a-jules\\orchestration\\governance\\work-items.json",
+    "inventory_measured": 55,
+    "inventory_expected": 55
+  },
+  "jobs": {
+    "count": 55,
+    "by_status": {
+      "BLOCKED_DEPENDENCY": 32,
+      "BLOCKED_REVIEW": 1,
+      "BLOCKED_SCOPE": 15,
+      "PR_PUBLISHED": 1,
+      "SESSION_TERMINAL": 5,
+      "SUBMITTED": 1
+    },
+    "blocked": [
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-001/t1",
+        "status": "SESSION_TERMINAL",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-011/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-002/t1",
+        "status": "BLOCKED_REVIEW",
+        "reason": "pas de retry aveugle (FAILED)"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-003/t1",
+        "status": "SESSION_TERMINAL",
+        "reason": "preuve d'integration absente pour PRD-001,PRD-002"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-004/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-003"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-005/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-003,PRD-004"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-006/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-004"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-011/t1",
+        "status": "SESSION_TERMINAL",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-001/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-012/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-013/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-014/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-013"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-015/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-014"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-016/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-021/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-022/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-021"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-023/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-025/t1",
+        "status": "PR_PUBLISHED",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-024/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-026/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-016"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-031/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-032/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-031"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-033/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-031,PRD-032"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-034/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-031,PRD-033"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-035/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-031,PRD-032,PRD-033,PRD-034"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-041/t1",
+        "status": "SESSION_TERMINAL",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-001/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-042/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-043/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-044/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-045/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-052"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-051/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-052/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-053/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-054/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-051,PRD-052,PRD-062"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-055/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-012,PRD-051,PRD-052,PRD-054,PRD-063,PRD-064"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-056/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-016,PRD-026,PRD-051"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-061/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-062/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-052"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-063/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-012"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-064/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-052"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-065/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-052,PRD-061,PRD-063,PRD-064"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-071/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-072/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-071"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-073/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-071,PRD-072"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-074/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-071,PRD-073"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-075/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-051,PRD-071,PRD-072,PRD-073,PRD-081,PRD-085"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-081/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-091"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-082/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-072,PRD-081"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-083/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-092"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-084/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-071,PRD-081"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-085/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-081,PRD-082"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-091/t1",
+        "status": "BLOCKED_SCOPE",
+        "reason": "scopes en conflit avec Amdkn/Life-OS-2026/PRD-007/t1"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-092/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-091"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-093/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-051,PRD-061,PRD-091,PRD-092"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-094/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-072,PRD-082,PRD-091,PRD-092,PRD-093"
+      },
+      {
+        "job_key": "Amdkn/Life-OS-2026/PRD-095/t1",
+        "status": "BLOCKED_DEPENDENCY",
+        "reason": "preuve d'integration absente pour PRD-091,PRD-092,PRD-093,PRD-094"
+      }
+    ]
+  },
+  "sessions": {
+    "observed": [
+      {
+        "session_name": "sessions/3716194391895641129",
+        "state": "COMPLETED",
+        "title": "LifeOS:C4 | PRD-041 tranche racine | audit 2026-09-12",
+        "category": 4,
+        "prd_hint": "PRD-041",
+        "source": "sources/github/Amdkn/Life-OS-2026",
+        "branch": "main",
+        "env_observed": "true",
+        "activity_cursor": 0,
+        "pr_refs": "[]",
+        "observed_at": "2026-09-16T13:20:49.556807+00:00"
+      },
+      {
+        "session_name": "sessions/7587937436525114170",
+        "state": "COMPLETED",
+        "title": "LifeOS:C1 | PRD-011 tranche racine | audit 2026-09-12",
+        "category": 1,
+        "prd_hint": "PRD-011",
+        "source": "sources/github/Amdkn/Life-OS-2026",
+        "branch": "main",
+        "env_observed": "true",
+        "activity_cursor": 0,
+        "pr_refs": "[]",
+        "observed_at": "2026-09-16T13:20:53.365918+00:00"
+      },
+      {
+        "session_name": "sessions/11474992290619374879",
+        "state": "FAILED",
+        "title": "PRD-002: 12WY Vision, Horizons & Solarpunk Alignment Matrix (Relance)",
+        "category": 0,
+        "prd_hint": "PRD-002",
+        "source": "sources/github/Amdkn/Life-OS-2026",
+        "branch": "main",
+        "env_observed": "true",
+        "activity_cursor": 187,
+        "pr_refs": "[]",
+        "observed_at": "2026-09-16T13:20:53.385275+00:00"
+      },
+      {
+        "session_name": "sessions/1391687838750096362",
+        "state": "COMPLETED",
+        "title": "PRD-003: 12WY Planning, Historical Goals Import & Active Intent Separation",
+        "category": 0,
+        "prd_hint": "PRD-003",
+        "source": "sources/github/Amdkn/Life-OS-2026",
+        "branch": "main",
+        "env_observed": "true",
+        "activity_cursor": 0,
+        "pr_refs": "[]",
+        "observed_at": "2026-09-16T13:21:59.536033+00:00"
+      },
+      {
+        "session_name": "sessions/16535342956649164453",
+        "state": "FAILED",
+        "title": "PRD-002: 12WY Vision, Horizons & Solarpunk Alignment Matrix",
+        "category": 0,
+        "prd_hint": "PRD-002",
+        "source": "sources/github/Amdkn/Life-OS-2026",
+        "branch": "main",
+        "env_observed": "true",
+        "activity_cursor": 0,
+        "pr_refs": "[]",
+        "observed_at": "2026-09-16T13:21:59.559986+00:00"
+      },
+      {
+        "session_name": "sessions/9986816530458005889",
+        "state": "COMPLETED",
+        "title": "PRD-001: Local-First IndexedDB Contract & Alignment Preparation",
+        "category": 0,
+        "prd_hint": "PRD-001",
+        "source": "sources/github/Amdkn/Life-OS-2026",
+        "branch": "main",
+        "env_observed": "true",
+        "activity_cursor": 0,
+        "pr_refs": "[]",
+        "observed_at": "2026-09-16T13:22:03.148877+00:00"
+      },
+      {
+        "session_name": "sessions/500080852609952254",
+        "state": "COMPLETED",
+        "title": "LifeOS:C2 | PRD-024 | t1 | Amdkn/Life-OS-2026/PRD-024/t1",
+        "category": 2,
+        "prd_hint": "PRD-024",
+        "source": "sources/github/Amdkn/Life-OS-2026",
+        "branch": "main",
+        "env_observed": "true",
+        "activity_cursor": 59,
+        "pr_refs": "[]",
+        "observed_at": "2026-09-16T13:20:46.442235+00:00"
+      }
+    ],
+    "active_all_sources": "4",
+    "program_categories_active": [],
+    "quota_display": "UNKNOWN",
+    "quota_note": "aucun compteur fictif ; quota API inconnu"
+  },
+  "caps": {
+    "max_active_sessions_account": 15,
+    "max_active_categories_program": 10,
+    "max_creations_per_tick": 4,
+    "max_messages_per_tick": 4,
+    "submission_expiry_horizon_hours": 24,
+    "claim_ttl_seconds": 600,
+    "activities_pages_max": 50,
+    "list_pages_max": 50,
+    "cap_note": "aligne mandat utilisateur 2026-09-16 : parallelisme jusqu au plafond compte 15, sessions toutes sources incluses"
+  },
+  "receipts": [
+    {
+      "prd_id": "PRD-001",
+      "receipt_id": "r-prd001-merged",
+      "source": "integrations.json"
+    },
+    {
+      "prd_id": "PRD-002",
+      "receipt_id": "r-prd002-merged",
+      "source": "integrations.json"
+    },
+    {
+      "prd_id": "PRD-024",
+      "receipt_id": "r-prd024-pr-published",
+      "source": "integrations.json"
+    },
+    {
+      "prd_id": "PRD-025",
+      "receipt_id": "r-prd025-pr-published",
+      "source": "integrations.json"
+    },
+    {
+      "prd_id": "PRD-011",
+      "receipt_id": "r-prd011-merged",
+      "source": "integrations.json"
+    },
+    {
+      "prd_id": "PRD-041",
+      "receipt_id": "r-prd041-merged",
+      "source": "integrations.json"
+    }
+  ],
+  "events": {
+    "pending": 7,
+    "processed": 23,
+    "rejected": 0
+  },
+  "decisions": {
+    "total": 106,
+    "authorized": 25
+  },
+  "llm": {
+    "model": "z-ai/glm-5.3-flash",
+    "budget_day": "2026-09-16",
+    "calls_used": 107,
+    "daily_limit": null,
+    "note": "null = plafond d'appels local desactive ; le plafond financier de la cle n'est pas modifie"
+  },
+  "cadences": {
+    "manager": {
+      "name": "manager",
+      "interval_minutes": 1,
+      "consecutive_useful": 0,
+      "last_run_at": "2026-09-16T13:20:28.103031+00:00",
+      "last_outcome": "PROCESSED_0_REJECTED_0",
+      "note": null
+    },
+    "gatekeeper": {
+      "name": "gatekeeper",
+      "interval_minutes": 1,
+      "consecutive_useful": 2,
+      "last_run_at": "2026-09-16T13:22:03.187622+00:00",
+      "last_outcome": "useful",
+      "note": "progress=0 events=1"
+    },
+    "supervisor": {
+      "name": "supervisor",
+      "interval_minutes": 5,
+      "consecutive_useful": 0,
+      "last_run_at": "2026-09-16T13:20:36.860880+00:00",
+      "last_outcome": "INCIDENT_SIGNALLED",
+      "note": null
+    },
+    "prompt_library": {
+      "name": "prompt_library",
+      "interval_minutes": 10,
+      "consecutive_useful": 0,
+      "last_run_at": "2026-09-16T13:14:25.593706+00:00",
+      "last_outcome": "REFRESHED_55",
+      "note": null
+    }
+  },
+  "outbox_recent": [
+    {
+      "id": 12,
+      "at": "2026-09-16T13:20:53.410269+00:00",
+      "kind": "SESSION_BLOCKED",
+      "level": "error",
+      "subject": "sessions/11474992290619374879",
+      "detail": "state=FAILED"
+    },
+    {
+      "id": 11,
+      "at": "2026-09-16T13:20:51.956069+00:00",
+      "kind": "SESSION_BLOCKED",
+      "level": "error",
+      "subject": "sessions/11474992290619374879",
+      "detail": "state=FAILED"
+    },
+    {
+      "id": 10,
+      "at": "2026-09-16T13:20:36.843266+00:00",
+      "kind": "SUPERVISION_INCIDENT",
+      "level": "error",
+      "subject": "open_incidents",
+      "detail": "{\"active_sessions_all_sources\": \"4\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 32, \"BLOCKED_SCOPE\": 15, \"PR_PUBLISHED\": 1, \"SESSION_TERMINAL\": 6, \"SUBMITTED\": 1}, \"open_incidents\": 6, \"program_categories_active\": [], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
+    },
+    {
+      "id": 9,
+      "at": "2026-09-16T13:00:45.516029+00:00",
+      "kind": "SUPERVISION_INCIDENT",
+      "level": "error",
+      "subject": "open_incidents",
+      "detail": "{\"active_sessions_all_sources\": \"5\", \"jobs_by_status\": {\"ACTIVE\": 1, \"BLOCKED_DEPENDENCY\": 32, \"BLOCKED_SCOPE\": 15, \"PR_PUBLISHED\": 1, \"SESSION_TERMINAL\": 5, \"SUBMITTED\": 1}, \"open_incidents\": 5, \"program_categories_active\": [0], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
+    },
+    {
+      "id": 8,
+      "at": "2026-09-16T12:55:20.384164+00:00",
+      "kind": "SUPERVISION_INCIDENT",
+      "level": "error",
+      "subject": "open_incidents",
+      "detail": "{\"active_sessions_all_sources\": \"4\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 32, \"BLOCKED_SCOPE\": 15, \"PLANNED_MESSAGE\": 1, \"PR_PUBLISHED\": 1, \"SESSION_TERMINAL\": 6}, \"open_incidents\": 7, \"program_categories_active\": [], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
+    },
+    {
+      "id": 7,
+      "at": "2026-09-16T12:35:12.384107+00:00",
+      "kind": "SUPERVISION_INCIDENT",
+      "level": "error",
+      "subject": "open_incidents",
+      "detail": "{\"active_sessions_all_sources\": \"4\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 44, \"BLOCKED_SCOPE\": 4, \"SESSION_TERMINAL\": 6, \"SUBMITTED\": 1}, \"open_incidents\": 6, \"program_categories_active\": [], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
+    },
+    {
+      "id": 6,
+      "at": "2026-09-16T12:15:31.102773+00:00",
+      "kind": "SUPERVISION_INCIDENT",
+      "level": "error",
+      "subject": "open_incidents",
+      "detail": "{\"active_sessions_all_sources\": \"4\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 44, \"BLOCKED_SCOPE\": 4, \"SESSION_TERMINAL\": 6, \"SUBMITTED\": 1}, \"open_incidents\": 7, \"program_categories_active\": [], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
+    },
+    {
+      "id": 5,
+      "at": "2026-09-16T12:10:18.783882+00:00",
+      "kind": "SUPERVISION_INCIDENT",
+      "level": "error",
+      "subject": "open_incidents",
+      "detail": "{\"active_sessions_all_sources\": \"4\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 44, \"BLOCKED_SCOPE\": 4, \"PLANNED_MESSAGE\": 1, \"SESSION_TERMINAL\": 6}, \"open_incidents\": 8, \"program_categories_active\": [], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
+    },
+    {
+      "id": 4,
+      "at": "2026-09-16T12:00:19.718968+00:00",
+      "kind": "SUPERVISION_INCIDENT",
+      "level": "error",
+      "subject": "open_incidents",
+      "detail": "{\"active_sessions_all_sources\": \"5\", \"jobs_by_status\": {\"BLOCKED_DEPENDENCY\": 44, \"BLOCKED_SCOPE\": 5, \"SESSION_TERMINAL\": 5, \"SUBMITTED\": 1}, \"open_incidents\": 7, \"program_categories_active\": [2], \"quota_display\": \"UNKNOWN\", \"registry_status\": \"OK\", \"uncertain_jobs\": []}"
+    },
+    {
+      "id": 3,
+      "at": "2026-09-16T11:23:48.944002+00:00",
+      "kind": "CREDENTIAL_MISSING",
+      "level": "error",
+      "subject": "openrouter_key",
+      "detail": "cle OPENROUTER_API_KEY absente (env ou hermes_env_file) ; BLOCKED_CREDENTIAL, zero fallback"
+    }
+  ],
+  "known_sessions": [
+    {
+      "session": "sessions/1391687838750096362",
+      "prd_id": "PRD-003",
+      "category": 0,
+      "source_ref": "mission pole0 2026-09-12 + delegation-a-jules/CONTRAT-COMMUN.md"
+    },
+    {
+      "session": "sessions/7587937436525114170",
+      "prd_id": "PRD-011",
+      "category": 1,
+      "source_ref": "delegation-a-jules/audit/dispatch-state.json (statut UNCERTAIN consigne)"
+    }
+  ],
+  "pole1": "WAITING_USER_INPUT — resumes Gemini manquants ; aucune categorie fictive produite par ce runtime",
+  "assumptions": [
+    "Session COMPLETED reutilisee via sendMessage : son comptage de quota reste suppose inchange — hypothese NON garantie.",
+    "environmentVariablesEnabled : observation consignee ; aucune isolation de secrets n'est pretendue.",
+    "automationMode/requirePlanApproval : champs input-only envoyes explicitement, jamais verifies par comparaison de champs absents dans GET."
+  ],
+  "limits_honnetes": [
+    "Ce runtime ne prouve ni quota fournisseur, ni integration : un recu d'integration fourni par l'humain est requis pour lever BLOCKED_DEPENDENCY.",
+    "Aucun cron Hermes n'est modifie : les cadences vivent dans state.sqlite3.",
+    "DRY_RUN par defaut : aucune mutation reseau sans --live explicite."
+  ],
+  "report": {
+    "command": "tick",
+    "mode": "LIVE",
+    "registry_status": "OK",
+    "prompt_library": "NOT_DUE",
+    "sessions_history_complete": true,
+    "active_sessions_all_sources": 4,
+    "known_sessions": [
+      {
+        "session": "sessions/1391687838750096362",
+        "prd_id": "PRD-003",
+        "source_ref": "mission pole0 2026-09-12 + delegation-a-jules/CONTRAT-COMMUN.md",
+        "observed": "COMPLETED"
+      },
+      {
+        "session": "sessions/7587937436525114170",
+        "prd_id": "PRD-011",
+        "source_ref": "delegation-a-jules/audit/dispatch-state.json (statut UNCERTAIN consigne)",
+        "observed": "COMPLETED"
+      }
+    ],
+    "program_sessions_observed": [
+      {
+        "session": "sessions/500080852609952254",
+        "state": "COMPLETED",
+        "category": 2,
+        "prd": "PRD-024",
+        "pr_refs": []
+      },
+      {
+        "session": "sessions/3716194391895641129",
+        "state": "COMPLETED",
+        "category": 4,
+        "prd": "PRD-041",
+        "pr_refs": []
+      },
+      {
+        "session": "sessions/7587937436525114170",
+        "state": "COMPLETED",
+        "category": 1,
+        "prd": "PRD-011",
+        "pr_refs": []
+      },
+      {
+        "session": "sessions/11474992290619374879",
+        "state": "FAILED",
+        "category": 0,
+        "prd": "PRD-002",
+        "pr_refs": []
+      },
+      {
+        "session": "sessions/1391687838750096362",
+        "state": "COMPLETED",
+        "category": 0,
+        "prd": "PRD-003",
+        "pr_refs": []
+      },
+      {
+        "session": "sessions/16535342956649164453",
+        "state": "FAILED",
+        "category": 0,
+        "prd": "PRD-002",
+        "pr_refs": []
+      },
+      {
+        "session": "sessions/9986816530458005889",
+        "state": "COMPLETED",
+        "category": 0,
+        "prd": "PRD-001",
+        "pr_refs": []
+      }
+    ],
+    "uncertain_reconciled": [],
+    "events_created": 1,
+    "plans": [],
+    "planned_creations": 0,
+    "planned_messages": 0,
+    "events_admission_created": 0,
+    "execution_results": [],
+    "gatekeeper": {
+      "ok": true,
+      "useful": true,
+      "consecutive_useful": 2,
+      "note": "progress=0 events=1"
+    }
+  }
+}

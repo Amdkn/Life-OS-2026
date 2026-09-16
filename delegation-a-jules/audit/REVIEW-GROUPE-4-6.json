@@ -1,0 +1,338 @@
+{
+  "group": "4-6",
+  "categories": [4, 5, 6],
+  "generated_at": "2026-09-12",
+  "mandate": "jules-audit-worker.md",
+  "scope_read": [
+    "delegation-a-jules/categorie-4-life-os-6-frameworks/*.md",
+    "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/*.md",
+    "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/*.md",
+    "package.json",
+    "src/ (inspection bornee, jamais node_modules)"
+  ],
+  "write_scope_applied": [
+    "delegation-a-jules/categorie-4-life-os-6-frameworks/ (5 PRD + README)",
+    "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/ (5 PRD + README)",
+    "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/ (5 PRD + README)",
+    "delegation-a-jules/audit/REVIEW-GROUPE-4-6.md",
+    "delegation-a-jules/audit/REVIEW-GROUPE-4-6.json"
+  ],
+  "transversal_findings": [
+    {
+      "id": "F1",
+      "finding": "Les 15 PRD contiennent une ligne de validation corrompue avec octets de controle 0x0A/0x09 physiques et commandes inexistantes 'pm run build' et 'sc --noEmit'",
+      "correction": "Remplacee par: npm run lint (= tsc --noEmit, lint ne lance aucun test) puis npm run build"
+    },
+    {
+      "id": "F2",
+      "finding": "Apostrophes echappees backslash-quote heritees d'un generateur Python dans cat-4/cat-5 et leurs README",
+      "correction": "Apostrophes normales"
+    },
+    {
+      "id": "F3",
+      "finding": "Caracteres de controle d'echappement Python: PRD-051 pprovePlan, PRD-052 lackboard_items/gent_locks/essel_states/tion_receipts, PRD-062 ny/ction_receipts",
+      "correction": "Noms restaures: approvePlan, blackboard_items, agent_locks, vessel_states, action_receipts, any"
+    },
+    {
+      "id": "F4",
+      "finding": "Aucun PRD ne portait dependances, perimetre ni criteres d'acceptation",
+      "correction": "Section '## Correctif de delégation (audit 2026-09-12)' ajoutee a chaque PRD + pointeur ../CONTRAT-COMMUN.md (cree par le parent)"
+    },
+    {
+      "id": "F5",
+      "finding": "README cat-4 titre 'Categorie 6', README cat-5 titre 'Categorie 7'",
+      "correction": "Renumerotes 4 et 5"
+    }
+  ],
+  "prds": [
+    {
+      "path": "delegation-a-jules/categorie-4-life-os-6-frameworks/PRD-041-FRAMEWORKS-CANON-ROSTER.md",
+      "status": "patched",
+      "findings": [
+        "src/types/frameworks.ts inexistant (mesure); src/config/ vide",
+        "PRD-041 non designe comme proprietaire du contrat roster alors que PRD-061 et PRD-091 en dependent"
+      ],
+      "corrections": [
+        "Role structurant explicite: proprietaire de FrameworkId/VesselConfig/AgentCrewMember; consommateurs = PRD-042..045, PRD-061, PRD-091",
+        "write_scope: src/types/frameworks.ts, src/config/vessels.config.ts, header/sidebar modifie au minimum"
+      ],
+      "dependencies": [],
+      "write_scope_proposed": ["src/types/frameworks.ts", "src/config/vessels.config.ts"],
+      "tests": ["npm run lint (tsc --noEmit)", "npm run build"],
+      "rollback": "git checkout des deux fichiers crees; non destructif"
+    },
+    {
+      "path": "delegation-a-jules/categorie-4-life-os-6-frameworks/PRD-042-IKIGAI-HORIZONS-MATRIX.md",
+      "status": "patched",
+      "findings": [
+        "Chemin src/apps/frameworks/ikigai/ creerait un arbre parallele; src/apps/ikigai/ existe deja (mesure)",
+        "IndexedDB et Blackboard SQLite confondus implicitement"
+      ],
+      "corrections": [
+        "Implementation dans src/apps/ikigai/ existant (components/IkigaiMatrixView.tsx)",
+        "Fiches en IndexedDB navigateur, migrations additives uniquement; pont blackboard = PRD-045"
+      ],
+      "dependencies": ["PRD-041"],
+      "write_scope_proposed": ["src/apps/ikigai/components/IkigaiMatrixView.tsx"],
+      "tests": ["npm run lint", "npm run build", "rechargement = fiches retrouvees"],
+      "rollback": "git checkout du composant; fiches utilisateur jamais purgees"
+    },
+    {
+      "path": "delegation-a-jules/categorie-4-life-os-6-frameworks/PRD-043-GTD-CERRITOS-INBOX-GATE.md",
+      "status": "patched",
+      "findings": [
+        "src/apps/gtd/ existe deja (mesure), chemin demande en double",
+        "Promotion 12WY sans store designe; fw-12wy.store.ts existe (mesure)"
+      ],
+      "corrections": [
+        "Pipeline dans src/apps/gtd/GtdCerritosPipeline.tsx",
+        "Promotion = changement de statut reversible, jamais suppression; pas de second store 12WY"
+      ],
+      "dependencies": ["PRD-041", "src/stores/fw-12wy.store.ts (existant)"],
+      "write_scope_proposed": ["src/apps/gtd/GtdCerritosPipeline.tsx"],
+      "tests": ["npm run lint", "npm run build", "promotion sans doublon"],
+      "rollback": "git checkout; item reclassable"
+    },
+    {
+      "path": "delegation-a-jules/categorie-4-life-os-6-frameworks/PRD-044-DEAL-PROTOSTAR-AUTOMATION.md",
+      "status": "patched",
+      "findings": [
+        "src/apps/deal/ et src/stores/fw-deal.store.ts existent (mesures)",
+        "Suggestions Antigravity/Jules sans garde: risque de declenchement automatique"
+      ],
+      "corrections": [
+        "Vue dans src/apps/deal/DealProtostarView.tsx",
+        "Suggestions affichees via PRD-051 uniquement; aucune execution automatique sans approbation humaine"
+      ],
+      "dependencies": ["PRD-041", "PRD-051"],
+      "write_scope_proposed": ["src/apps/deal/DealProtostarView.tsx"],
+      "tests": ["npm run lint", "npm run build", "classification persistee et reclassable"],
+      "rollback": "git checkout"
+    },
+    {
+      "path": "delegation-a-jules/categorie-4-life-os-6-frameworks/PRD-045-SWARM-BLACKBOARD-INTEGRATION.md",
+      "status": "patched",
+      "findings": [
+        "Ecrit 'etat partage du Blackboard' sans dependance au proprietaire du schema",
+        "Risque de second canal d'ecriture concurrent"
+      ],
+      "corrections": [
+        "Dependances explicites PRD-052 (moteur) + PRD-011 cat.1 (schema); aucune table propre",
+        "Navigateur ne parle jamais SQLite natif; canal d'ecriture unique; resynchronisation complete apres coupure"
+      ],
+      "dependencies": ["PRD-052", "PRD-011 (cat. 1)", "PRD-041"],
+      "write_scope_proposed": ["src/apps/frameworks/services/frameworks-blackboard-bridge.ts"],
+      "tests": ["npm run lint", "npm run build", "statut UI visible dans le Blackboard via service"],
+      "rollback": "git checkout du bridge"
+    },
+    {
+      "path": "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/PRD-051-JULES-API-AGENT-PORTAL-DISPATCHER.md",
+      "status": "patched",
+      "findings": [
+        "BLOQUANT: client API appele depuis le navigateur, la cle finirait dans le bundle (VITE_* expose)",
+        "Quotas affiches sans source; l'API Jules n'expose pas de compteur utilisateur prouve",
+        "AUTO_CREATE_PR sans garde sur actions externes difficiles a inverser"
+      ],
+      "corrections": [
+        "Cle API Jules uniquement cote service local Node, jamais VITE_* ni code navigateur",
+        "Quota: 'quota inconnu' si l'API ne renvoie pas de compteur (docs officielles Pro: 100 taches/24h glissantes, 15 concurrentes, contexte seulement)",
+        "AUTO_CREATE_PR desactivable, approvePlan humain par defaut",
+        "Creation de session idempotente (cle PRD + hash brief); API injoignable = UI vide/erreur explicite"
+      ],
+      "dependencies": ["service local Node (backend)"],
+      "write_scope_proposed": ["src/services/jules/jules-api-client.ts", "JulesDispatcherCard.tsx", "service proxy Node"],
+      "tests": ["npm run lint", "npm run build", "typage strict des 4 methodes", "aucun secret dans le bundle verifie"],
+      "rollback": "git checkout; aucune donnee persistee par le client"
+    },
+    {
+      "path": "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/PRD-052-BLACKBOARD-SHARED-SQLITE-ENGINE.md",
+      "status": "patched",
+      "findings": [
+        "Se declare createur du schema alors que PRD-011 (cat. 1) est proprietaire du schema Blackboard: risque de second schema",
+        "Table names corrompus par echappements Python (restaures, F3)",
+        "'IndexedDB sous le capot' brouille la frontiere navigateur/service"
+      ],
+      "corrections": [
+        "PRD-052 = moteur/consommateur du schema PRD-011, sans second schema; divergence = arbitrage contrat commun",
+        "SQLite cote service Node uniquement; IndexedDB = cache de lecture; source de verite = fichier SQLite du service",
+        "Verrous (ressource, agent, TTL); reprise du lock expire non destructive; sauvegarde avant migration, migrations additives"
+      ],
+      "dependencies": ["PRD-011 (cat. 1, schema)"],
+      "write_scope_proposed": ["service Node blackboard (hors src/, backend)"],
+      "tests": ["npm run lint", "npm run build", "2 ecritures concurrentes ne corrompent rien", "chaque action laisse un action_receipts"],
+      "rollback": "restauration de la copie SQLite; non destructif"
+    },
+    {
+      "path": "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/PRD-053-LIFE-WHEEL-DISCOVERY-ENGINE.md",
+      "status": "patched",
+      "findings": [
+        "src/apps/life-wheel/ existe (mesure), chemin demande en double",
+        "Jauges sans regle de mesure: risque de valeurs plausibles non sourcees"
+      ],
+      "corrections": [
+        "Moteur dans src/apps/life-wheel/DiscoveryWheelEngine.tsx",
+        "Cartographie LD01-LD08 <-> escouades = config versionnee; jauge sans source = 'non mesure' (D2); pas de sync Linear directe"
+      ],
+      "dependencies": ["PRD-041", "PRD-012 (cat. 1) / PRD-063 (canaux Linear)"],
+      "write_scope_proposed": ["src/apps/life-wheel/DiscoveryWheelEngine.tsx", "src/config/ (cartographie)"],
+      "tests": ["npm run lint", "npm run build", "chaque jauge cite sa source"],
+      "rollback": "git checkout"
+    },
+    {
+      "path": "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/PRD-054-GTD-DEAL-AUTONOMOUS-SWARM-PIPELINE.md",
+      "status": "patched",
+      "findings": [
+        "Telemetrie 'economie de temps et tokens en direct' sans regle de mesure = telemetrie fictive garantie",
+        "Tri automatique routant sans garde sur l'execution"
+      ],
+      "corrections": [
+        "Telemetrie = valeurs mesurees uniquement; estimation libellee; defaut 'non mesure'",
+        "Le tri propose un routage; l'execution reste soumise a approbation; idempotent au rejeu; trace dans action_receipts"
+      ],
+      "dependencies": ["PRD-052", "PRD-062", "PRD-051", "PRD-041"],
+      "write_scope_proposed": ["src/apps/frameworks/pipelines/GtdDealSwarmPipeline.tsx"],
+      "tests": ["npm run lint", "npm run build", "routage exactement une fois au rejeu"],
+      "rollback": "git checkout; item reclassable, jamais supprime"
+    },
+    {
+      "path": "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/PRD-055-UNIFIED-CONVERGENCE-DASHBOARD.md",
+      "status": "patched",
+      "findings": [
+        "Pont bidirectionnel Linear sans canal designe: risque de second client Linear en concurrence avec PRD-012",
+        "Agrégation de 6 sources sans dependances declarees"
+      ],
+      "corrections": [
+        "Linear via PRD-012 (cat. 1) et/ou PRD-063 uniquement, pas de second client",
+        "Composant de presentation: lecture via services, zero ecriture directe; donnees reelles ou etat vide/erreur explicite"
+      ],
+      "dependencies": ["PRD-041", "PRD-051", "PRD-052", "PRD-054", "PRD-064", "PRD-012 (cat. 1)", "PRD-063"],
+      "write_scope_proposed": ["src/apps/convergence/ConvergenceCommandCenter.tsx"],
+      "tests": ["npm run lint", "npm run build", "radar alimente par l'etat reel"],
+      "rollback": "suppression du fichier = retour arriere propre"
+    },
+    {
+      "path": "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/PRD-061-A3-SKILLS-MATRIX-COMPILER-ENGINE.md",
+      "status": "patched",
+      "findings": [
+        "Chevauchements non arbitres avec PRD-041 (roster) et PRD-091 (cat. 9, matrice de roles B3)",
+        "'Capacites reelles' sans definition de reel: risque de competences fantomes"
+      ],
+      "corrections": [
+        "Consomme PRD-041 sans le redefinir; roles = propriete de PRD-091, arbitrage au contrat commun",
+        "Competence non verifiee = unverified, jamais 'maitrise' par defaut; .agents/skills/ a la racine du repo; interface avec PRD-015 plutot que doublon"
+      ],
+      "dependencies": ["PRD-041", "PRD-091 (cat. 9, externe)", "PRD-015 (cat. 1)"],
+      "write_scope_proposed": ["src/types/a3-skills.ts", "src/config/a3-skills-registry.ts", "SkillTree.tsx", ".agents/skills/"],
+      "tests": ["npm run lint", "npm run build", "registre type strict, pas de any"],
+      "rollback": "suppression des fichiers crees; non destructif"
+    },
+    {
+      "path": "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/PRD-062-A3-5D-HOOKS-VETO-CIRCUIT-BREAKERS.md",
+      "status": "patched",
+      "findings": [
+        "4 criteres declaratifs non executables",
+        "'Kentucky/Ohio' n'est pas un identifiant de fuseau",
+        "Gate non localise (risque: gate navigateur contournable); receipts sans reference au proprietaire du schema"
+      ],
+      "corrections": [
+        "Criteres executables: grep TODO|FIXME|mock sur diff, tsc --noEmit strict, existence d'un action_receipts, fuseau IANA America/New_York",
+        "Gate cote service Node, distinct de npm run build; echec = statut bloque persiste; deterministe; rejet = livrable intact"
+      ],
+      "dependencies": ["PRD-052", "PRD-011 (cat. 1)"],
+      "write_scope_proposed": ["src/services/hooks/a3-validation-gate.ts"],
+      "tests": ["npm run lint", "npm run build", "gate distinct du build", "verdict identique au re-evaluage"],
+      "rollback": "git checkout du gate"
+    },
+    {
+      "path": "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/PRD-063-A3-SPECIALIZED-MCP-TOOLS-HARNESS.md",
+      "status": "patched",
+      "findings": [
+        "BLOQUANT: HoldingStripeTool sans contrainte de localisation des cles (risque VITE_/bundle)",
+        "Client MCP cote interface alors que les serveurs MCP sont des processus",
+        "WebAuditPlaywrightTool sans isolation definie"
+      ],
+      "corrections": [
+        "MCP cote service Node; UI (PRD-065) affiche sans executer",
+        "Cles Stripe cote service uniquement; operations de paiement = approbation humaine (porte irreversible)",
+        "Playwright headless isole (profil jetable); echec d'outil = erreur propagee, jamais succes simule; Linear coordonne avec PRD-012"
+      ],
+      "dependencies": ["PRD-012 (cat. 1)", "PRD-065 (consommateur)"],
+      "write_scope_proposed": ["src/services/mcp/a3-mcp-client.ts", "service Node MCP"],
+      "tests": ["npm run lint", "npm run build", "4 outils types, echec = erreur propagee"],
+      "rollback": "git checkout; modules isoles"
+    },
+    {
+      "path": "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/PRD-064-A3-REAL-CRONS-HEARTBEATS-TELEMETRY.md",
+      "status": "patched",
+      "findings": [
+        "Dispatcher dans src/services/ = crons dans le bundle React (morts a la fermeture de l'onglet): pas des crons",
+        "Persistance 'SQLite/IndexedDB' ambiguë",
+        "MOCK_CRONS a retirer si encore present (a verifier a l'execution)"
+      ],
+      "corrections": [
+        "Dispatcher = processus Node persistant; persistance dans Blackboard SQLite (052/011); IndexedDB = cache de lecture",
+        "Chaque cron: verrou anti-chevauchement (052), jitter, preuve horodatee America/New_York",
+        "Cron rate = rattrape ou marque missed, jamais pretendu execute; reprise depuis le dernier etat persiste"
+      ],
+      "dependencies": ["PRD-052", "PRD-011 (cat. 1)", "PRD-065 (vue)"],
+      "write_scope_proposed": ["service Node crons (backend)", "src/services/telemetry/a3-cron-dispatcher.ts (vue/contrat)"],
+      "tests": ["npm run lint", "npm run build", "chaque execution enregistree datee", "pas de double execution au rejeu"],
+      "rollback": "git checkout; donnees conservees"
+    },
+    {
+      "path": "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/PRD-065-A3-SWARM-VISUALIZER-ROSTER-PLUGIN-UI.md",
+      "status": "patched",
+      "findings": [
+        "Statuts 'live' sans source designee: risque de statuts simules",
+        "Jauge de budget tokens sans regle de mesure"
+      ],
+      "corrections": [
+        "Statuts issus de l'etat reel du service (063/064); service injoignable = banniere erreur + statut Unknown, jamais de demo",
+        "Jauge mesuree ou 'non mesure'; ProofReceiptModal lit des recus reels du Blackboard; lecture seule via service"
+      ],
+      "dependencies": ["PRD-061", "PRD-064", "PRD-052", "PRD-041"],
+      "write_scope_proposed": ["src/apps/portal/components/A3SwarmRosterView.tsx", "src/apps/portal/components/ProofReceiptModal.tsx"],
+      "tests": ["npm run lint", "npm run build", "etats vide/erreur/chargement rendus"],
+      "rollback": "suppression des composants = retour arriere propre"
+    }
+  ],
+  "readmes": [
+    {
+      "path": "delegation-a-jules/categorie-4-life-os-6-frameworks/README.md",
+      "status": "patched",
+      "corrections": ["Titre 'Categorie 6' -> 'Categorie 4'", "Apostrophes", "Section Contrat commun ajoute"]
+    },
+    {
+      "path": "delegation-a-jules/categorie-5-convergence-blackboard-jules-api/README.md",
+      "status": "patched",
+      "corrections": ["Titre 'Categorie 7' -> 'Categorie 5'", "Apostrophes", "Section Contrat commun ajoute"]
+    },
+    {
+      "path": "delegation-a-jules/categorie-6-a3-multidimensional-swarm-factory/README.md",
+      "status": "patched",
+      "corrections": ["Section Contrat commun ajoute (titre deja correct)"]
+    }
+  ],
+  "tests_policy": {
+    "required": ["npm run lint (= tsc --noEmit)", "npm run build"],
+    "note": "lint n'execute pas de tests; aucun script 'test' dans package.json (mesure) et aucun PRD n'en invente"
+  },
+  "external_blockers": [
+    "../CONTRAT-COMMUN.md pointe par les 15 PRD, cree par le parent",
+    "PRD-011 (cat. 1): proprietaire schema Blackboard, arbitrage parent si divergence",
+    "PRD-012 (cat. 1): canal Linear unique",
+    "PRD-091 (cat. 9): proprietaire matrice de roles B3"
+  ],
+  "coverage": {
+    "prd_read": 15,
+    "prd_patched": 15,
+    "readmes_patched": 3,
+    "files_modified_total": 18,
+    "residue_check": "OK aucun residu (rc=0)"
+  },
+  "limits": [
+    "Execution des PRD (creation des fichiers src/) hors mandat worker: audit et patch docs uniquement",
+    "Correctifs rediges sans accents (ASCII): contenu prioritaire, aucun impact fonctionnel",
+    "Modifications concurrentes d'autres categories non touchees"
+  ]
+}

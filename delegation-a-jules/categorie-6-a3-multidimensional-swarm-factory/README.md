@@ -19,3 +19,8 @@ Contrairement à des prompts textuels passifs, chaque agent A3 est instancié so
 | **PRD-063** | **A3 Specialized MCP Tools Harness** | Exposer les outils métier (Stripe, Playwright, PDF/OCR, SQLite, Linear) aux agents A3 via MCP. |
 | **PRD-064** | **A3 Real Crons & Heartbeats Telemetry** | Remplacement des mocks par des crons de fond actifs (veille 60s, revue hebdo Tendi, audit baux). |
 | **PRD-065** | **A3 Swarm Visualizer & Roster Plugin UI** | Vue synoptique dans Agent Portal affichant les agents A3, leur état live, budget tokens et preuves. |
+---
+
+## Contrat commun
+
+Toute execution de PRD de ce dossier est cadree par [`../CONTRAT-COMMUN.md`](../CONTRAT-COMMUN.md) (cree par le parent).

@@ -1,0 +1,183 @@
+{
+  "source": "sources/github/Amdkn/Life-OS-2026",
+  "max_active_categories": 3,
+  "provider_concurrent_ceiling": 15,
+  "quota_remaining": "UNKNOWN",
+  "categories": [
+    {
+      "category": 0,
+      "depends_on_categories": [],
+      "prd_files": [
+        "categorie-0-12wy-snw/PRD-002-12WY-VISION-SOLARPUNK.md",
+        "categorie-0-12wy-snw/PRD-003-12WY-PLANNING-OBJECTIFS.md",
+        "categorie-0-12wy-snw/PRD-004-12WY-PROCESS-CONTROL-TACTICS.md",
+        "categorie-0-12wy-snw/PRD-005-12WY-MEASUREMENT-85PERCENT.md",
+        "categorie-0-12wy-snw/PRD-006-12WY-TIME-USE-BLOCKS.md",
+        "categorie-0-12wy-snw/PRD-007-OFFLINE-RECOVERY-ACCEPTANCE.md",
+        "categorie-0-12wy-snw/PRD-12WY-SQLITE-GLASSMORPHISM.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-0.md",
+      "sha256": "4cbd132e23a6ddb6976777c8716395f066a3c6432dc769b380d3530bcc41ea3e",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 1,
+      "depends_on_categories": [],
+      "prd_files": [
+        "categorie-1-agent-portal/PRD-011-BLACKBOARD-SQLITE-SCHEMA.md",
+        "categorie-1-agent-portal/PRD-012-LINEAR-HQ-WORKSPACE-HOLDING.md",
+        "categorie-1-agent-portal/PRD-013-AGENT-PORTAL-CRON-REGISTRY-REAL.md",
+        "categorie-1-agent-portal/PRD-014-AGENT-PORTAL-FLEET-SCORECARD-A0-A2.md",
+        "categorie-1-agent-portal/PRD-015-RELATION-DIAGRAM-SKILL-TREE-NEXUS.md",
+        "categorie-1-agent-portal/PRD-016-CROSS-CATEGORY-CONTRACTS-AND-INTEGRATION.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-1.md",
+      "sha256": "4a7b835da337e599da9b91418d7efc061f0cfb313fe7fdee7d37c051789320ac",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 2,
+      "depends_on_categories": [
+        1
+      ],
+      "prd_files": [
+        "categorie-2-ai-native-business-bridge/PRD-021-CLI-TOOLING-ADAPTER.md",
+        "categorie-2-ai-native-business-bridge/PRD-022-MCP-SERVER-STDIO.md",
+        "categorie-2-ai-native-business-bridge/PRD-023-ASSISTANT-OVERLAY-MULTI-ROSTER.md",
+        "categorie-2-ai-native-business-bridge/PRD-024-SCOPED-STORAGE-DEFENSIVE-MIGRATION.md",
+        "categorie-2-ai-native-business-bridge/PRD-025-API-HARNESS-BUSINESS-BRIDGE.md",
+        "categorie-2-ai-native-business-bridge/PRD-026-AUTHORIZATION-TENANT-BOUNDARIES.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-2.md",
+      "sha256": "72d747b9339d51b7c04005007230f8c162d9aa39a3615c07ea956ad9077036da",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 3,
+      "depends_on_categories": [
+        0,
+        1,
+        4
+      ],
+      "prd_files": [
+        "categorie-3-para-enterprise-distillation/PRD-031-PARA-PROJECTS-PICARD-DISTILLATION.md",
+        "categorie-3-para-enterprise-distillation/PRD-032-PARA-AREAS-SPOCK-JERRY-INCUBATION.md",
+        "categorie-3-para-enterprise-distillation/PRD-033-PARA-RESOURCES-COLD-VAULT.md",
+        "categorie-3-para-enterprise-distillation/PRD-034-PARA-ARCHIVES-LIFECYCLE-RADAR.md",
+        "categorie-3-para-enterprise-distillation/PRD-035-PARA-ONTOLOGY-RDF-SYNCHRONIZATION.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-3.md",
+      "sha256": "d0b97fce85455e1ce0be921341d7a3a8455002c6771b37ef78c3c7ee5d486801",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 4,
+      "depends_on_categories": [],
+      "prd_files": [
+        "categorie-4-life-os-6-frameworks/PRD-041-FRAMEWORKS-CANON-ROSTER.md",
+        "categorie-4-life-os-6-frameworks/PRD-042-IKIGAI-HORIZONS-MATRIX.md",
+        "categorie-4-life-os-6-frameworks/PRD-043-GTD-CERRITOS-INBOX-GATE.md",
+        "categorie-4-life-os-6-frameworks/PRD-044-DEAL-PROTOSTAR-AUTOMATION.md",
+        "categorie-4-life-os-6-frameworks/PRD-045-SWARM-BLACKBOARD-INTEGRATION.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-4.md",
+      "sha256": "57ba37cd517f39d08d57805af14840128925589e14a4e8f9ae69094ef9d08de8",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 5,
+      "depends_on_categories": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "prd_files": [
+        "categorie-5-convergence-blackboard-jules-api/PRD-051-JULES-API-AGENT-PORTAL-DISPATCHER.md",
+        "categorie-5-convergence-blackboard-jules-api/PRD-052-BLACKBOARD-SHARED-SQLITE-ENGINE.md",
+        "categorie-5-convergence-blackboard-jules-api/PRD-053-LIFE-WHEEL-DISCOVERY-ENGINE.md",
+        "categorie-5-convergence-blackboard-jules-api/PRD-054-GTD-DEAL-AUTONOMOUS-SWARM-PIPELINE.md",
+        "categorie-5-convergence-blackboard-jules-api/PRD-055-UNIFIED-CONVERGENCE-DASHBOARD.md",
+        "categorie-5-convergence-blackboard-jules-api/PRD-056-THREE-CATEGORY-DISPATCH-AND-RECOVERY.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-5.md",
+      "sha256": "4826de188b436bd6786625f887ce8aceb25be66d66ccc8a53661f888bb29822b",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 6,
+      "depends_on_categories": [
+        1,
+        2,
+        4
+      ],
+      "prd_files": [
+        "categorie-6-a3-multidimensional-swarm-factory/PRD-061-A3-SKILLS-MATRIX-COMPILER-ENGINE.md",
+        "categorie-6-a3-multidimensional-swarm-factory/PRD-062-A3-5D-HOOKS-VETO-CIRCUIT-BREAKERS.md",
+        "categorie-6-a3-multidimensional-swarm-factory/PRD-063-A3-SPECIALIZED-MCP-TOOLS-HARNESS.md",
+        "categorie-6-a3-multidimensional-swarm-factory/PRD-064-A3-REAL-CRONS-HEARTBEATS-TELEMETRY.md",
+        "categorie-6-a3-multidimensional-swarm-factory/PRD-065-A3-SWARM-VISUALIZER-ROSTER-PLUGIN-UI.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-6.md",
+      "sha256": "1886b0b53ad00a04915dcfd846c19417c7fd8c50b80a5259dc00600c79bc7ca0",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 7,
+      "depends_on_categories": [
+        1,
+        2
+      ],
+      "prd_files": [
+        "categorie-7-b1-summer-verse-ceo/PRD-071-FRANCHISE-CORE-DYNAMIC-INSTANCE-MODEL.md",
+        "categorie-7-b1-summer-verse-ceo/PRD-072-B1-HANDOFF-QUEUE-DECISION-CHARTER.md",
+        "categorie-7-b1-summer-verse-ceo/PRD-073-HOLDING-TREASURY-MULTI-TENANT-BILLING.md",
+        "categorie-7-b1-summer-verse-ceo/PRD-074-UNIVERSAL-MEMBER-PORTAL-CLIENT-GATEWAY.md",
+        "categorie-7-b1-summer-verse-ceo/PRD-075-B1-SUMMER-VERSE-CEO-COMMAND-COCKPIT.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-7.md",
+      "sha256": "6fa2d6b8c4b5cf60977d1fc352d6b754037238f59788e0b755f9abbe63784eb7",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 8,
+      "depends_on_categories": [
+        3,
+        5,
+        6,
+        7
+      ],
+      "prd_files": [
+        "categorie-8-b2-council-vp-managers/PRD-081-B2-COUNCIL-ENGINE-8-VP-MANAGERS.md",
+        "categorie-8-b2-council-vp-managers/PRD-082-B2-DOD-JTBD-TRANSLATION-PIPELINE.md",
+        "categorie-8-b2-council-vp-managers/PRD-083-WEEKLY-UPLINK-PICARD-TO-SPOCK-12WY.md",
+        "categorie-8-b2-council-vp-managers/PRD-084-CROSS-FRANCHISE-HARMONIZATION-BUS.md",
+        "categorie-8-b2-council-vp-managers/PRD-085-DEAL-LIBERATION-ENGINE-B2-COCKPIT.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-8.md",
+      "sha256": "b1e9f3a9cb66dc100ca3fa66646f5b98aa512b8f49becc7c26becd2b11b9d0ba",
+      "status": "PREPARED_NOT_SUBMITTED"
+    },
+    {
+      "category": 9,
+      "depends_on_categories": [
+        6,
+        7,
+        8
+      ],
+      "prd_files": [
+        "categorie-9-b3-polymorphic-matrix/PRD-091-B3-POLYMORPHIC-MATRIX-ENGINE.md",
+        "categorie-9-b3-polymorphic-matrix/PRD-092-B3-DETERMINISTIC-SUBSTRATE-HOOKS-CRONS.md",
+        "categorie-9-b3-polymorphic-matrix/PRD-093-B3-COGNITIVE-ARMS-SKILLS-MCP-PLUGINS.md",
+        "categorie-9-b3-polymorphic-matrix/PRD-094-B3-DYNAMIC-ORCHESTRATOR-SWARM-COMPOSER.md",
+        "categorie-9-b3-polymorphic-matrix/PRD-095-B3-MATRIX-COCKPIT-VISUAL-INSPECTOR.md"
+      ],
+      "prompt_file": "lots/CATEGORIE-9.md",
+      "sha256": "73734fb8238b1696895914553f73fda638af279751e91c8085d9417e11c75984",
+      "status": "PREPARED_NOT_SUBMITTED"
+    }
+  ],
+  "integration_receipts": {},
+  "note": "Category graph is conservative admission policy; per-PRD dependencies still apply. No automatic merge."
+}

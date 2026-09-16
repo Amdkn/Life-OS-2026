@@ -1,0 +1,170 @@
+{
+  "groupe": "7-9",
+  "date": "2026-09-12",
+  "perimetre": [
+    "delegation-a-jules/categorie-7-b1-summer-verse-ceo",
+    "delegation-a-jules/categorie-8-b2-council-vp-managers",
+    "delegation-a-jules/categorie-9-b3-polymorphic-matrix"
+  ],
+  "contrat_commun": "../CONTRAT-COMMUN.md (absent a l'audit, a creer par le parent)",
+  "dimension_fonctionnelle": "C7-9 = 7D",
+  "validation_globale": "npm run lint (= tsc --noEmit, non des tests) + npm run build a 0 erreur ; aucun script test dans package.json (mesure) — aucun PRD ne doit preter l'existence de npm test",
+  "findings_transversaux": [
+    "T1 src/apps/portal/ inexistant -> src/apps/agent-portal/ (PRD-075, PRD-085 corriges)",
+    "T2 PRD-072 cite des docs hors repo (04_B2_HANDOFF_QUEUE.md, 03_DECISION_CHARTER.md) -> regles embarquees",
+    "T3 express en deps mais aucun serveur -> PRD-073 relocalise src/server/treasury/, UI lecture seule",
+    "T4 PRD-091 corrompu : esolveIncarnation/pm run/px tsc -> resolveIncarnation/npm run/npx tsc",
+    "T5 PRD-094 corrompu : ssembleSwarm -> assembleSwarm",
+    "T6 PRD-092 'rot rate' corruption -> reformule 'degradation silencieuse' (sens suppose, A SOURCER)",
+    "T7 aucun runner de tests -> PRD-091 test reclassé spec, vitest a ajouter explicitement si exige",
+    "T8 anti-recréation : PRD-041 roster, PRD-061 compétences, PRD-091 matrice rôles, schéma blackboard PRD-011/PRD-052",
+    "T9 quota Jules : docs officiels 100 taches/24h glissantes Pro, 15 concurrentes ; pas de compteur utilisateur prouve ; client unique PRD-051",
+    "T10 PRD-073 money : backend obligatoire, secrets service, idempotence + contre-passation, pas de virement automatisé",
+    "T11 crons/cadences côté service Node, jamais React ; blackboard SQLite service ≠ IndexedDB navigateur, pas de remplacement par décret",
+    "T12 UI vide/erreur explicite sans données réelles, pas de télémétrie fictive, métriques absentes plutôt que fausses",
+    "T13 lots de 3 catégories ≠ 3 PRD ; dépendants non lancés avant intégration des socles (071, 081, 091)"
+  ],
+  "prds": [
+    {
+      "path": "delegation-a-jules/categorie-7-b1-summer-verse-ceo/PRD-071-FRANCHISE-CORE-DYNAMIC-INSTANCE-MODEL.md",
+      "findings": ["chemin factory non fixé", "socle de 4 dépendants + PRD-084"],
+      "corrections": ["correctif ajouté", "write_scope fixé", "commandes re-rondes"],
+      "dependances": {"amont": [], "aval": ["PRD-072", "PRD-073", "PRD-074", "PRD-075", "PRD-084"]},
+      "write_scope": {"concret": ["src/types/franchise.ts", "src/services/franchise/franchise-factory.ts"], "propose": []},
+      "tests_fonctionnels": ["npm run lint", "npm run build", "factory déterministe sur les 4 IDs"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-7-b1-summer-verse-ceo/PRD-072-B1-HANDOFF-QUEUE-DECISION-CHARTER.md",
+      "findings": ["docs cités hors repo", "persistance non spécifiée"],
+      "corrections": ["règles canoniques embarquées", "persistance blackboard SQLite service (PRD-011/052)", "idempotence déduplication"],
+      "dependances": {"amont": ["PRD-071"], "aval": ["PRD-082"]},
+      "write_scope": {"concret": ["src/services/governance/b1-handoff-queue.ts", "src/types/governance.ts"], "propose": ["src/server/ pour service de file"]},
+      "tests_fonctionnels": ["cycle ticket complet avec historique", "npm run lint", "npm run build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-7-b1-summer-verse-ceo/PRD-073-HOLDING-TREASURY-MULTI-TENANT-BILLING.md",
+      "findings": ["aucun backend existant", "risque comptabilité React", "secrets Stripe", "pas d'idempotence"],
+      "corrections": ["moteur src/server/treasury/", "UI lecture seule", "idempotence + append-only + contre-passation", "virement réel interdit"],
+      "dependances": {"amont": ["PRD-071", "PRD-072", "PRD-011"], "aval": ["PRD-074", "PRD-075"]},
+      "write_scope": {"concret": ["src/server/treasury/holding-treasury-engine.ts", "src/server/treasury/ledger.ts", "src/apps/franchise/billing/HoldingTreasuryEngine.tsx"], "propose": []},
+      "tests_fonctionnels": ["ventilation déterministe", "solde recalculable du journal", "npx tsc sur src/server", "npm run build"],
+      "statut": "corrigé — revue humaine requise avant connexion Stripe réelle"
+    },
+    {
+      "path": "delegation-a-jules/categorie-7-b1-summer-verse-ceo/PRD-074-UNIVERSAL-MEMBER-PORTAL-CLIENT-GATEWAY.md",
+      "findings": ["isolation multi-profils non spécifiée", "dépendances non déclarées"],
+      "corrections": ["dépendances déclarées", "isolation franchise+profil", "état vide sans données réelles"],
+      "dependances": {"amont": ["PRD-071", "PRD-073"], "aval": ["PRD-075"]},
+      "write_scope": {"concret": ["src/apps/franchise/portal/UniversalMemberPortal.tsx", "src/apps/franchise/portal/themes/"], "propose": []},
+      "tests_fonctionnels": ["3 profils depuis types PRD-071", "bascule thème déterministe", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-7-b1-summer-verse-ceo/PRD-075-B1-SUMMER-VERSE-CEO-COMMAND-COCKPIT.md",
+      "findings": ["chemin apps/portal inexistant", "délégations Jules sans client ni quota prouvé", "métriques sans sources"],
+      "corrections": ["chemin src/apps/agent-portal/components/", "client unique PRD-051", "quota docs officiels, compteur d'actives seulement", "agrégat branché sur sources réelles"],
+      "dependances": {"amont": ["PRD-071", "PRD-072", "PRD-073", "PRD-081", "PRD-085", "PRD-051"], "aval": []},
+      "write_scope": {"concret": ["src/apps/agent-portal/components/B1SummerVerseCockpit.tsx"], "propose": []},
+      "tests_fonctionnels": ["jauges vides sans source", "déclenchement via PRD-051", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-8-b2-council-vp-managers/PRD-081-B2-COUNCIL-ENGINE-8-VP-MANAGERS.md",
+      "findings": ["src/config/ inexistant", "risque recréer roster PRD-041", "frontière avec matrice PRD-091"],
+      "corrections": ["clauses propriétaire/consommateur", "write_scope fixé", "config exactement 8 VP"],
+      "dependances": {"amont": ["PRD-041 (alignement)"], "aval": ["PRD-082", "PRD-085", "PRD-075"]},
+      "write_scope": {"concret": ["src/types/b2-council.ts", "src/config/b2-council.config.ts"], "propose": []},
+      "tests_fonctionnels": ["unions strictes", "8 VP exactement", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-8-b2-council-vp-managers/PRD-082-B2-DOD-JTBD-TRANSLATION-PIPELINE.md",
+      "findings": ["source mandats non déclarée", "risque recréer PRD-061", "action receipt à définir comme preuve"],
+      "corrections": ["consomme PRD-072/081", "anti-recréation PRD-061", "receipt = chemin/exit/HTTP"],
+      "dependances": {"amont": ["PRD-072", "PRD-081"], "aval": ["PRD-061 (exécution, non recréée)"]},
+      "write_scope": {"concret": ["src/services/governance/b2-dod-pipeline.ts", "src/types/governance.ts"], "propose": []},
+      "tests_fonctionnels": ["même Rock → même DoD", "aucune tâche A3 sans DoD", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-8-b2-council-vp-managers/PRD-083-WEEKLY-UPLINK-PICARD-TO-SPOCK-12WY.md",
+      "findings": ["sources non nommées", "cadence hebdo impossible en React", "risque second moteur 12WY"],
+      "corrections": ["sources nommées fw-para/fw-12wy/twelve-week", "cadence via B3CronScheduler PRD-092", "idempotence semaine+tâche"],
+      "dependances": {"amont": ["stores existants (mesurés)", "PRD-092"], "aval": ["PRD-075"]},
+      "write_scope": {"concret": ["src/services/temporal/weekly-uplink-engine.ts", "src/services/temporal/uplink-types.ts"], "propose": []},
+      "tests_fonctionnels": ["clôture idempotente", "promotion de tâches achevées seulement", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-8-b2-council-vp-managers/PRD-084-CROSS-FRANCHISE-HARMONIZATION-BUS.md",
+      "findings": ["rétrocéder ambigu (auto-mutation)", "pas d'anti-boucle", "risque transport de données nominatives"],
+      "corrections": ["proposition d'adoption, adoption par VP", "empreinte hash anti-boucle", "templates seulement"],
+      "dependances": {"amont": ["PRD-071", "PRD-081"], "aval": ["PRD-075"]},
+      "write_scope": {"concret": ["src/services/franchise/cross-franchise-bus.ts", "src/services/franchise/bus-types.ts"], "propose": []},
+      "tests_fonctionnels": ["3 règles de données", "une innovation → une proposition", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-8-b2-council-vp-managers/PRD-085-DEAL-LIBERATION-ENGINE-B2-COCKPIT.md",
+      "findings": ["chemin apps/portal inexistant", "risque second modèle DEAL"],
+      "corrections": ["chemin src/apps/agent-portal/components/", "alignement ld01.store/fw-deal.store", "arbitrage via PRD-072/082"],
+      "dependances": {"amont": ["PRD-081", "PRD-082", "ld01.store.ts (mesuré)", "fw-deal.store.ts (mesuré)"], "aval": ["PRD-075"]},
+      "write_scope": {"concret": ["src/apps/agent-portal/components/B2CouncilCommandCenter.tsx"], "propose": []},
+      "tests_fonctionnels": ["radar branché PRD-081", "jauge E/A/L depuis ld01", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-9-b3-polymorphic-matrix/PRD-091-B3-POLYMORPHIC-MATRIX-ENGINE.md",
+      "findings": ["3 typos corrompues", "test demandé sans runner", "propriétaire matrice rôles"],
+      "corrections": ["resolveIncarnation/npm run/npx tsc réparés", "test reclassé en spec (vitest à ajouter explicitement)", "clause propriétaire"],
+      "dependances": {"amont": [], "aval": ["PRD-092", "PRD-093", "PRD-094", "PRD-095"]},
+      "write_scope": {"concret": ["src/types/b3-polymorphic.ts", "src/services/b3-matrix-engine.ts", "src/services/__tests__/b3-matrix-engine.test.ts (spec)"], "propose": ["vitest en dependencies si tests réels exigés"]},
+      "tests_fonctionnels": ["npm run lint + build", "résolution pure : profil identique → incarnation identique", "interdiction LLM sur tâche déterministe"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-9-b3-polymorphic-matrix/PRD-092-B3-DETERMINISTIC-SUBSTRATE-HOOKS-CRONS.md",
+      "findings": ["'rot rate' corrompu", "crons navigateur impossibles", "pas de budget de boucle"],
+      "corrections": ["reformulation (sens supposé, A SOURCER)", "runtime service Node", "budget d'itérations, crons idempotents"],
+      "dependances": {"amont": ["PRD-091"], "aval": ["PRD-083", "PRD-093", "PRD-094"]},
+      "write_scope": {"concret": ["src/services/b3-deterministic-runtime.ts"], "propose": ["src/services/b3-runtime/ si découpage"]},
+      "tests_fonctionnels": ["hook peut bloquer", "cadences 15m/60s/quotidienne/weekly", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-9-b3-polymorphic-matrix/PRD-093-B3-COGNITIVE-ARMS-SKILLS-MCP-PLUGINS.md",
+      "findings": ["risque recréer skills PRD-061", "second client Jules", "secrets navigateur", "quota inventé"],
+      "corrections": ["interface d'aiguillage seulement", "client unique PRD-051", "MCP côté service, credentials hors bundle", "budget en config"],
+      "dependances": {"amont": ["PRD-091", "PRD-092", "PRD-051"], "aval": ["PRD-094", "PRD-095"]},
+      "write_scope": {"concret": ["src/types/b3-cognitive.ts", "src/services/b3-cognitive-dispatcher.ts"], "propose": []},
+      "tests_fonctionnels": ["enregistrement idempotent", "troncature de contexte", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-9-b3-polymorphic-matrix/PRD-094-B3-DYNAMIC-ORCHESTRATOR-SWARM-COMPOSER.md",
+      "findings": ["assembleSwarm corrompu", "risque deadlock/double exécution", "métriques fictives"],
+      "corrections": ["assembleSwarm réparé", "montage seulement (pas d'exécution)", "verrous ordonnés + timeouts", "métriques réelles absentes plutôt que fausses"],
+      "dependances": {"amont": ["PRD-091", "PRD-092", "PRD-093", "PRD-082/072 (émetteurs)"], "aval": ["PRD-095"]},
+      "write_scope": {"concret": ["src/services/b3-swarm-composer.ts"], "propose": []},
+      "tests_fonctionnels": ["même directive → même topologie", "rejet interfaces incompatibles", "npm run lint + build"],
+      "statut": "corrigé"
+    },
+    {
+      "path": "delegation-a-jules/categorie-9-b3-polymorphic-matrix/PRD-095-B3-MATRIX-COCKPIT-VISUAL-INSPECTOR.md",
+      "findings": ["risque contournement verrou déterministe", "incarnations fictives", "mécanisme shell non spécifié"],
+      "corrections": ["forçage via PRD-091", "grille vide quand inoccupée", "shell existant Desktop/AppDrawer"],
+      "dependances": {"amont": ["PRD-091", "PRD-092", "PRD-093", "PRD-094"], "aval": []},
+      "write_scope": {"concret": ["src/components/b3-matrix/B3MatrixCockpit.tsx", "édition minimale navigation (register/AppDrawer)"], "propose": []},
+      "tests_fonctionnels": ["badges depuis états réels", "forçage journalisé", "npm run lint + build"],
+      "statut": "corrigé"
+    }
+  ],
+  "limites": [
+    "aucune application lancée ; lint/build s'appliqueront aux implémentations futures",
+    "CONTRAT-COMMUN.md absent, pointé ../CONTRAT-COMMUN.md — création parent",
+    "'rot rate' reformulé par supposition — A SOURCER",
+    "aucun autre fichier hors catégories 7-9 touché, aucun commit/push"
+  ]
+}

@@ -1,5 +1,26 @@
 # PRD-002 — Vision, horizons et provenance
 
+
+## Correctif de délégation (audit 2026-09-12)
+
+> Cadre général : `../CONTRAT-COMMUN.md` (arborescence `delegation-a-jules/`, à créer par le parent). En cas de conflit, le présent correctif prime sur le corps initial du PRD, qui reste préservé.
+
+**Dépendances PRD :** aucune en amont ; PRD-003 (import d'objectifs) et PRD-002 se réferencent mutuellement pour la provenance des visions. PRD-12WY-SQLITE-GLASSMORPHISM (PRD-001, même dossier) porte la persistance — ne pas créer de second store.
+
+**Périmètre d'écriture (write_scope) :**
+- Existant (touché) : `vue.html` (racine repo, vérifié présent), `src/apps/twelve-week/components/VisionCommandCard.tsx`, store 12WY `src/stores/fw-12wy.store.ts` (importé par useWeeklyScore).
+- Proposé (à créer, jamais présumé existant) : aucun nouveau fichier obligatoire — modifications dans les fichiers existants uniquement
+
+**Critères d'acceptation positifs :** source/statut/conflit affichés pour chaque vision ; édition persistée puis retrouvée après reload ; aucun doublon Ikigai.
+
+**Critères d'acceptation négatifs (doivent rester vrais) :** un horizon sans donnée reste vide et explicite (null/A SOURCER), jamais rempli par une projection ; Quarter Intent jamais promu en engagement actif par une bannière ; aucun label opérationnel converti automatiquement.
+
+**Sécurité / isolation / idempotence / persistance :** provenance traçable par repère de source ; inconnu structuré (null) et non jauge verte ; aucune donnée du corpus privé C:/Users chargée au runtime — `vue.html` est dans le repo, c'est la seule source.
+
+**Commandes :** `npm run lint` (exegese : `lint` = `tsc --noEmit`, verification de types — **pas un test**) et `npm run build` (`vite build`) sont obligatoires avant toute livraison. Aucun runner de test n'est declare dans `package.json` au 2026-09-12 (pas de script `test`, pas de jest/vitest) : ne presenter ni l'un ni l'autre comme des tests fonctionnels, et ne pas inventer un script de test comme deja existant.
+
+**Reprise et rollback non destructifs :** PR bornée : revert des fichiers listés dans write_scope ; aucune migration de données — les visions éditées vivent dans les stores existants, un rollback n'écrase pas Ikigai ni le plan 12WY.
+
 ## Valeur et remplacement
 Obstacle : confusion entre sens à long terme et semaine d'exécution. Remplacer les projections métier imposées par une vue traçable des visions existantes, sans dupliquer Ikigai.
 

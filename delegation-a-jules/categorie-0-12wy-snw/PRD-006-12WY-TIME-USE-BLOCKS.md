@@ -1,5 +1,26 @@
 # PRD-006 — Blocs de temps choisis, pas imposés
 
+
+## Correctif de délégation (audit 2026-09-12)
+
+> Cadre général : `../CONTRAT-COMMUN.md` (arborescence `delegation-a-jules/`, à créer par le parent). En cas de conflit, le présent correctif prime sur le corps initial du PRD, qui reste préservé.
+
+**Dépendances PRD :** PRD-004 (fin de timer != tactique accomplie ; les blocs référencent tactiques/domaines sans dupliquer leurs états) ; PRD-001 (persistance locale des blocs).
+
+**Périmètre d'écriture (write_scope) :**
+- Existant (touché) : `src/apps/twelve-week/components/TimeUseMatrix.tsx` (vérifié présent).
+- Proposé (à créer, jamais présumé existant) : aucun nouveau fichier obligatoire — modifications dans les fichiers existants uniquement
+
+**Critères d'acceptation positifs :** blocs créés/édités/rechargés avec début/fin, fuseau IANA et rattachement (cycleId, week) ; timer fondé sur temps écoulé réel, pause/reprise/annulation, onglet suspendu sans fausse complétion ; chevauchements détectés.
+
+**Critères d'acceptation négatifs (doivent rester vrais) :** aucune alerte de récupération transformée en diagnostic de santé ou veto ; aucune intégration d'événements vers un calendrier externe dans cette PR ; aucune durée ou priorité imposée (LD01/LD02 exclusifs interdits) ; breakout absent => proposition explicative non bloquante.
+
+**Sécurité / isolation / idempotence / persistance :** fuseau IANA explicite pour le changement d'heure ; durées invalides rejetées sans écran blanc ; persistance locale rechargée après fermeture du navigateur.
+
+**Commandes :** `npm run lint` (exegese : `lint` = `tsc --noEmit`, verification de types — **pas un test**) et `npm run build` (`vite build`) sont obligatoires avant toute livraison. Aucun runner de test n'est declare dans `package.json` au 2026-09-12 (pas de script `test`, pas de jest/vitest) : ne presenter ni l'un ni l'autre comme des tests fonctionnels, et ne pas inventer un script de test comme deja existant.
+
+**Reprise et rollback non destructifs :** blocs = données utilisateur locales : rollback = restore du composant, jamais une purge des blocs ; timer en cours annulé proprement sans marquer quoi que ce soit d'accompli.
+
 ## Valeur et remplacement
 Obstacle : dispersion et planning rigide. Étendre `src/apps/twelve-week/components/TimeUseMatrix.tsx` au lieu d'introduire un second calendrier. TimeUseSchedule.tsx éventuel doit remplacer une responsabilité existante, pas la dupliquer.
 

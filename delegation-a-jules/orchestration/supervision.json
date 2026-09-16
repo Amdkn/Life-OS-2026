@@ -1,0 +1,20 @@
+{
+  "monitor": {
+    "registry_status": "OK",
+    "jobs_by_status": {
+      "BLOCKED_DEPENDENCY": 32,
+      "BLOCKED_REVIEW": 1,
+      "BLOCKED_SCOPE": 15,
+      "PR_PUBLISHED": 1,
+      "SESSION_TERMINAL": 5,
+      "SUBMITTED": 1
+    },
+    "active_sessions_all_sources": "4",
+    "program_categories_active": [],
+    "uncertain_jobs": [],
+    "open_incidents": 6,
+    "quota_display": "UNKNOWN"
+  },
+  "monitor_hash": "18a83f0672ff71bad21d5436a7fe98e2a275869791c1269bda646a495513b6f7",
+  "generated_at": "2026-09-16T13:26:01.216767+00:00"
+}

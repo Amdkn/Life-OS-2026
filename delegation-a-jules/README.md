@@ -1,32 +1,41 @@
-# Guide d'Orchestration des Délégations Jules & Blocs de PRD
+# Délégation Jules — catégories 0 à 9
 
-Ce document est le **Meta-Routeur de Délégation de Life OS 2026**.
-Il structure le développement en **domaines complets (blocs de PRD cohérents)**, où la numérotation des catégories est strictement alignée sur les préfixes numériques des PRDs.
+Lire [l'audit](AUDIT-ET-ORCHESTRATION.md), puis le [contrat commun](CONTRAT-COMMUN.md). Les correctifs explicites priment sur les formulations historiques incompatibles.
 
----
+## Inventaire
 
-## 1. Cartographie Complète des Catégories & PRDs (Catégories 0 à 8)
+| Catégorie | Domaine |
+|---|---|
+| 0 | 12WY et focus SNW |
+| 1 | Agent Portal et blackboard |
+| 2 | Business Bridge, CLI et MCP |
+| 3 | Distillation PARA |
+| 4 | Six frameworks Life OS |
+| 5 | Convergence et API Jules |
+| 6 | Factory A3 |
+| 7 | Franchises B1 |
+| 8 | Conseil B2 |
+| 9 | Matrice B3 |
 
-| Catégorie | Domaine Fonctionnel | Plage de PRD | Dossier Dédié |
-| :--- | :--- | :--- | :--- |
-| **Catégorie 0** | **12 Week Year & Focus Tactique (SNW)** | PRD-001 à PRD-006 | [categorie-0-12wy-snw/](./categorie-0-12wy-snw) |
-| **Catégorie 1** | **Agent Portal & Blackboard Local SQLite** | PRD-011 à PRD-015 | [categorie-1-agent-portal/](./categorie-1-agent-portal) |
-| **Catégorie 2** | **AI-Native Business Bridge (BOS Adapters)** | PRD-021 à PRD-025 | [categorie-2-ai-native-business-bridge/](./categorie-2-ai-native-business-bridge) |
-| **Catégorie 3** | **PARA Enterprise V2 Distillation** | PRD-031 à PRD-035 | [categorie-3-para-enterprise-distillation/](./categorie-3-para-enterprise-distillation) |
-| **Catégorie 4** | **Life OS 6 Frameworks (Identités & Vaisseaux)** | PRD-041 à PRD-045 | [categorie-4-life-os-6-frameworks/](./categorie-4-life-os-6-frameworks) |
-| **Catégorie 5** | **Convergence Life/Business via Blackboard & Jules API** | PRD-051 à PRD-055 | [categorie-5-convergence-blackboard-jules-api/](./categorie-5-convergence-blackboard-jules-api) |
-| **Catégorie 6** | **A3 Multi-Dimensional Swarm Factory (Skills, Hooks, MCP, Crons)**| PRD-061 à PRD-065 | [categorie-6-a3-multidimensional-swarm-factory/](./categorie-6-a3-multidimensional-swarm-factory) |
-| **Catégorie 7** | **B1 Summer-Verse CEO (Direction, Holding & Franchises)** | PRD-071 à PRD-075 | [categorie-7-b1-summer-verse-ceo/](./categorie-7-b1-summer-verse-ceo) |
-| **Catégorie 8** | **Conseil des 8 VP Managers B2 (Orchestration, Uplink & DEAL)** | PRD-081 à PRD-085 | [categorie-8-b2-council-vp-managers/](./categorie-8-b2-council-vp-managers) |
-| **Catégorie 9** | **B3 Polymorphic Matrix Engine (Intelligence vs Déterminisme)** | PRD-091 à PRD-095 | [categorie-9-b3-polymorphic-matrix/](./categorie-9-b3-polymorphic-matrix) |
+L'identifiant historique PRD-001 est porté par `categorie-0-12wy-snw/PRD-12WY-SQLITE-GLASSMORPHISM.md` ; ne pas le renommer ni créer un doublon.
 
----
+## Validation et bundles
 
-## 2. Directives Déterministes pour Jules (Google Labs)
+Depuis la racine du dépôt :
 
-1. **Un mandat par catégorie :** Jules reçoit l'instruction de traiter l'intégralité du brief d'une catégorie sans saucissonnement flou.
-2. **Pas d'écrasement monolithique :** Interdiction d'écraser des stores ou des composants vitaux d'un seul bloc pour éviter les échecs de diffs git.
-3. **Vérification systématique :** Chaque session doit valider 
-pm run lint et 
-pm run build à 0 erreur avant la création de la Pull Request.
-4. **Local-First & Zéro Dette :** Aucune dépendance lourde ni mock statique n'est toléré dans le code source.
+```bash
+python delegation-a-jules/scripts/validate_briefs.py --self-test
+python delegation-a-jules/scripts/validate_briefs.py
+python delegation-a-jules/scripts/test_dispatch_batches.py
+python delegation-a-jules/scripts/dispatch_batches.py
+npm run lint
+npm run build
+```
+
+Le générateur prépare les dix bundles complets et leur manifeste dans `lots/`. Il ne crée aucune session sans l'option explicite `--submit`. Le validateur prouve la structure documentaire, pas l'implémentation des PRD. `lint` vérifie TypeScript ; ce n'est pas une suite de tests métier.
+
+## Admission
+
+Trois catégories actives au maximum ; une tranche testable par session avec scope exclusif. Le contexte contient tous les PRD de la catégorie, mais une dépendance absente ne se remplace pas par un mock en production. Une catégorie bloquée ne doit pas retenir indéfiniment un slot.
+
+La session PRD-003 existante doit être réconciliée avant tout nouveau mandat catégorie 0. Le dispatcher initial est volontairement limité aux tranches racines ; l'admission générale et les reçus d'intégration sont spécifiés dans PRD-056. Aucun merge, push main ou déploiement automatique.
