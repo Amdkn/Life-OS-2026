@@ -1,12 +1,15 @@
 /** DomainCard — expandable domain view with business pillars (V0.4.3) */
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Layers, Activity, Zap, Cpu, Shield, Users, Briefcase, Globe, Compass } from 'lucide-react';
+import { ChevronDown, ChevronUp, Layers, Activity, Zap, Cpu, Shield, Users, Briefcase, Globe, Compass, ShieldAlert } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { LifeWheelDomain, BusinessPillar, Project } from '../../../stores/fw-para.store';
 import { useOsSettingsStore } from '../../../stores/os-settings.store';
 import { useShellStore } from '../../../stores/shell.store';
 
 import { PillarDashboard } from './PillarDashboard';
+import { JERRY_SQUADS } from '../../../utils/jerrySquads';
+
+
 
 interface DomainCardProps {
   domain: LifeWheelDomain;
@@ -35,6 +38,7 @@ export function DomainCard({ domain, activeProjects, selectedPillar, onPillarSel
   const config = domainConfigs?.find(c => c.domain === domain);
   const color = config?.color || '#10b981'; 
   const count = activeProjects.length;
+  const squad = JERRY_SQUADS[domain];
 
   return (
     <div className={clsx("glass-card rounded-[2.5rem] border overflow-hidden transition-all duration-500",
@@ -54,8 +58,22 @@ export function DomainCard({ domain, activeProjects, selectedPillar, onPillarSel
             <Layers className="w-6 h-6" />
           </div>
           <div className="text-left">
-            <h3 className="text-lg font-bold uppercase tracking-wider transition-colors" style={{ color: isExpanded ? color : 'var(--theme-text)' }}>{config?.label || domain}</h3>
-            <p className="text-[10px] font-bold text-[var(--theme-text)]/20 uppercase tracking-[0.3em]">{count} Active Projects</p>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-bold uppercase tracking-wider transition-colors" style={{ color: isExpanded ? color : 'var(--theme-text)' }}>{config?.label || domain}</h3>
+              {squad && (
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-white/10" style={{ color: color, backgroundColor: color + '10' }}>
+                  {squad.name}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] font-bold text-[var(--theme-text)]/30 uppercase tracking-[0.3em] mt-1">{count} Active Projects</p>
+            {squad && isExpanded && (
+               <div className="flex items-center gap-3 mt-2 text-[10px] font-medium text-[var(--theme-text)]/50">
+                 <span className="flex items-center gap-1"><ShieldAlert className="w-3 h-3"/> Standard: {squad.standard}</span>
+                 <span>•</span>
+                 <span>Focus: {squad.focus}</span>
+               </div>
+            )}
           </div>
         </button>
         
