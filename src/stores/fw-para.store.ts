@@ -37,7 +37,7 @@ export interface Project {
   twelveWeekGoalId?: string; // V0.6.3 — Pointer vers un WyGoal Trimestriel
 }
 
-export type ResourceType = 'book' | 'tool' | 'contact' | 'template' | 'course' | 'article' | 'video' | 'other';
+export type ResourceType = 'book' | 'tool' | 'contact' | 'template' | 'course' | 'article' | 'video' | 'sop' | 'blueprint' | 'guide' | 'legal' | 'fiscal' | 'archive' | 'other';
 
 export interface Resource {
   id: string;
@@ -58,10 +58,17 @@ interface ParaState {
   resources: Resource[];
   customResourceTypes: string[];
   
+  // Resources View State
+  resourceSearchQuery: string;
+  resourceActiveType: ResourceType | 'all';
+
   // Actions
   setActiveTab: (tab: ParaState['activeTab']) => void;
   setActiveLdFilter: (d: LDId | 'all') => void;
   addCustomResourceType: (type: string) => void;
+  setResourceSearchQuery: (query: string) => void;
+  setResourceActiveType: (type: ResourceType | 'all') => void;
+  getFilteredResources: () => Resource[];
 
   // New CRUD & Sync Actions (V0.4.1+)
   initializeProjects: (projects: Project[]) => void;
@@ -89,6 +96,8 @@ export const useParaStore = create<ParaState>()(
     (set, get) => ({
       activeTab: 'overview',
       activeLdFilter: 'all',
+      resourceSearchQuery: '',
+      resourceActiveType: 'all',
       projects: [...PICARD_PROJECTS],
       resources: [], 
       customResourceTypes: [],
@@ -96,6 +105,16 @@ export const useParaStore = create<ParaState>()(
       setActiveTab: (activeTab) => set({ activeTab }),
       setActiveLdFilter: (activeLdFilter) => set({ activeLdFilter }),
       addCustomResourceType: (type) => set((s) => ({ customResourceTypes: [...s.customResourceTypes, type] })),
+      setResourceSearchQuery: (resourceSearchQuery) => set({ resourceSearchQuery }),
+      setResourceActiveType: (resourceActiveType) => set({ resourceActiveType }),
+      getFilteredResources: () => {
+        const state = get();
+        return state.resources.filter(r => {
+          const matchesSearch = r.title.toLowerCase().includes(state.resourceSearchQuery.toLowerCase()) || (r.category?.toLowerCase() || '').includes(state.resourceSearchQuery.toLowerCase());
+          const matchesType = state.resourceActiveType === 'all' || r.type === state.resourceActiveType;
+          return matchesSearch && matchesType;
+        });
+      },
 
       initializeProjects: (projects) => set({ projects }),
 
