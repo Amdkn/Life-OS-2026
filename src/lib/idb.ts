@@ -21,7 +21,7 @@ export class DomainDB {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        const stores = ['projects', 'areas', 'resources', 'archives', 'metadata'];
+        const stores = ['projects', 'areas', 'resources', 'archives', 'metadata', 'items'];
         stores.forEach(s => {
           if (!db.objectStoreNames.contains(s)) {
             db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });

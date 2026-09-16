@@ -1,9 +1,6 @@
 /** GTD App — Capture & Organization Framework (V0.2.8) */
 import { useGtdStore, type GTDItem } from '../../stores/fw-gtd.store';
-import GtdDashboard from './pages/Dashboard';
-import { OrganizeView } from './pages/OrganizeView';
-import { EngageView } from './pages/EngageView';
-import { ClarifyView } from './pages/ClarifyView';
+import { GtdCerritosPipeline } from './GtdCerritosPipeline';
 import { 
   Inbox, LayoutDashboard, ListTodo, 
   RotateCcw, Zap, Search, Settings, 
@@ -87,10 +84,7 @@ export default function GtdApp() {
         </header>
 
         <div className="flex-1 overflow-auto custom-scrollbar">
-          {activeTab === 'overview' && <GtdDashboard embedded={false} />}
-          {activeTab === 'clarify' && <ClarifyView />}
-          {(activeTab === 'organize' || activeTab === 'capture' || activeTab === 'reflect') && <OrganizeView />}
-          {activeTab === 'engage' && <EngageView />}
+          <GtdCerritosPipeline />
         </div>
       </main>
     </div>
