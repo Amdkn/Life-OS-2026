@@ -15,9 +15,11 @@ import { SidebarSearch } from '../../components/SidebarSearch';
 import { HeaderFilterBar } from '../../components/HeaderFilterBar';
 import { AmbitionModal } from './components/AmbitionModal';
 import { DomainCentralCard } from './components/DomainCentralCard';
+import DiscoveryWheelEngine from './DiscoveryWheelEngine';
 
 const wheelNavItems: NavItem[] = [
   { id: 'overview',  label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'discovery', label: 'Discovery Engine', icon: Search },
   { id: 'domains',   label: 'Domains',   icon: Target },
   { id: 'analytics', label: 'Analytics', icon: PieChart },
   { id: 'growth',    label: 'Growth',    icon: TrendingUp },
@@ -107,7 +109,9 @@ export default function LifeWheelApp() {
         </header>
 
         <div className="flex-1 overflow-auto p-10 custom-scrollbar relative">
-          {activeTab === 'overview' ? (
+          {activeTab === 'discovery' ? (
+            <DiscoveryWheelEngine />
+          ) : activeTab === 'overview' ? (
             <LifeWheelDashboard embedded={false} />
           ) : activeTab === 'domains' ? (
             <div className="grid grid-cols-12 gap-8 h-full">
