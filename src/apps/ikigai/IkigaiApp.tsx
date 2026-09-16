@@ -12,6 +12,7 @@ import { AppNavBar, type NavItem } from '../../components/AppNavBar';
 import { IkigaiItemCard } from './components/IkigaiItemCard';
 import { IkigaiDetailPanel } from './components/IkigaiDetailPanel';
 import { VisionModal } from './components/VisionModal';
+import { IkigaiMatrixView } from './components/IkigaiMatrixView';
 
 const ikigaiNavItems: NavItem[] = [
   { id: 'all',      label: 'Overview',  icon: LayoutDashboard },
@@ -26,7 +27,7 @@ const horizonFilters = [
   { id: 'H1',  label: 'H1 (1yr)' },
   { id: 'H3',  label: 'H3 (3yr)' },
   { id: 'H10', label: 'H10 (10yr)' },
-  { id: 'H30', label: 'H30 (30yr)' },
+  { id: 'H25', label: 'H25 (25yr)' },
   { id: 'H90', label: 'H90 (Life)' },
 ];
 
@@ -104,20 +105,32 @@ export default function IkigaiApp() {
           </button>
         </header>
 
-        <div className="flex-1 overflow-auto p-10 custom-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-            {filteredItems.map(item => (
-              <IkigaiItemCard key={item.id} item={item as any} onClick={setSelectedItem as any} />
-            ))}
-            {filteredItems.length === 0 && (
-              <div className="col-span-full py-40 flex flex-col items-center gap-4 opacity-20">
-                <Anchor className="w-12 h-12" />
-                <p className="text-[11px] uppercase tracking-[0.5em] font-bold">
-                  {canForge ? 'Forge a new vision node for this intersection' : 'Select a Pillar and Horizon to forge principles'}
-                </p>
-              </div>
-            )}
-          </div>
+                <div className="flex-1 overflow-auto p-10 custom-scrollbar">
+          {activePillar === 'all' && activeHorizon === 'all' ? (
+            <IkigaiMatrixView
+              visions={visions as any}
+              onForge={(pillar, horizon) => {
+                setActivePillar(pillar);
+                setActiveHorizon(horizon);
+                setIsForgeOpen(true);
+              }}
+              onSelect={(item) => setSelectedItem(item as any)}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+              {filteredItems.map(item => (
+                <IkigaiItemCard key={item.id} item={item as any} onClick={setSelectedItem as any} />
+              ))}
+              {filteredItems.length === 0 && (
+                <div className="col-span-full py-40 flex flex-col items-center gap-4 opacity-20">
+                  <Anchor className="w-12 h-12" />
+                  <p className="text-[11px] uppercase tracking-[0.5em] font-bold">
+                    {canForge ? 'Forge a new vision node for this intersection' : 'Select a Pillar and Horizon to forge principles'}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
