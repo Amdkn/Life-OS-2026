@@ -69,23 +69,6 @@ export function TopBar() {
             <span className="font-bold tracking-tight text-[var(--theme-accent)] font-outfit">A'Space</span>
           </div>
 
-          {/* Trimodal Switch (Tech OS / Life OS / Business OS) */}
-          <div className="flex items-center bg-black/40 rounded-full p-0.5 border border-white/10">
-            {['Tech OS', 'Life OS', 'Business OS'].map((mode) => (
-              <button
-                key={mode}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  mode === 'Life OS'
-                    ? 'bg-[var(--theme-accent)] text-black shadow-[0_0_10px_var(--theme-accent)]'
-                    : 'text-[var(--theme-text)]/40 hover:text-[var(--theme-text)]/70'
-                }`}
-                title={mode === 'Life OS' ? 'Active Mode' : `Switch to ${mode}`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-
           {/* Beth Veto Toggle (D7/D9: global, always visible) */}
           <button
             onClick={toggleVeto}

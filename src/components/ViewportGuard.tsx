@@ -2,9 +2,6 @@
 import { useEffect } from 'react';
 import React from 'react';
 import { useShellStore } from '../stores/shell.store';
-import { installScopedStorage } from '../lib/storage-scope';
-
-installScopedStorage('life-os');
 
 export function ViewportGuard({ children }: { children: React.ReactNode }) {
   const windows = useShellStore(s => s.windows);
