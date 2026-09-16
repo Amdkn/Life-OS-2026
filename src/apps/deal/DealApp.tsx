@@ -2,9 +2,9 @@
 import { useDealStore, type DealItem, type Muse } from '../../stores/fw-deal.store';
 import { useParaStore } from '../../stores/fw-para.store';
 import DealDashboard from './pages/Dashboard';
-import { 
-  Scan, LayoutDashboard, Scissors, 
-  Zap, LockOpen, Search, Settings, 
+import {
+  Scan, LayoutDashboard, Scissors,
+  Zap, LockOpen, Search, Settings,
   ShieldAlert, Trophy, ArrowRight, DollarSign,
   ArchiveRestore
 } from 'lucide-react';
@@ -14,6 +14,7 @@ import { AppNavBar, type NavItem } from '../../components/AppNavBar';
 import { SidebarSearch } from '../../components/SidebarSearch';
 import { clsx } from 'clsx';
 import { MuseCard } from './components/MuseCard';
+import { DealProtostarView } from './DealProtostarView';
 
 const dealNavItems: NavItem[] = [
   { id: 'overview',  label: 'Dashboard', icon: LayoutDashboard },
@@ -41,7 +42,7 @@ export default function DealApp() {
   }, [activeTab, setActivePage]);
 
   const filteredItems = useMemo(() => {
-    return items.filter(i => 
+    return items.filter(i =>
       (activeTab === 'overview' || i.step === activeTab) &&
       (i.title.toLowerCase().includes(searchQuery.toLowerCase()))
     );
@@ -69,7 +70,7 @@ export default function DealApp() {
           <div className="flex items-center gap-8">
             <h2 className="text-xl font-bold uppercase tracking-[0.4em] text-[var(--theme-text)]/80">{activeTab}</h2>
             {activeTab === 'muses' && (
-              <button 
+              <button
                 onClick={() => setShowGraveyard(!showGraveyard)}
                 className="text-[var(--theme-text)]/40 hover:text-[var(--theme-text)]/80 transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest border border-white/5 px-3 py-1.5 rounded-lg hover:bg-white/5"
               >
@@ -96,27 +97,10 @@ export default function DealApp() {
                 ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-              {filteredItems.map(item => (
-                <div key={item.id} className="glass-card rounded-[2rem] p-8 border-white/5 bg-white/[0.01] hover:bg-white/[0.04] transition-all group border hover:border-rose-500/20 shadow-2xl relative overflow-hidden flex flex-col min-h-[200px]">
-                  <div className="flex justify-between items-start mb-4">
-                    <h4 className="text-[9px] font-bold text-rose-400/50 uppercase tracking-[0.4em]">{item.step}</h4>
-                    <div className="h-1.5 w-16 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-rose-500/40" style={{ width: `${item.frictionScore}%` }} />
-                    </div>
-                  </div>
-                  <h3 className="text-base font-bold text-[var(--theme-text)]/90 uppercase tracking-wider mb-4 leading-tight">{item.title}</h3>
-                  <div className="mt-auto flex items-center justify-between">
-                    <span className="text-[8px] font-black text-[var(--theme-text)]/20 uppercase tracking-widest">Friction: {item.frictionScore}%</span>
-                    <ArrowRight className="w-4 h-4 text-[var(--theme-text)]/10 group-hover:text-rose-400 transition-all group-hover:translate-x-1" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <DealProtostarView items={filteredItems} />
           )}
         </div>
       </main>
     </div>
   );
 }
-

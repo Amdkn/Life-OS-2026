@@ -1,20 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getCrons, toggleCron, triggerPulse } from '../../../services/cron-registry/registry.js';
+import { CronJob } from '../../../services/cron-registry/types.js';
 import { motion } from 'motion/react';
 import { Clock, CheckCircle2 } from 'lucide-react';
 
 const DAYS = ['MON 23', 'TUE 24', 'WED 25', 'THU 26', 'FRI 27', 'SAT 28', 'SUN 29'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-const MOCK_CRONS = [
-  { id: 1, day: 0, time: 6, title: 'Morning Briefing', type: 'system', color: 'var(--brass)' },
-  { id: 2, day: 1, time: 7, title: 'Daily Standup', type: 'agent', color: 'var(--accent-primary)' },
-  { id: 3, day: 2, time: 6, title: 'Github Sync', type: 'system', color: 'var(--accent-warning)' },
-  { id: 4, day: 4, time: 9, title: 'Hyrox Asia Q4 Check', type: 'task', color: 'var(--accent-danger)' },
-  { id: 5, day: 0, time: 21, title: 'Evening Ritual', type: 'life', color: 'var(--copper)' },
-  // ... more can be added to match the image density
-];
+
 
 const CronsView: React.FC = () => {
+  const [crons, setCrons] = useState<CronJob[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCrons = async () => {
+    setLoading(true);
+    try {
+      const data = await getCrons();
+      setCrons(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCrons();
+    // Optional: Could poll here for heartbeats or setup WebSocket
+    const interval = setInterval(fetchCrons, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleToggle = async (id: string, currentStatus: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await toggleCron(id, !currentStatus);
+    await fetchCrons();
+  };
+
+  const handlePulse = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await triggerPulse(id);
+    await fetchCrons();
+  };
+
   return (
     <div className="h-full flex flex-col p-6 overflow-hidden">
       <div className="flex items-center justify-between mb-8">
@@ -26,7 +55,7 @@ const CronsView: React.FC = () => {
         <div className="flex gap-4">
           <div className="glass-card px-4 py-2 flex items-center gap-3">
             <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)]" />
-            <span className="text-[11px] font-bold text-white uppercase tracking-widest">32 Crons Active</span>
+            <span className="text-[11px] font-bold text-white uppercase tracking-widest">{crons.filter(c => c.isActive).length} Crons Active</span>
           </div>
           <button className="bg-[var(--accent-primary)] hover:bg-[#10b981ee] text-black text-[11px] font-black uppercase px-6 py-2.5 rounded-xl shadow-[0_0_20px_var(--accent-primary-glow)] transition-all">
             Deploy New Cron
@@ -76,7 +105,7 @@ const CronsView: React.FC = () => {
               </div>
 
               {/* Mock Events */}
-              {MOCK_CRONS.map((cron) => (
+              {crons.map((cron) => (
                 <motion.div
                   key={cron.id}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -86,7 +115,7 @@ const CronsView: React.FC = () => {
                     top: `${cron.time * 64}px`,
                     left: `${(cron.day / 7) * 100}%`,
                     width: `${100 / 7}%`,
-                    height: '64px',
+                    height: '96px',
                     zIndex: 1
                   }}
                 >
@@ -98,10 +127,33 @@ const CronsView: React.FC = () => {
                     }}
                   >
                     <div className="text-[9px] font-black text-white uppercase truncate opacity-90">{cron.title}</div>
-                    <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <Clock className="w-2.5 h-2.5 text-white" />
-                      <span className="text-[8px] text-white font-bold">{cron.time}:00</span>
+
+                    <div className="flex flex-col gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5 text-white" />
+                        <span className="text-[8px] text-white font-bold">{cron.time}:00 - {cron.frequency}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <button
+                          onClick={(e) => handleToggle(cron.id, cron.isActive, e)}
+                          className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase ${cron.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}
+                        >
+                          {cron.isActive ? 'Active' : 'Inactive'}
+                        </button>
+                        <button
+                          onClick={(e) => handlePulse(cron.id, e)}
+                          className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[8px] font-bold uppercase text-white"
+                        >
+                          Pulse
+                        </button>
+                      </div>
+                      {cron.lastPulse && (
+                        <div className="text-[7px] text-white/70 mt-0.5">
+                          Last: {new Date(cron.lastPulse).toLocaleTimeString()}
+                        </div>
+                      )}
                     </div>
+
                   </div>
                 </motion.div>
               ))}

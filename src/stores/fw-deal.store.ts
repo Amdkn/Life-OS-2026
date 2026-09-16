@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { LDId, writeToLD, readFromLD } from '../lib/ld-router';
 
-/** 
+/**
  * DEAL Framework Store — V0.8.3 Pipeline
  * Features: PARA Import, D-E-A-L Pipeline, Muse Tracker
  * Persistence: ld06 (Habitat/Infrastructure)
@@ -19,6 +19,7 @@ export interface DealItem {
   status: 'active' | 'completed';
   createdAt: number;
   updatedAt: number;
+  source?: string;
 }
 
 export interface Muse {
@@ -38,14 +39,16 @@ interface DealState {
   items: DealItem[];
   muses: Muse[];
   isLoaded: boolean;
-  
+  frictionThreshold: number;
+
   // Actions
   setActiveTab: (tab: DealState['activeTab']) => void;
+  setFrictionThreshold: (threshold: number) => void;
   loadFromDB: () => Promise<void>;
   addItem: (item: DealItem) => Promise<void>;
-  createDefinitionFromText: (text: string) => Promise<void>;
-  absorbProjectAsFriction: (projectId: string, projectTitle: string) => Promise<void>;
-  absorbGtdTaskAsFriction: (content: string, context?: string) => Promise<void>;
+  createDefinitionFromText: (text: string, source?: string) => Promise<void>;
+  absorbProjectAsFriction: (projectId: string, projectTitle: string, source?: string) => Promise<void>;
+  absorbGtdTaskAsFriction: (content: string, context?: string, source?: string) => Promise<void>;
   updateDealItem: (id: string, patch: Partial<DealItem>) => Promise<void>;
   promoteToMuse: (itemId: string, revenueEstimate?: number, buildCost?: number) => Promise<void>;
   updateMuse: (id: string, patch: Partial<Muse>) => Promise<void>;
@@ -57,18 +60,20 @@ export const useDealStore = create<DealState>((set, get) => ({
   items: [],
   muses: [],
   isLoaded: false,
+  frictionThreshold: 50,
 
   setActiveTab: (activeTab) => set({ activeTab }),
+  setFrictionThreshold: (frictionThreshold) => set({ frictionThreshold }),
 
   loadFromDB: async () => {
     try {
       const dealItems = await readFromLD<DealItem>('ld06', 'items');
       const muses = await readFromLD<Muse>('ld06', 'resources');
-      
-      set({ 
-        items: dealItems.filter(i => (i as any).type === 'v1.deal' || !(i as any).type), 
-        muses: muses.filter(m => (m as any).type === 'v1.muse' || !(m as any).type), 
-        isLoaded: true 
+
+      set({
+        items: dealItems.filter(i => (i as any).type === 'v1.deal' || !(i as any).type),
+        muses: muses.filter(m => (m as any).type === 'v1.muse' || !(m as any).type),
+        isLoaded: true
       });
     } catch (e) {
       console.error("[DEAL] Failed to load from LD06", e);
@@ -82,7 +87,7 @@ export const useDealStore = create<DealState>((set, get) => ({
     await writeToLD('ld06', 'items', 'add', newItem, 'deal');
   },
 
-  createDefinitionFromText: async (text) => {
+  createDefinitionFromText: async (text, source) => {
     const newItem: DealItem = {
       id: crypto.randomUUID(),
       title: text,
@@ -90,12 +95,13 @@ export const useDealStore = create<DealState>((set, get) => ({
       frictionScore: 50,
       status: 'active',
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      source
     };
     await get().addItem(newItem);
   },
 
-  absorbProjectAsFriction: async (projectId: string, projectTitle: string) => {
+  absorbProjectAsFriction: async (projectId: string, projectTitle: string, source?: string) => {
     const newFriction: DealItem = {
       id: crypto.randomUUID(),
       title: `[ARCHIVE] Deconstruct: ${projectTitle}`,
@@ -104,13 +110,14 @@ export const useDealStore = create<DealState>((set, get) => ({
       frictionScore: 80,
       status: 'active',
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      source
     };
     await get().addItem(newFriction);
     console.info(`[DEAL] Project ${projectId} absorbed into Spacedock.`);
   },
 
-  absorbGtdTaskAsFriction: async (content: string, context?: string) => {
+  absorbGtdTaskAsFriction: async (content: string, context?: string, source?: string) => {
     const contextPrefix = context ? `[${context}] ` : '';
     const newFriction: DealItem = {
       id: crypto.randomUUID(),
@@ -119,7 +126,8 @@ export const useDealStore = create<DealState>((set, get) => ({
       frictionScore: 100, // Déclaré haut par défaut car c'est une alarme
       status: 'active',
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      source
     };
     await get().addItem(newFriction);
     console.info(`[DEAL] GTD Task absorbed as Repetitive Friction.`);
@@ -158,14 +166,14 @@ export const useDealStore = create<DealState>((set, get) => ({
         title: item.title,
         revenueEstimate: revenueEstimate || item.potentialRevenue || 0,
         buildCost: buildCost,
-        timeCost: 1, 
+        timeCost: 1,
         status: 'candidate',
         createdAt: Date.now(),
         updatedAt: Date.now()
       };
 
-      return { 
-        muses: [...s.muses, { ...newMuse, type: 'v1.muse' } as any], 
+      return {
+        muses: [...s.muses, { ...newMuse, type: 'v1.muse' } as any],
         items: s.items.map(i => i.id === itemId ? archivedItem! : i)
       };
     });
