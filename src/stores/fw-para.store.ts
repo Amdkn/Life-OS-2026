@@ -30,6 +30,8 @@ export interface Project {
   resources: string[]; // ids of Resource
   progress: number;
   archivedAt?: number;
+  archiveReason?: string;
+  lessonsLearned?: string;
   updatedAt?: number;
   pillarsContent?: Partial<Record<BusinessPillar, string>>; // V0.4.7 Fractal
   linkedResources?: string[]; // V0.4.9 Link
@@ -76,7 +78,8 @@ interface ParaState {
   addProject: (p: Project) => Promise<void>;
   addResource: (r: Resource) => Promise<void>;
   updateProject: (id: string, partial: Partial<Project>) => Promise<void>;
-  archiveProject: (id: string) => Promise<void>;
+  archiveProject: (id: string, reason?: string, lessonsLearned?: string) => Promise<void>;
+  unarchiveProject: (id: string) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   exportToRdf: () => { turtle: string; jsonld: string };
 }
@@ -163,8 +166,12 @@ export const useParaStore = create<ParaState>()(
         }
       },
 
-      archiveProject: async (id) => {
-        await get().updateProject(id, { status: 'archived', archivedAt: Date.now() });
+      archiveProject: async (id, reason, lessonsLearned) => {
+        await get().updateProject(id, { status: 'archived', archivedAt: Date.now(), archiveReason: reason, lessonsLearned: lessonsLearned });
+      },
+
+      unarchiveProject: async (id) => {
+        await get().updateProject(id, { status: 'active', updatedAt: Date.now() });
       },
 
       deleteProject: async (id) => {
