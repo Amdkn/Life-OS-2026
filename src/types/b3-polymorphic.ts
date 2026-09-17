@@ -30,3 +30,22 @@ export interface B3TaskProfile {
   requiredIntelligence: IntelligenceLevel;
   isStrictlyDeterministic?: boolean; // Convenience flag for 100% deterministic tasks
 }
+
+export interface MissionDirective {
+  id: string;
+  source: 'B1' | 'B2';
+  missionProfile: B3TaskProfile;
+}
+
+export interface B3SwarmMetrics {
+  memoryFootprintBytes: number;
+  assemblyTimeMs: number;
+  errorRatio?: number;
+}
+
+export interface B3SwarmTopology {
+  id: string;
+  missionId: string;
+  workers: B3WorkerDescriptor[];
+  metrics: B3SwarmMetrics;
+}
