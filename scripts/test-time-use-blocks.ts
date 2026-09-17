@@ -38,7 +38,6 @@ async function runTests() {
     duration: 180,
     ianaTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     cycleId,
-        description: 'Test block',
     createdAt: Date.now(),
     updatedAt: Date.now()
   };

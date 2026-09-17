@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, X } from 'lucide-react';
+import { MessageSquare, X, Activity } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useAssistantStore } from '../../stores/assistant.store';
 import { useWindowManager } from '../../hooks/useWindowManager';
 import { vesselConfigs } from '../../config/vessels.config';
 import { AgentTile } from './AgentTile';
+import { generateFrameworkHealthMetrics, FrameworkHealthMetrics } from '../../apps/frameworks/services/frameworks-blackboard-bridge';
 
 // We assign a consistent window ID so that useWindowManager can manage state via shell.store.ts
 const OVERLAY_WINDOW_ID = 'assistant-overlay';
@@ -23,6 +24,8 @@ export const AssistantOverlay: React.FC = () => {
 
   const { windowPosition, handleTitleBarMouseDown } = useWindowManager(OVERLAY_WINDOW_ID);
 
+  const [healthMetrics, setHealthMetrics] = useState<FrameworkHealthMetrics | null>(null);
+
   const activeVessel = useMemo(() => {
     if (!activeFrameworkId) return null;
     return vesselConfigs.find((v) => v.id === activeFrameworkId) || null;
@@ -33,7 +36,24 @@ export const AssistantOverlay: React.FC = () => {
     return activeVessel.crew.find((a) => a.id === activeAgentId) || null;
   }, [activeVessel, activeAgentId]);
 
-  // If no framework is active, we don't show the overlay (or we could show a global agent, but PRD says "selon le framework (FW01-FW06)").
+  useEffect(() => {
+    if (activeFrameworkId) {
+      // Setup polling for health metrics based on PRD requirements
+      const updateMetrics = () => {
+        const metricsList = generateFrameworkHealthMetrics();
+        const frameworkMetrics = metricsList.find(m => m.frameworkId === activeFrameworkId);
+        setHealthMetrics(frameworkMetrics || null);
+      };
+
+      updateMetrics();
+      const interval = setInterval(updateMetrics, 5000); // Poll every 5s
+      return () => clearInterval(interval);
+    } else {
+      setHealthMetrics(null);
+    }
+  }, [activeFrameworkId]);
+
+  // If no framework is active, we don't show the overlay
   if (!activeFrameworkId || !activeVessel) {
     return null;
   }
@@ -63,6 +83,19 @@ export const AssistantOverlay: React.FC = () => {
         {/* Separator */}
         <div className="w-px h-12 bg-white/10 mx-1" />
 
+        {/* Framework Health Metrics (PRD-045 requirement) */}
+        {healthMetrics && (
+          <div className="flex flex-col items-center justify-center px-3 py-1 bg-black/40 rounded-lg border border-white/5 mr-2">
+            <div className="flex items-center gap-1.5 mb-1">
+               <Activity className={`w-3.5 h-3.5 ${healthMetrics.nexusStatus === 'OK' ? 'text-green-400' : healthMetrics.nexusStatus === 'WARN' ? 'text-amber-400' : 'text-gray-400'}`} />
+               <span className="text-[10px] font-bold text-white tracking-wider">{healthMetrics.healthScore}%</span>
+            </div>
+            <span className={`text-[8px] uppercase tracking-widest font-black ${healthMetrics.nexusStatus === 'OK' ? 'text-green-400/80' : healthMetrics.nexusStatus === 'WARN' ? 'text-amber-400/80' : 'text-gray-400/80'}`}>
+              {healthMetrics.nexusStatus}
+            </span>
+          </div>
+        )}
+
         {/* Agents */}
         <div className="flex gap-2">
           {activeVessel.crew.map((agent) => (
@@ -75,7 +108,7 @@ export const AssistantOverlay: React.FC = () => {
           ))}
         </div>
 
-        {/* Chat Toggle Button (only active if an agent is selected) */}
+        {/* Chat Toggle Button */}
         <AnimatePresence>
           {activeAgentId && (
             <motion.div
@@ -122,14 +155,14 @@ export const AssistantOverlay: React.FC = () => {
               </button>
             </div>
 
-            {/* Chat Body (Placeholder for Streaming) */}
+            {/* Chat Body */}
             <div className="p-4 h-48 overflow-y-auto flex flex-col gap-3">
               <div className="bg-white/5 rounded-lg p-3 text-sm text-white/80 border border-white/5">
                 Connecting to {activeAgent.name} stream...
               </div>
             </div>
 
-            {/* Chat Input (Placeholder) */}
+            {/* Chat Input */}
             <div className="p-3 border-t border-white/10 bg-black/40">
               <input
                 type="text"
