@@ -123,7 +123,58 @@ export function mapWyTacticToLinearIssue(tactic: WyTactic, domain: LifeWheelDoma
     title: tactic.title || 'Untitled Tactic',
     description: `Week ${tactic.week} tactic for goal ${tactic.goalId}`,
     teamId: team.id,
+    cycleId: tactic.cycleId,
     _mappedFromId: tactic.id,
     _mappedFromType: 'wy-tactic'
+  };
+}
+
+export function mapLinearTeamToDomain(team: LinearTeam | { id: string }): LifeWheelDomain | undefined {
+  if (team.id.startsWith('team-')) {
+    const domainPart = team.id.substring(5) as LifeWheelDomain;
+    const validDomains: LifeWheelDomain[] = ['business', 'finance', 'health', 'cognition', 'creativity', 'habitat', 'relations', 'impact'];
+    if (validDomains.includes(domainPart)) {
+      return domainPart;
+    }
+  }
+  return undefined;
+}
+
+export function mapLinearIssueToParaProject(issue: { id: string, title: string, status: LinearStatus, teamId: string }): Partial<Project> {
+  const domain = mapLinearTeamToDomain({ id: issue.teamId });
+  return {
+    id: issue.id,
+    title: issue.title,
+    status: mapLinearStatusToPara(issue.status),
+    domain: domain,
+  };
+}
+
+export function mapLinearIssueToWyTactic(issue: { id: string, title: string, status: LinearStatus, cycleId?: string }): Partial<WyTactic> {
+  return {
+    id: issue.id,
+    title: issue.title,
+    status: mapLinearStatusToWy(issue.status),
+    cycleId: issue.cycleId,
+  };
+}
+
+export function mapLinearIssueToScoreCardTask(issue: { id: string, title: string, status: LinearStatus, teamId: string }) {
+  let scStatus = 'todo';
+  if (issue.status === 'In Progress') scStatus = 'in-progress';
+  if (issue.status === 'Review') scStatus = 'review';
+  if (issue.status === 'Done') scStatus = 'done';
+
+  let label = 'OTHER';
+  const domain = mapLinearTeamToDomain({ id: issue.teamId });
+  if (domain) {
+    label = domain.toUpperCase();
+  }
+
+  return {
+    id: issue.id,
+    title: issue.title,
+    status: scStatus,
+    label: label
   };
 }

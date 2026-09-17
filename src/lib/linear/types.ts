@@ -13,6 +13,7 @@ export interface LinearIssue {
   status: LinearStatus;
   teamId: string;
   projectId?: string;
+  cycleId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -23,6 +24,7 @@ export interface LinearIssuePayload {
   teamId: string;
   stateId?: string;
   projectId?: string;
+  cycleId?: string;
   // Custom fields we might want to sync
   _mappedFromId?: string;
   _mappedFromType?: 'para-project' | 'wy-tactic' | 'scorecard-task';
