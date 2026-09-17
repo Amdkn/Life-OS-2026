@@ -52,6 +52,11 @@ export interface WyTimeBlock extends ParaItem {
   week: number;
   blockType: TimeBlockType;
   completed: boolean;
+  startTime?: number;
+  endTime?: number;
+  duration?: number; // in minutes
+  ianaTimezone?: string;
+  cycleId?: string;
 }
 
 interface TwelveWeekState {
@@ -80,6 +85,7 @@ interface TwelveWeekState {
   updateTacticStatus: (id: string, status: WyTactic['status']) => Promise<void>;
   toggleTimeBlock: (id: string) => Promise<void>;
   addTimeBlock: (b: WyTimeBlock) => Promise<void>;
+  updateTimeBlock: (b: WyTimeBlock) => Promise<void>;
 }
 
 export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
@@ -184,5 +190,9 @@ export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
   addTimeBlock: async (b) => {
     set(s => ({ timeBlocks: [...s.timeBlocks, b] }));
     await writeToLD('ld01', 'resources', 'add', b, '12wy');
+  },
+  updateTimeBlock: async (b) => {
+    set(s => ({ timeBlocks: s.timeBlocks.map(block => block.id === b.id ? b : block) }));
+    await writeToLD('ld01', 'resources', 'update', b, '12wy');
   }
 }));
