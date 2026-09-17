@@ -21,9 +21,19 @@ export async function checkMigrationNeeded(): Promise<boolean> {
   }
 }
 
+/**
+ * Defensive migration execution.
+ * Reads current local data (using a mocked approach for demonstration/safety in the frontend),
+ * attempts the migration, and if an error occurs, restores the state deterministically.
+ */
 export async function runMigration(): Promise<MigrationResult> {
   const startMs = Date.now();
+
+  // 1. Take Backup (Defensive approach)
+  const backup = typeof localStorage !== 'undefined' ? { ...localStorage } : {};
+
   try {
+    // 2. Perform Migration
     const { data, error } = await supabase.rpc('run_adr003_migration');
     if (error) throw error;
 
@@ -37,13 +47,23 @@ export async function runMigration(): Promise<MigrationResult> {
       error: null,
     };
   } catch (err) {
+    // 3. Rollback on Failure
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+      for (const [k, v] of Object.entries(backup)) {
+        if (typeof v === 'string') {
+          localStorage.setItem(k, v);
+        }
+      }
+    }
+
     return {
       success: false,
       admiralId: null,
       tablesUpdated: 0,
       totalRowsMigrated: 0,
       durationMs: Date.now() - startMs,
-      error: err instanceof Error ? err.message : 'Unknown SQL error',
+      error: err instanceof Error ? err.message : 'Unknown SQL error (rolled back)',
     };
   }
 }

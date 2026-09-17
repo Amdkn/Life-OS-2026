@@ -31,6 +31,7 @@ async function runTests() {
     status: 'active',
     blockType: 'strategic',
     title: 'Strategic Focus W1',
+    description: '',
     week,
     completed: false,
     startTime: Date.now(),
