@@ -7,6 +7,7 @@ export interface ToolContext {
 export interface ToolDefinition<TArgs = any, TResult = any> {
   name: string;
   description: string;
+  requiredScopes?: string[];
   validateArgs?: (args: any) => void;
   handler: (args: TArgs, context: ToolContext) => Promise<TResult> | TResult;
 }
