@@ -1,7 +1,9 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
+import { randomUUID } from 'crypto';
 import { B3WorkerDescriptor, B3IncarnationType } from '../types/b3-polymorphic';
+import * as bbClient from '../lib/blackboard/client.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -16,6 +18,16 @@ export interface B3HookContext {
 }
 
 export type HookFn = (context: B3HookContext) => { allowed: boolean; reason?: string; modifiedPayload?: any };
+
+// --- System Hooks ---
+export const b1b2AuthorizationHook: HookFn = (context: B3HookContext) => {
+  if (context.payload && context.payload.docketRef) {
+    if (!context.payload.isB2Authorized) {
+      return { allowed: false, reason: "Blocked by B1/B2 rule: A3/B3 work requires B2 validation" };
+    }
+  }
+  return { allowed: true };
+};
 
 export class B3HookRegistry {
   private hooks: Map<string, { descriptor: B3WorkerDescriptor; fn: HookFn; phase: HookPhase }> = new Map();
@@ -33,6 +45,10 @@ export class B3HookRegistry {
 
   executeHooks(phase: HookPhase, context: B3HookContext): { allowed: boolean; reason?: string; modifiedContext: B3HookContext } {
     let currentContext = { ...context };
+
+    if (currentContext.budgetIter !== undefined && currentContext.budgetIter > 1000) {
+      return { allowed: false, reason: "Budget exceeded: possible infinite loop detected", modifiedContext: currentContext };
+    }
 
     for (const [hookId, hookDef] of Array.from(this.hooks.entries()).sort((a, b) => a[0].localeCompare(b[0]))) {
       if (hookDef.phase === phase) {
@@ -69,6 +85,8 @@ export class B3CronScheduler {
   private jobs: Map<string, CronJob> = new Map();
   private isRunning: boolean = false;
   private timer: NodeJS.Timeout | null = null;
+  private hydrated: boolean = false;
+  private previousStates: Map<string, bigint> = new Map();
 
   // Drift tolerance in ns (e.g. 5 seconds)
   private readonly TOLERANCE_NS = 5000000000n;
@@ -97,9 +115,38 @@ export class B3CronScheduler {
     }
   }
 
+  private async hydrate() {
+    if (this.hydrated) return;
+    try {
+      const events = await bbClient.getEvents('cron_system');
+      for (const event of events) {
+        if (event.event_type === 'cron_executed') {
+          const payload = JSON.parse(event.payload_json);
+          const eventTime = BigInt(event.timestamp) * 1000000n;
+          const existing = this.previousStates.get(payload.id);
+          if (!existing || eventTime > existing) {
+            this.previousStates.set(payload.id, eventTime);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to fetch cron events from blackboard, using memory only:', e);
+    }
+    this.hydrated = true;
+  }
+
   async tick(currentTimeNs?: bigint) {
     const now = currentTimeNs ?? process.hrtime.bigint();
+
+    if (!this.hydrated) {
+      await this.hydrate();
+    }
+
     for (const [id, job] of this.jobs.entries()) {
+      if (!job.lastRunTime && this.previousStates.has(id)) {
+        job.lastRunTime = this.previousStates.get(id);
+      }
+
       if (!job.lastRunTime) {
         job.lastRunTime = now;
         continue;
@@ -112,6 +159,21 @@ export class B3CronScheduler {
       if (elapsedNs >= intervalNs - this.TOLERANCE_NS) {
         try {
           await job.task();
+
+          // Persist the execution
+          try {
+            await bbClient.appendEvent({
+              id: randomUUID(),
+              workspace_id: 'cron_system',
+              actor_id: 'system',
+              actor_layer: 'B3',
+              event_type: 'cron_executed',
+              payload_json: JSON.stringify({ id }),
+              timestamp: Date.now()
+            });
+          } catch (bbError) {
+             console.error(`Failed to persist cron job ${id} execution:`, bbError);
+          }
         } catch (e) {
           console.error(`Cron job ${id} failed:`, e);
         } finally {
@@ -178,6 +240,17 @@ export class SecurityPipeline {
     const postRes = this.hookRegistry.executeHooks('post-execution', preRes.modifiedContext);
 
     if (!postRes.allowed) return { allowed: false, reason: postRes.reason };
+
+    const payload = postRes.modifiedContext.payload;
+    if (payload !== undefined) {
+      const payloadStr = typeof payload === 'string' ? payload.toLowerCase() : JSON.stringify(payload).toLowerCase();
+      const blockedKeywords = ['secret', 'password', 'token', 'api_key'];
+      for (const keyword of blockedKeywords) {
+        if (payloadStr.includes(keyword)) {
+           return { allowed: false, reason: "Security block: output contains potential secrets" };
+        }
+      }
+    }
 
     return { allowed: true, validatedPayload: postRes.modifiedContext.payload };
   }
