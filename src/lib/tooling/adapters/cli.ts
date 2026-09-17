@@ -1,3 +1,5 @@
+import { checkCliAuth } from "../../../../cli/auth.js";
+
 import { registry, ToolContext } from '../registry';
 
 export interface CliOptions {
@@ -54,6 +56,13 @@ export class CliAdapter {
 
     const tool = registry.get(matchedToolName)!;
     const context: ToolContext = { source: 'cli' };
+
+    if (tool.requiredScopes && tool.requiredScopes.length > 0) {
+      if (!checkCliAuth(tool.requiredScopes)) {
+        console.error("Unauthorized: Missing required scopes for CLI tool");
+        throw new Error("Unauthorized: Missing required scopes for CLI tool");
+      }
+    }
 
     try {
       const parsedArgs = { positional: matchedToolArgs };

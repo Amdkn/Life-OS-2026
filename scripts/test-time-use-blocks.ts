@@ -61,6 +61,7 @@ async function runTests() {
     ...added,
     completed: true,
     endTime: endTime,
+    createdAt: Date.now(),
     updatedAt: Date.now()
   });
 
