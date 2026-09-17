@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { ParaItem } from './ld01.store';
 import { readFromLD, writeToLD } from '../lib/ld-router';
 
-/** 
+/**
  * 12 Week Year Framework Store — V0.6.1 Destruction du Mirage
  * Migrated from localStorage to IndexedDB (LD01/resources)
  * The Trinity: WyVision, WyGoal, WyTactic
@@ -15,7 +15,7 @@ export interface WyVision extends ParaItem {
   provenance?: string;
   type: 'wy-vision';
   domainId: string; // V0.6.7 REQUIRED
-  ikigaiVisionId?: string; 
+  ikigaiVisionId?: string;
 }
 
 export interface WyGoal extends Omit<ParaItem, 'status'> {
@@ -26,11 +26,21 @@ export interface WyGoal extends Omit<ParaItem, 'status'> {
   projectId?: string; // V0.4.4 — Pont PARA-12WY
 }
 
+export interface TacticStatusTransition {
+  status: 'pending' | 'completed' | 'failed';
+  timestamp: number;
+  cycleId?: string;
+  week: number;
+}
+
 export interface WyTactic extends Omit<ParaItem, 'status'> {
   type: 'wy-tactic';
   goalId: string;
   week: number;
   status: 'pending' | 'completed' | 'failed';
+  cycleId?: string;
+  projectId?: string;
+  statusHistory?: TacticStatusTransition[];
 }
 
 export type TimeBlockType = 'strategic' | 'buffer' | 'breakout';
@@ -51,6 +61,7 @@ interface TwelveWeekState {
   activeWeek: number | 'all';
   activeVisionId: string | null;
   activeGoalId: string | null;
+  activeCycleId: string | null;
   isHydrated: boolean;
 
   // Actions
@@ -59,6 +70,7 @@ interface TwelveWeekState {
   setActiveWeek: (week: number | 'all') => void;
   setActiveVisionId: (id: string | null) => void;
   setActiveGoalId: (id: string | null) => void;
+  setActiveCycleId: (id: string | null) => void;
   addVision: (v: WyVision) => Promise<void>;
   addGoal: (g: WyGoal) => Promise<void>;
   addTactic: (t: WyTactic) => Promise<void>;
@@ -76,6 +88,7 @@ export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
   activeWeek: 'all',
   activeVisionId: null,
   activeGoalId: null,
+  activeCycleId: null,
   isHydrated: false,
 
   hydrate: async () => {
@@ -89,9 +102,9 @@ export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
         timeBlocks: data.filter(d => (d as any).type === 'wy-timeblock') as any as WyTimeBlock[],
         isHydrated: true
       });
-    } catch(e) { 
+    } catch(e) {
       console.error('[12WY Store] Hydration failed', e);
-      set({ isHydrated: true }); 
+      set({ isHydrated: true });
     }
   },
 
@@ -99,6 +112,7 @@ export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
   setActiveWeek: (week) => set({ activeWeek: week }),
   setActiveVisionId: (id) => set({ activeVisionId: id }),
   setActiveGoalId: (id) => set({ activeGoalId: id }),
+  setActiveCycleId: (id) => set({ activeCycleId: id }),
 
   addVision: async (v) => {
     set(s => ({ visions: [...s.visions, v] }));
@@ -109,13 +123,47 @@ export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
     await writeToLD('ld01', 'resources', 'add', g, '12wy');
   },
   addTactic: async (t) => {
-    set(s => ({ tactics: [...s.tactics, t] }));
-    await writeToLD('ld01', 'resources', 'add', t, '12wy');
+    const exists = get().tactics.some(existing =>
+      existing.title === t.title &&
+      existing.goalId === t.goalId &&
+      existing.week === t.week &&
+      (existing.cycleId || null) === (t.cycleId || null)
+    );
+    if (exists) {
+      console.warn(`[12WY Store] Tactic "${t.title}" already exists for week ${t.week} in cycle ${t.cycleId || 'default'}. Ignoring duplicate.`);
+      return;
+    }
+
+    const tacticToInsert = { ...t };
+    if (!tacticToInsert.statusHistory) {
+      tacticToInsert.statusHistory = [{
+        status: tacticToInsert.status,
+        timestamp: tacticToInsert.createdAt || Date.now(),
+        cycleId: tacticToInsert.cycleId,
+        week: tacticToInsert.week
+      }];
+    }
+
+    set(s => ({ tactics: [...s.tactics, tacticToInsert] }));
+    await writeToLD('ld01', 'resources', 'add', tacticToInsert, '12wy');
   },
   updateTacticStatus: async (id, status) => {
     const tactic = get().tactics.find(t => t.id === id);
     if (!tactic) return;
-    const updated = { ...tactic, status, updatedAt: Date.now() };
+
+    const now = Date.now();
+    const history = tactic.statusHistory ? [...tactic.statusHistory] : [];
+
+    if (tactic.status !== status || history.length === 0) {
+      history.push({
+        status,
+        timestamp: now,
+        cycleId: tactic.cycleId,
+        week: tactic.week
+      });
+    }
+
+    const updated = { ...tactic, status, statusHistory: history, updatedAt: now };
     set(s => ({ tactics: s.tactics.map(t => t.id === id ? updated : t) }));
     await writeToLD('ld01', 'resources', 'update', updated, '12wy');
   },
