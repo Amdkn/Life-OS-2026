@@ -11,7 +11,7 @@ async function runTest() {
   try {
     // 1. Test 'tools list'
     console.log('1. Testing `tools list`...');
-    const { stdout: stdoutList } = await execFileAsync('npx', ['tsx', CLI_PATH, 'tools', 'list']);
+    const { stdout: stdoutList } = await execFileAsync('npx', ['tsx', CLI_PATH, 'tools', 'list'], { shell: true });
     const listOutput = JSON.parse(stdoutList);
 
     if (!Array.isArray(listOutput) || listOutput.length < 5) {
@@ -23,7 +23,7 @@ async function runTest() {
 
     // 2. Test '12wy status --brief'
     console.log('2. Testing `12wy status --brief`...');
-    const { stdout: stdoutBrief } = await execFileAsync('npx', ['tsx', CLI_PATH, '12wy', 'status', '--brief']);
+    const { stdout: stdoutBrief } = await execFileAsync('npx', ['tsx', CLI_PATH, '12wy', 'status', '--brief'], { shell: true });
 
     // Check if the output is on a single line (excluding trailing newline)
     const lines = stdoutBrief.trim().split('\n');
