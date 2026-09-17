@@ -31,8 +31,8 @@ export interface Artifact {
   id: string;
   workspace_id: string | null;
   name: string;
-  content: string;
-  content_type: string;
+  mime_type: string;
+  content_path: string;
   created_at: number;
 }
 
@@ -99,8 +99,8 @@ export function releaseLock(resourceKey: string, lockedBy: string): boolean {
 // Artifacts
 export function createArtifact(artifact: Artifact) {
   const stmt = db.prepare(`
-    INSERT INTO artifacts (id, workspace_id, name, content, content_type, created_at)
-    VALUES (@id, @workspace_id, @name, @content, @content_type, @created_at)
+    INSERT INTO artifacts (id, workspace_id, name, mime_type, content_path, created_at)
+    VALUES (@id, @workspace_id, @name, @mime_type, @content_path, @created_at)
   `);
   stmt.run(artifact);
   return artifact;
