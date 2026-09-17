@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { JulesApiClient, ListSessionsResponse, JulesSession } from '../../../services/jules/jules-api-client';
+import { JulesDispatcher } from '../../../services/jules/dispatch/dispatcher';
+import { DispatchJob } from '../../../services/jules/dispatch/types';
 
 export const JulesDispatcherCard: React.FC = () => {
     const [sessionsData, setSessionsData] = useState<ListSessionsResponse | null>(null);
+    const [dispatchQueue, setDispatchQueue] = useState<DispatchJob[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -10,8 +13,24 @@ export const JulesDispatcherCard: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await JulesApiClient.listSessions();
+
+            // Reconcile standard sessions if available (with fallback to UNKNOWN)
+            let data: ListSessionsResponse | null = null;
+            try {
+                data = await JulesApiClient.listSessions();
+            } catch (apiErr: any) {
+                // If Jules API isn't up, we just fallback to unknown quota
+                data = { sessions: [], quota: { max: 100, remaining: null } };
+            }
             setSessionsData(data);
+
+            // Get local Blackboard dispatch queue
+            const state = await JulesDispatcher.getActiveState();
+
+            // To be robust with UI list rendering
+            const sortedJobs = Array.from(state.jobs.values()).sort((a,b) => b.createdAt - a.createdAt);
+            setDispatchQueue(sortedJobs);
+
         } catch (err: any) {
             setError(err.message || 'Failed to fetch sessions');
         } finally {
@@ -27,11 +46,23 @@ export const JulesDispatcherCard: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            await JulesApiClient.createSession({
-                autoCreatePr: true,
-                requirePlanApproval: false,
-                prompt: 'Execute automated PRD dispatch.'
+
+            // PRD-056: Real dispatch requires an actual ID and scope.
+            const result = await JulesDispatcher.createJob({
+                categoryId: 'C5',
+                repository: 'Life-OS-2026',
+                tranche: 'PRD-056-DISPATCH',
+                payloadText: 'Execute automated PRD dispatch for convergence blackboard.',
+                writeScopes: ['src/services/jules/dispatch/dispatcher.ts'],
+                dependencies: []
             });
+
+            if (!result.success && result.error !== 'Job creation is currently locked' && result.error !== 'Write scope collision') {
+                setError(result.error || 'Failed to enqueue');
+            } else {
+                await JulesDispatcher.scheduleTick();
+            }
+
             await fetchSessions();
         } catch (err: any) {
              setError(err.message || 'Failed to dispatch session');
@@ -67,24 +98,47 @@ export const JulesDispatcherCard: React.FC = () => {
                     </div>
                 )}
 
-                {loading && !sessionsData ? (
-                    <p className="text-gray-500">Chargement des sessions...</p>
-                ) : sessionsData?.sessions.length === 0 ? (
-                    <p className="text-gray-500">Aucune session active.</p>
+                {loading && dispatchQueue.length === 0 ? (
+                    <p className="text-gray-500">Chargement de la file d'attente...</p>
+                ) : dispatchQueue.length === 0 ? (
+                    <p className="text-gray-500">Aucun job dans la file.</p>
                 ) : (
-                    <ul className="space-y-2">
-                        {sessionsData?.sessions.map((session: JulesSession) => (
-                            <li key={session.id} className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md flex justify-between items-center">
-                                <span className="font-mono text-sm text-gray-700 dark:text-gray-300">{session.id}</span>
-                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                    session.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                    session.status === 'error' ? 'bg-red-100 text-red-800' :
-                                    'bg-blue-100 text-blue-800'
+                    <ul className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                        {dispatchQueue.map((job: DispatchJob) => (
+                            <li key={job.id} className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md flex justify-between items-center border-l-4" style={{borderLeftColor: job.state === 'running' ? '#3b82f6' : job.state === 'reserved' ? '#8b5cf6' : job.state === 'integrated' ? '#10b981' : '#9ca3af'}}>
+                                <div className="flex flex-col">
+                                    <span className="font-mono text-sm text-gray-700 dark:text-gray-300">{job.id}</span>
+                                    <span className="text-[10px] text-gray-500">{job.categoryId}</span>
+                                </div>
+                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                    job.state === 'integrated' ? 'bg-green-100 text-green-800' :
+                                    job.state === 'failed' || job.state === 'blocked' ? 'bg-red-100 text-red-800' :
+                                    job.state === 'ready' || job.state === 'reserved' ? 'bg-purple-100 text-purple-800' :
+                                    'bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-300'
                                 }`}>
-                                    {session.status}
+                                    {job.state}
                                 </span>
                             </li>
                         ))}
+
+                        {/* Display classic Jules API sessions too if any */}
+                        {sessionsData?.sessions && sessionsData.sessions.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <h4 className="text-xs font-semibold text-gray-400 uppercase mb-2">Sessions Exécutives Distantes</h4>
+                                {sessionsData.sessions.map((session: JulesSession) => (
+                                    <li key={session.id} className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md flex justify-between items-center mt-1">
+                                        <span className="font-mono text-xs text-gray-600 dark:text-gray-400">{session.id}</span>
+                                        <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
+                                            session.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                            session.status === 'error' ? 'bg-red-100 text-red-800' :
+                                            'bg-blue-100 text-blue-800'
+                                        }`}>
+                                            {session.status}
+                                        </span>
+                                    </li>
+                                ))}
+                            </div>
+                        )}
                     </ul>
                 )}
             </div>

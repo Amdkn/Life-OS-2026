@@ -40,8 +40,9 @@
     "@types/better-sqlite3": "^9.6.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
+    "@types/jest": "^30.0.0",
     "@types/jsdom": "^30.0.0",
-    "@types/node": "^22.14.0",
+    "@types/node": "^22.20.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/testing-library__react": "^10.0.1",
@@ -49,10 +50,28 @@
     "autoprefixer": "^10.4.21",
     "dotenv": "^17.4.2",
     "fake-indexeddb": "^6.2.5",
+    "jest": "^30.5.1",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4.1.14",
+    "ts-jest": "^29.4.12",
     "tsx": "^4.23.13",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
-  }
+  },
+  "description": "This is the primary user interface and logic engine for the **A'Space Life OS**. It is a modern, high-fidelity Web OS shell built for speed, aesthetics, and agentic coordination.",
+  "main": "test-jsdom.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Amdkn/Life-OS-2026.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Amdkn/Life-OS-2026/issues"
+  },
+  "homepage": "https://github.com/Amdkn/Life-OS-2026#readme"
 }
