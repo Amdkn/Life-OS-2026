@@ -30,7 +30,8 @@ async function runTests() {
     type: 'wy-timeblock',
     status: 'active',
     blockType: 'strategic',
-    title: 'Strategic Focus W1', description: '',
+    title: 'Strategic Focus W1',
+    description: 'test description',
     week,
     completed: false,
     startTime: Date.now(),
@@ -38,7 +39,8 @@ async function runTests() {
     ianaTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     cycleId,
     createdAt: Date.now(),
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
+    description: ''
   };
 
   await store.addTimeBlock(newBlock);
