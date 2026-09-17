@@ -71,6 +71,8 @@ export class B1HandoffQueue {
             } else if (ticket) {
                if (event.event_type === 'handoff_ticket_updated') {
                  ticket = { ...ticket, ...payload, updatedAt: event.timestamp };
+               } else if (event.event_type === 'handoff_ticket_assigned') {
+                 ticket = { ...ticket, assignee: payload.assignee, updatedAt: event.timestamp };
                } else if (event.event_type === 'handoff_ticket_alert') {
                  ticket.driftAlerts.push(payload.message);
                  ticket.updatedAt = event.timestamp;
@@ -84,6 +86,26 @@ export class B1HandoffQueue {
         // If offline/error, return null for now. In real app, we'd have a local cache sync.
         return null;
     }
+  }
+
+  async assignTicket(ticketId: string, assignee: string, actorLayer: string): Promise<HandoffTicket> {
+    const ticket = await this.getTicket(ticketId);
+    if (!ticket) {
+        throw new Error(`Ticket not found: ${ticketId}`);
+    }
+
+    const payload = { id: ticketId, assignee };
+    await bbClient.appendEvent({
+        id: crypto.randomUUID(),
+        workspace_id: this.workspaceId,
+        actor_id: 'system',
+        actor_layer: actorLayer,
+        event_type: 'handoff_ticket_assigned',
+        payload_json: JSON.stringify(payload),
+        timestamp: Date.now()
+    });
+
+    return { ...ticket, assignee, updatedAt: Date.now() };
   }
 
   async updateTicketState(ticketId: string, newState: HandoffState, actorLayer: string): Promise<HandoffTicket> {
