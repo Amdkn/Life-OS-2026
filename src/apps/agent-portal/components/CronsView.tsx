@@ -1,47 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { getCrons, toggleCron, triggerPulse } from '../../../services/cron-registry/registry.js';
-import { CronJob } from '../../../services/cron-registry/types.js';
+import React, { useEffect } from 'react';
+import { useCronsStore } from '../../../stores/crons.store.js';
 import { motion } from 'motion/react';
 import { Clock, CheckCircle2 } from 'lucide-react';
 
 const DAYS = ['MON 23', 'TUE 24', 'WED 25', 'THU 26', 'FRI 27', 'SAT 28', 'SUN 29'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-
-
 const CronsView: React.FC = () => {
-  const [crons, setCrons] = useState<CronJob[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchCrons = async () => {
-    setLoading(true);
-    try {
-      const data = await getCrons();
-      setCrons(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { crons, fetchCrons, toggleCron, triggerPulse } = useCronsStore();
 
   useEffect(() => {
     fetchCrons();
-    // Optional: Could poll here for heartbeats or setup WebSocket
     const interval = setInterval(fetchCrons, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchCrons]);
 
   const handleToggle = async (id: string, currentStatus: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
     await toggleCron(id, !currentStatus);
-    await fetchCrons();
   };
 
   const handlePulse = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     await triggerPulse(id);
-    await fetchCrons();
   };
 
   return (
@@ -104,7 +85,7 @@ const CronsView: React.FC = () => {
                 ))}
               </div>
 
-              {/* Mock Events */}
+              {/* Events */}
               {crons.map((cron) => (
                 <motion.div
                   key={cron.id}
@@ -158,10 +139,6 @@ const CronsView: React.FC = () => {
                 </motion.div>
               ))}
 
-              {/* Red line for current time (mock) */}
-              <div className="absolute top-[880px] left-0 right-0 h-[2px] bg-[var(--accent-primary)] shadow-[0_0_10px_var(--accent-primary)] z-10 flex items-center">
-                <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)] -ml-1 border border-white" />
-              </div>
             </div>
           </div>
         </div>
@@ -171,8 +148,3 @@ const CronsView: React.FC = () => {
 };
 
 export default CronsView;
-
-
-
-
-
