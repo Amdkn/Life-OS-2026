@@ -30,3 +30,17 @@ export interface GovernanceAlert {
   timestamp: number;
   recipient: 'CEO';
 }
+
+export interface DoDTicket {
+  id: string; // Idempotent key, e.g., `dod-${handoffTicketId}`
+  handoffTicketId: string;
+  franchiseId: FranchiseId;
+  docketRef: string;
+  // Les 4 champs requis par la DoD B2
+  functionalCompleteness: string;
+  automatedTestsRequired: string[];
+  noDeadCodeOrPlaceholderRule: boolean; // Règle déclarative
+  expectedActionReceipt: string; // Preuve formelle d'environnement (chemin, exit code, HTTP)
+  createdAt: number;
+  updatedAt: number;
+}
