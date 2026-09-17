@@ -9,7 +9,7 @@ import { writeToLD, readFromLD } from '../lib/ld-router';
  */
 
 export type IkigaiPillar = 'craft' | 'mission' | 'passion' | 'vocation';
-export type IkigaiHorizon = 'H1' | 'H3' | 'H10' | 'H25' | 'H90';
+export type IkigaiHorizon = 'H1' | 'H3' | 'H10' | 'H25' | 'H30' | 'H90';
 
 export interface IkigaiVision extends ParaItem {
   type: 'vision';
