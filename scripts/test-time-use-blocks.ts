@@ -39,8 +39,7 @@ async function runTests() {
     ianaTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     cycleId,
     createdAt: Date.now(),
-    updatedAt: Date.now(),
-    description: ''
+    updatedAt: Date.now()
   };
 
   await store.addTimeBlock(newBlock);
