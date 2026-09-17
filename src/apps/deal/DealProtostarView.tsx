@@ -1,4 +1,5 @@
 import { type DealItem, useDealStore } from '../../stores/fw-deal.store';
+import { ProtostarElimination } from './components/ProtostarElimination';
 import { vesselConfigs } from '../../config/vessels.config';
 import {
   Scan, Scissors, Zap, LockOpen, Activity
@@ -25,7 +26,9 @@ export function DealProtostarView({ items }: DealProtostarViewProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+    <div className="flex flex-col gap-8">
+      <ProtostarElimination />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
       {items.map(item => {
         const isSevere = item.frictionScore >= frictionThreshold;
 
@@ -113,6 +116,7 @@ export function DealProtostarView({ items }: DealProtostarViewProps) {
           </div>
         );
       })}
+          </div>
     </div>
   );
 }
