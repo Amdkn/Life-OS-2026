@@ -5,12 +5,11 @@ import { useAgentsStore } from '../../stores/agents.store';
 import { FRAMEWORKS, PEPITES, SIDEBAR_FOOTER } from '../../constants';
 
 // Internal Components
+import SkillTreeNexus from './components/SkillTreeNexus';
 import SideNav from './components/SideNav';
 import AgentStats from './components/AgentStats';
 import Header from './components/Header';
-import RelationDiagram from './components/RelationDiagram';
 import CronsView from './components/CronsView';
-import SkillsView from './components/SkillsView';
 import ScoreCard from './components/dashboards/ScoreCard';
 import FrameworkOverview from './components/dashboards/FrameworkOverview';
 
@@ -42,11 +41,11 @@ export default function AgentPortalApp() {
   const renderContent = () => {
     switch (effectiveTab) {
       case 'relation':
-        return <RelationDiagram />;
+        return <SkillTreeNexus />;
       case 'crons':
         return <CronsView />;
       case 'skills':
-        return <SkillsView />;
+        return <SkillTreeNexus />;
       case 'scorecard':
       default:
         return <ScoreCard />;
