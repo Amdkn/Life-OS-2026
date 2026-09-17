@@ -12,6 +12,7 @@ import { appendEvent, BlackboardEvent } from '../../blackboard/client.js';
 import 'fake-indexeddb/auto'; // Mock indexeddb for the frontend stores since it runs in node
 
 import { checkMcpAuth, getAuthToken } from "../../../../mcp/auth.js";
+import { a3McpClient } from "../../../services/mcp/a3-mcp-client.js";
 
 export const life_os_get_tactics = async (week: number, cycleId?: string) => {
   const state = useTwelveWeekStore.getState();
@@ -143,6 +144,58 @@ export function createMCPServer() {
             required: ["eventType", "payload"],
           },
         },
+        {
+          name: "life_os_holding_stripe",
+          description: "Holding Stripe Tool for Bucky/Finance Thunderbolts",
+          inputSchema: {
+            type: "object",
+            properties: {
+              amount: { type: "number", description: "Positive amount" },
+              currency: { type: "string", description: "3-letter currency code" },
+              description: { type: "string", description: "Optional description" },
+              humanApprovalToken: { type: "string", description: "Required token to prove human approval" }
+            },
+            required: ["amount", "currency", "humanApprovalToken"],
+          },
+        },
+        {
+          name: "life_os_web_audit_playwright",
+          description: "Web Audit Playwright Tool for Rocket/Automation Guardians",
+          inputSchema: {
+            type: "object",
+            properties: {
+              url: { type: "string", description: "URL to audit" },
+              auditProfile: { type: "string", enum: ["accessibility", "performance", "security", "full"] }
+            },
+            required: ["url", "auditProfile"],
+          },
+        },
+        {
+          name: "life_os_document_parser",
+          description: "Document Parser Tool for Mariner/Inbox Cerritos",
+          inputSchema: {
+            type: "object",
+            properties: {
+              filePath: { type: "string", description: "Path to document" },
+              expectedFormat: { type: "string", enum: ["pdf", "docx", "csv", "txt"] },
+              extractMetadataOnly: { type: "boolean", description: "Extract metadata only" }
+            },
+            required: ["filePath"],
+          },
+        },
+        {
+          name: "life_os_linear_sync",
+          description: "Linear Sync Tool for global Swarm team",
+          inputSchema: {
+            type: "object",
+            properties: {
+              issueId: { type: "string", description: "Linear Issue ID" },
+              action: { type: "string", enum: ["sync_status", "add_comment", "fetch_details"] },
+              payload: { type: "object", description: "Action payload" }
+            },
+            required: ["issueId", "action"],
+          },
+        }
       ],
     };
   });
@@ -202,6 +255,22 @@ export function createMCPServer() {
             },
           ],
         };
+      } else if (request.params.name === "life_os_holding_stripe") {
+        const args = request.params.arguments as any;
+        const result = await a3McpClient.HoldingStripeTool(args);
+        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      } else if (request.params.name === "life_os_web_audit_playwright") {
+        const args = request.params.arguments as any;
+        const result = await a3McpClient.WebAuditPlaywrightTool(args);
+        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      } else if (request.params.name === "life_os_document_parser") {
+        const args = request.params.arguments as any;
+        const result = await a3McpClient.DocumentParserTool(args);
+        return { content: [{ type: "text", text: JSON.stringify(result) }] };
+      } else if (request.params.name === "life_os_linear_sync") {
+        const args = request.params.arguments as any;
+        const result = await a3McpClient.LinearSyncTool(args);
+        return { content: [{ type: "text", text: JSON.stringify(result) }] };
       } else {
         throw new Error(`Unknown tool: ${request.params.name}`);
       }
