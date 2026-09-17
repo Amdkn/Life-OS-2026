@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { LDId, writeToLD } from '../lib/ld-router';
 import { DOMAIN_TO_LD, projectToParaItem } from '../utils/paraAdapter';
+import { exportParaToRdf } from '../lib/paraRdfExporter';
 
 /** 
  * PARA Framework Store — V0.4.2 Picard
@@ -29,6 +30,8 @@ export interface Project {
   resources: string[]; // ids of Resource
   progress: number;
   archivedAt?: number;
+  archiveReason?: string;
+  lessonsLearned?: string;
   updatedAt?: number;
   pillarsContent?: Partial<Record<BusinessPillar, string>>; // V0.4.7 Fractal
   linkedResources?: string[]; // V0.4.9 Link
@@ -75,8 +78,10 @@ interface ParaState {
   addProject: (p: Project) => Promise<void>;
   addResource: (r: Resource) => Promise<void>;
   updateProject: (id: string, partial: Partial<Project>) => Promise<void>;
-  archiveProject: (id: string) => Promise<void>;
+  archiveProject: (id: string, reason?: string, lessonsLearned?: string) => Promise<void>;
+  unarchiveProject: (id: string) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
+  exportToRdf: () => { turtle: string; jsonld: string };
 }
 
 const PICARD_PROJECTS: Project[] = [
@@ -161,8 +166,12 @@ export const useParaStore = create<ParaState>()(
         }
       },
 
-      archiveProject: async (id) => {
-        await get().updateProject(id, { status: 'archived', archivedAt: Date.now() });
+      archiveProject: async (id, reason, lessonsLearned) => {
+        await get().updateProject(id, { status: 'archived', archivedAt: Date.now(), archiveReason: reason, lessonsLearned: lessonsLearned });
+      },
+
+      unarchiveProject: async (id) => {
+        await get().updateProject(id, { status: 'active', updatedAt: Date.now() });
       },
 
       deleteProject: async (id) => {
@@ -172,6 +181,11 @@ export const useParaStore = create<ParaState>()(
           const ldId = DOMAIN_TO_LD[project.domain];
           if (ldId) await writeToLD(ldId, 'projects', 'delete', { id }, 'para');
         }
+      },
+
+      exportToRdf: () => {
+        const state = get();
+        return exportParaToRdf(state.projects, state.resources);
       }
     }),
     { 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Zap, ArrowRightSquare } from 'lucide-react';
 import { useTwelveWeekStore } from '../../../stores/fw-12wy.store';
+import { useParaStore } from '../../../stores/fw-para.store';
 
 interface TacticForgeModalProps {
   isOpen: boolean;
@@ -18,6 +19,15 @@ export function TacticForgeModal({ isOpen, onClose, prefilledGoalId, prefilledWe
   const addTactic = useTwelveWeekStore(s => s.addTactic);
   const goals = useTwelveWeekStore(s => s.goals);
 
+  const activeCycleId = useTwelveWeekStore(s => s.activeCycleId);
+
+  const paraProjects = useParaStore(s => s.projects);
+  const selectedGoal = goals.find(g => g.id === goalId);
+  const parentProjectId = selectedGoal?.projectId;
+  const parentProject = paraProjects.find(p => p.id === parentProjectId);
+  const isProjectOrphaned = parentProjectId && (!parentProject || parentProject.status === 'archived');
+
+
   if (!isOpen) return null;
 
   const handleForge = async (e: React.FormEvent) => {
@@ -31,6 +41,8 @@ export function TacticForgeModal({ isOpen, onClose, prefilledGoalId, prefilledWe
       goalId,
       week: targetWeek,
       status: 'pending',
+      cycleId: activeCycleId || undefined,
+      projectId: parentProjectId,
       domain: 'life',
       pillars: [],
       createdAt: Date.now(),
@@ -86,6 +98,16 @@ export function TacticForgeModal({ isOpen, onClose, prefilledGoalId, prefilledWe
                 <option value="" disabled>-- Select Goal --</option>
                 {goals.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
               </select>
+
+              {parentProjectId && (
+                <div className={`mt-2 text-xs px-2 ${isProjectOrphaned ? "text-red-400" : "text-emerald-400/70"}`}>
+                  {isProjectOrphaned ? (
+                    <span>⚠️ Warning: The linked PARA project is orphaned or archived. Tactic will be preserved but link is inactive.</span>
+                  ) : (
+                    <span>✓ Linked to active PARA project: {parentProject.title}</span>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
