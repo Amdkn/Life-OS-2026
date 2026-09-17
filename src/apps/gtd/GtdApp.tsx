@@ -3,7 +3,7 @@ import { useGtdStore, type GTDItem } from '../../stores/fw-gtd.store';
 import { GtdCerritosPipeline } from './GtdCerritosPipeline';
 import { 
   Inbox, LayoutDashboard, ListTodo, 
-  RotateCcw, Zap, Search, Settings, 
+  RotateCcw, Zap, Network, Search, Settings,
   Filter, CheckCircle2, Plus, ArrowRight, ShieldAlert
 } from 'lucide-react';
 import { useState, useContext, useEffect, useMemo } from 'react';
@@ -20,6 +20,7 @@ const gtdNavItems: NavItem[] = [
   { id: 'organize',  label: 'Organize',  icon: ListTodo },
   { id: 'reflect',   label: 'Review',    icon: ShieldAlert },
   { id: 'engage',    label: 'Engage',    icon: Zap },
+  { id: 'swarm',     label: 'Swarm',     icon: Network },
 ];
 
 const contextFilters = [
