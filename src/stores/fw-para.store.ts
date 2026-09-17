@@ -21,6 +21,14 @@ export interface DomainPillar {
   description: string;
 }
 
+
+export interface Area {
+  id: string;
+  domain: LifeWheelDomain;
+  name: string;
+  notes?: string;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -60,12 +68,14 @@ interface ParaState {
   projects: Project[];
   resources: Resource[];
   customResourceTypes: string[];
+  areas: Area[];
   
   // Resources View State
   resourceSearchQuery: string;
   resourceActiveType: ResourceType | 'all';
 
   // Actions
+  updateArea: (id: string, partial: Partial<Area>) => void;
   setActiveTab: (tab: ParaState['activeTab']) => void;
   setActiveLdFilter: (d: LDId | 'all') => void;
   addCustomResourceType: (type: string) => void;
@@ -104,10 +114,14 @@ export const useParaStore = create<ParaState>()(
       resourceSearchQuery: '',
       resourceActiveType: 'all',
       projects: [...PICARD_PROJECTS],
-      resources: [], 
+      resources: [],
+      areas: [],
       customResourceTypes: [],
 
       setActiveTab: (activeTab) => set({ activeTab }),
+      updateArea: (id, partial) => set(s => ({
+        areas: s.areas.map(a => a.id === id ? { ...a, ...partial } : a)
+      })),
       setActiveLdFilter: (activeLdFilter) => set({ activeLdFilter }),
       addCustomResourceType: (type) => set((s) => ({ customResourceTypes: [...s.customResourceTypes, type] })),
       setResourceSearchQuery: (resourceSearchQuery) => set({ resourceSearchQuery }),
@@ -195,7 +209,8 @@ export const useParaStore = create<ParaState>()(
         activeLdFilter: state.activeLdFilter, 
         projects: state.projects,
         resources: state.resources,
-        customResourceTypes: state.customResourceTypes 
+        customResourceTypes: state.customResourceTypes,
+        areas: state.areas
       }),
       onRehydrateStorage: (state) => {
         return (hydratedState, error) => {
@@ -206,6 +221,16 @@ export const useParaStore = create<ParaState>()(
           // PEPIITES Armor / Picard Distillation
           // Ensure all Picard projects are present
           if (hydratedState) {
+
+            if (!hydratedState.areas || hydratedState.areas.length === 0) {
+              const defaultDomains: LifeWheelDomain[] = ['business', 'finance', 'health', 'cognition', 'creativity', 'habitat', 'relations', 'impact'];
+              hydratedState.areas = defaultDomains.map(d => ({
+                id: `area-${d}`,
+                domain: d,
+                name: `Area ${d}`
+              }));
+            }
+
             if (!hydratedState.projects) {
               hydratedState.projects = [];
             }
