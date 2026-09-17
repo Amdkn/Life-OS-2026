@@ -78,6 +78,7 @@ export const PEPITES = [
   { id: 'skills', label: 'Skill Tree', icon: GitGraph },
   { id: 'scorecard', label: 'Scorecard', icon: BarChart3 },
   { id: 'a3-swarm', label: 'A3 Swarm Visualizer', icon: Network },
+  { id: 'b3-matrix-cockpit', label: 'B3 Matrix Cockpit', icon: Cpu },
 ];
 
 export const SIDEBAR_FOOTER = [
