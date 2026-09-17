@@ -22,6 +22,8 @@ import ParaFramework from './components/dashboards/ParaFramework';
 import GtdFramework from './components/dashboards/GtdFramework';
 import DealFramework from './components/dashboards/DealFramework';
 
+import A3SwarmRosterView from './components/A3SwarmRosterView';
+
 export default function AgentPortalApp() {
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
   const [isRightCollapsed, setIsRightCollapsed] = useState(false);
@@ -46,6 +48,8 @@ export default function AgentPortalApp() {
         return <CronsView />;
       case 'skills':
         return <SkillTreeNexus />;
+      case 'a3-swarm':
+        return <A3SwarmRosterView />;
       case 'scorecard':
       default:
         return <ScoreCard />;

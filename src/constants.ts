@@ -76,6 +76,7 @@ export const PEPITES = [
   { id: 'crons', label: 'Cron Registry', icon: AlarmClock },
   { id: 'skills', label: 'Skill Tree', icon: GitGraph },
   { id: 'scorecard', label: 'Scorecard', icon: BarChart3 },
+  { id: 'a3-swarm', label: 'A3 Swarm Visualizer', icon: Network },
 ];
 
 export const SIDEBAR_FOOTER = [
