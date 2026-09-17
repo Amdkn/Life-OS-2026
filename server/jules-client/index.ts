@@ -28,21 +28,9 @@ async function proxyRequest(req: express.Request, res: express.Response, endpoin
       fetchOptions.body = JSON.stringify(req.body);
     }
 
-    // Default fallback behaviour when key is missing or to simulate the API
+    // Fallback block removed to enforce requirement: "API injoignable = UI vide/erreur explicite, jamais de donnees de demonstration."
     if (!JULES_API_KEY) {
-        if (endpoint === '/sessions' && method === 'POST') {
-            return res.json({ id: 'simulated-session-id', status: 'created', url: 'https://jules.google.com/sessions/simulated' });
-        }
-        if (endpoint === '/sessions' && method === 'GET') {
-            return res.json({ sessions: [], quota: { max: 100, remaining: null } }); // To simulate unknown quota
-        }
-        if (endpoint.match(/^\/sessions\/.*\/approve$/)) {
-            return res.json({ status: 'approved' });
-        }
-        if (endpoint.match(/^\/sessions\/.*\/messages$/)) {
-             return res.json({ id: 'msg-id', status: 'sent' });
-        }
-        return res.status(404).json({ error: 'Not simulated' });
+        return res.status(503).json({ error: 'JULES_API_KEY non configurée. Impossible de joindre l\'API.' });
     }
 
     const response = await fetch(`${JULES_API_URL}${endpoint}`, fetchOptions);

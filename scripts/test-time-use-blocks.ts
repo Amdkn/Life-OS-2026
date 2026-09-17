@@ -40,7 +40,7 @@ async function runTests() {
     cycleId,
     createdAt: Date.now(),
     updatedAt: Date.now(),
-    description: ''
+
   };
 
   await store.addTimeBlock(newBlock);

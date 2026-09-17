@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAgentsStore } from '../../../stores/agents.store';
+import { JulesDispatcherCard } from './JulesDispatcherCard';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -319,26 +320,10 @@ const AgentStats: React.FC<{ isCollapsed: boolean, onToggle: () => void }> = ({ 
 
               {!isCollapsed && (
                 <div className="pt-6 border-t border-[var(--glass-border-subtle)] space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Cpu className="w-4 h-4 text-[var(--brass)]" />
-                      <span className="text-[10px] font-black text-white uppercase tracking-widest">Nexus Core Node</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-[var(--brass)]">0xV0.9.NXS</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="glass-card p-2 text-center border-[var(--brass)]/10 shadow-lg bg-black/40">
-                      <div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Load</div>
-                      <div className={cn("text-sm font-black", totalAgents === 0 ? "text-[var(--text-muted)] text-[10px]" : "text-white")}>{displayLoad}</div>
-                    </div>
-                    <div className="glass-card p-2 text-center border-[var(--brass)]/10 shadow-lg bg-black/40">
-                      <div className="text-[10px] text-[var(--text-muted)] uppercase mb-1">Status</div>
-                      <div className={cn("text-sm font-black font-mono", nexusStatusColor, totalAgents === 0 && "text-[10px]")}>{nexusStatus}</div>
-                    </div>
-                  </div>
+                  <JulesDispatcherCard />
                 </div>
               )}
+
             </motion.div>
           )}
         </AnimatePresence>
