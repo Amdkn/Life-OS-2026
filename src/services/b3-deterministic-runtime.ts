@@ -33,8 +33,8 @@ export class B3HookRegistry {
   private hooks: Map<string, { descriptor: B3WorkerDescriptor; fn: HookFn; phase: HookPhase }> = new Map();
 
   register(id: string, descriptor: B3WorkerDescriptor, phase: HookPhase, fn: HookFn) {
-    if (descriptor.incarnationType !== 'hook') {
-      throw new Error(`Worker ${id} must have incarnationType 'hook'`);
+    if (descriptor.incarnation !== 'hook') {
+      throw new Error(`Worker ${id} must have incarnation 'hook'`);
     }
     this.hooks.set(id, { descriptor, fn, phase });
   }
@@ -92,8 +92,8 @@ export class B3CronScheduler {
   private readonly TOLERANCE_NS = 5000000000n;
 
   register(job: CronJob) {
-    if (job.descriptor.incarnationType !== 'cron') {
-      throw new Error(`Worker ${job.id} must have incarnationType 'cron'`);
+    if (job.descriptor.incarnation !== 'cron') {
+      throw new Error(`Worker ${job.id} must have incarnation 'cron'`);
     }
     this.jobs.set(job.id, job);
   }
