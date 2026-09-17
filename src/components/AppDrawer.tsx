@@ -13,16 +13,17 @@ export function AppDrawer() {
   const openApp = useShellStore(s => s.openApp);
 
   const allApps = [
-    { id: 'command-center', name: 'Command Center', icon: LayoutDashboard, category: 'System', color: 'text-emerald-400' },
+    { id: 'command-center', name: 'Command Center', icon: LayoutDashboard, category: 'Life OS', color: 'text-emerald-400' },
+    { id: 'agent-portal',   name: 'Agent Portal',   icon: Cpu,             category: 'Tech OS', color: 'text-indigo-400' },
+    { id: 'convergence',    name: 'Convergence',    icon: Globe,           category: 'Cockpits', color: 'text-purple-400' },
     { id: 'para',           name: 'PARA Business',  icon: FolderKanban,     category: 'Framework', color: 'text-blue-400' },
     { id: 'ikigai',         name: 'Ikigai Protocol',icon: Compass,          category: 'Framework', color: 'text-amber-400' },
     { id: 'life-wheel',     name: 'Life Wheel',     icon: CircleDot,        category: 'Framework', color: 'text-emerald-400' },
-    { id: 'twelve-week',    icon: CalendarCheck,    name: '12WY Strategy',  category: 'Framework', color: 'text-blue-400' },
-    { id: 'gtd',            icon: CheckSquare,      name: 'GTD System',     category: 'Framework', color: 'text-emerald-400' },
-    { id: 'deal',           icon: Unlock,           name: 'DEAL Protocol',  category: 'Framework', color: 'text-red-400' },
-    { id: 'agents',         icon: Users,            name: 'Agent Portal',   category: 'System',    color: 'text-blue-400' },
-    { id: 'store',          icon: ShoppingBag,      name: 'App Store',      category: 'System',    color: 'text-pink-400' },
-    { id: 'settings',       icon: Settings,         name: 'Settings',       category: 'System',    color: 'text-[var(--theme-text)]/40' },
+    { id: 'twelve-week',    name: '12WY Strategy',  icon: CalendarCheck,    category: 'Framework', color: 'text-blue-400' },
+    { id: 'gtd',            name: 'GTD System',     icon: CheckSquare,      category: 'Framework', color: 'text-emerald-400' },
+    { id: 'deal',           name: 'DEAL Protocol',  icon: Unlock,           category: 'Framework', color: 'text-rose-400' },
+    { id: 'store',          name: 'App Store',      icon: ShoppingBag,      category: 'System',    color: 'text-pink-400' },
+    { id: 'settings',       name: 'Settings',       icon: Settings,         category: 'System',    color: 'text-[var(--theme-text)]/40' },
   ];
 
   if (!isDrawerOpen) return null;

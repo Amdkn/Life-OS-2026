@@ -47,11 +47,24 @@ function PilotBadge() {
 
 export function TopBar() {
   const [time, setTime] = useState(new Date());
+  const [activeMode, setActiveMode] = useState<'Tech OS' | 'Life OS' | 'Business OS'>('Life OS');
+  const openApp = useShellStore(s => s.openApp);
   const vetoEngaged = useShellStore(s => s.vetoEngaged);
   const toggleVeto = useShellStore(s => s.toggleVeto);
   const bootClean = useShellStore(s => s.bootClean);
   const notificationCount = useShellStore(s => s.notificationCount);
   const clearNotifications = useShellStore(s => s.clearNotifications);
+
+  const handleModeSwitch = (mode: 'Tech OS' | 'Life OS' | 'Business OS') => {
+    setActiveMode(mode);
+    if (mode === 'Tech OS') {
+      openApp('agent-portal', 'Agent Portal');
+    } else if (mode === 'Life OS') {
+      openApp('command-center', 'Command Center');
+    } else if (mode === 'Business OS') {
+      openApp('para', 'PARA Business');
+    }
+  };
 
   /* Live clock — updates every second */
   useEffect(() => {
@@ -71,15 +84,16 @@ export function TopBar() {
 
           {/* Trimodal Switch (Tech OS / Life OS / Business OS) */}
           <div className="flex items-center bg-black/40 rounded-full p-0.5 border border-white/10">
-            {['Tech OS', 'Life OS', 'Business OS'].map((mode) => (
+            {(['Tech OS', 'Life OS', 'Business OS'] as const).map((mode) => (
               <button
                 key={mode}
+                onClick={() => handleModeSwitch(mode)}
                 className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  mode === 'Life OS'
+                  activeMode === mode
                     ? 'bg-[var(--theme-accent)] text-black shadow-[0_0_10px_var(--theme-accent)]'
                     : 'text-[var(--theme-text)]/40 hover:text-[var(--theme-text)]/70'
                 }`}
-                title={mode === 'Life OS' ? 'Active Mode' : `Switch to ${mode}`}
+                title={`Basculer vers ${mode}`}
               >
                 {mode}
               </button>

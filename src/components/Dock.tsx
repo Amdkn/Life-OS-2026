@@ -3,13 +3,13 @@ import React from 'react';
 import { motion } from 'motion/react';
 import {
   LayoutDashboard, Compass, CircleDot, CalendarCheck,
-  FolderKanban, CheckSquare, Unlock, LayoutGrid,
+  FolderKanban, CheckSquare, Unlock, LayoutGrid, Cpu,
   type LucideIcon
 } from 'lucide-react';
 import { useShellStore } from '../stores/shell.store';
 import { glass } from '../lib/glass-tokens';
 
-/* App definitions for the 8 dock slots (PRD: CC + 6 Frameworks + Drawer) */
+/* App definitions for the dock slots (CC + 6 Frameworks + Agent Portal + Drawer) */
 const dockItems = [
   { id: 'command-center', icon: LayoutDashboard, label: 'Command Center', slot: 0, color: 'emerald' },
   { id: 'ikigai',         icon: Compass,         label: 'Ikigai',          slot: 1, color: 'blue'    },
@@ -18,9 +18,10 @@ const dockItems = [
   { id: 'para',           icon: FolderKanban,     label: 'PARA',            slot: 4, color: 'slate'   },
   { id: 'gtd',            icon: CheckSquare,      label: 'GTD',             slot: 5, color: 'emerald' },
   { id: 'deal',           icon: Unlock,           label: 'DEAL',            slot: 6, color: 'red'     },
+  { id: 'agent-portal',   icon: Cpu,              label: 'Agent Portal',    slot: 7, color: 'indigo'  },
 ];
 
-const drawerItem = { id: 'drawer', icon: LayoutGrid, label: 'App Drawer', slot: 7, color: 'white' };
+const drawerItem = { id: 'drawer', icon: LayoutGrid, label: 'App Drawer', slot: 8, color: 'white' };
 
 export function Dock() {
   const openApp = useShellStore(s => s.openApp);

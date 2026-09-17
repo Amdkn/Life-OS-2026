@@ -74,6 +74,7 @@ export const FRAMEWORKS = [
 
 export const PEPITES = [
   { id: 'b1-cockpit', label: 'B1 CEO Cockpit', icon: Target },
+  { id: 'b2-cockpit', label: 'B2 Council Cockpit', icon: Shield },
   { id: 'crons', label: 'Cron Registry', icon: AlarmClock },
   { id: 'skills', label: 'Skill Tree', icon: GitGraph },
   { id: 'scorecard', label: 'Scorecard', icon: BarChart3 },

@@ -50,10 +50,68 @@ interface GtdState {
   removeItem: (id: string) => Promise<void>;
 }
 
+const CANONICAL_GTD_ITEMS: GTDItem[] = [
+  {
+    id: 'gtd-can-01',
+    type: 'v1.action',
+    content: "Valider l'alignement PRD Catégories 0 à 6 dans Life OS",
+    status: 'actionable',
+    context: '@terminal',
+    energy: 'high',
+    timeEstimate: 30,
+    createdAt: Date.now() - 86400000 * 2,
+    updatedAt: Date.now()
+  },
+  {
+    id: 'gtd-can-02',
+    type: 'v1.action',
+    content: "Intégration du système de franchises OMK JaaS (Job-as-a-Service)",
+    status: 'actionable',
+    context: '@business',
+    energy: 'medium',
+    timeEstimate: 45,
+    createdAt: Date.now() - 86400000 * 3,
+    updatedAt: Date.now()
+  },
+  {
+    id: 'gtd-can-03',
+    type: 'v1.action',
+    content: "Revue hebdomadaire Spock Picard & Uplink 12WY",
+    status: 'actionable',
+    context: '@weekly',
+    energy: 'medium',
+    timeEstimate: 20,
+    createdAt: Date.now() - 86400000,
+    updatedAt: Date.now()
+  },
+  {
+    id: 'gtd-can-04',
+    type: 'v1.action',
+    content: "Déploiement des Webhooks Chokidar & Télémétrie IPC 4445",
+    status: 'completed',
+    context: '@tech',
+    energy: 'high',
+    timeEstimate: 60,
+    createdAt: Date.now() - 86400000 * 4,
+    updatedAt: Date.now()
+  },
+  {
+    id: 'gtd-can-05',
+    type: 'v1.action',
+    content: "Archivage des sessions obsolètes de Jules et consolidation GitHub",
+    status: 'completed',
+    context: '@github',
+    energy: 'low',
+    timeEstimate: 15,
+    createdAt: Date.now() - 86400000 * 5,
+    updatedAt: Date.now()
+  }
+];
+
 export const useGtdStore = create<GtdState>((set, get) => ({
   activeTab: 'overview',
   activeContext: 'all',
-  items: [],
+  items: [...CANONICAL_GTD_ITEMS],
   logs: [],
   isLoaded: false,
 
@@ -63,10 +121,14 @@ export const useGtdStore = create<GtdState>((set, get) => ({
   loadFromDB: async () => {
     try {
       const items = await readFromLD<GTDItem>('ld05', 'items');
-      set({ items, isLoaded: true });
+      if (items && items.length > 0) {
+        set({ items, isLoaded: true });
+      } else {
+        set({ items: [...CANONICAL_GTD_ITEMS], isLoaded: true });
+      }
     } catch (e) {
       console.error("[GTD] Failed to load from LD05", e);
-      set({ items: [], isLoaded: true });
+      set({ items: [...CANONICAL_GTD_ITEMS], isLoaded: true });
     }
   },
 
