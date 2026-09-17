@@ -23,6 +23,7 @@ import GtdFramework from './components/dashboards/GtdFramework';
 import DealFramework from './components/dashboards/DealFramework';
 
 import A3SwarmRosterView from './components/A3SwarmRosterView';
+import B1SummerVerseCockpit from './components/B1SummerVerseCockpit';
 
 export default function AgentPortalApp() {
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
@@ -50,6 +51,8 @@ export default function AgentPortalApp() {
         return <SkillTreeNexus />;
       case 'a3-swarm':
         return <A3SwarmRosterView />;
+      case 'b1-cockpit':
+        return <B1SummerVerseCockpit />;
       case 'scorecard':
       default:
         return <ScoreCard />;
