@@ -104,6 +104,7 @@ registry.register({
 
 registry.register({
   name: 'blackboard events',
+  requiredScopes: ['read'],
   description: 'Fetch flux of recent blackboard events',
   validateArgs: (args: any) => {
     if (args.positional && args.positional.length > 0) {

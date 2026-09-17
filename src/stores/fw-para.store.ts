@@ -95,16 +95,24 @@ interface ParaState {
   exportToRdf: () => { turtle: string; jsonld: string };
 }
 
+
+const CANONICAL_RESOURCES: Resource[] = [
+  { id: 'res-can-01', title: 'Marina Cleaning SOPs', type: 'sop', category: 'Operations', domain: 'habitat', linkedProjects: ['PRJ-PICARD-05'], linkedPillars: ['operations'] },
+  { id: 'res-can-02', title: 'Ownerbook OMK Services', type: 'blueprint', category: 'Business', domain: 'business', linkedProjects: ['PRJ-PICARD-09'], linkedPillars: ['growth', 'operations'] },
+  { id: 'res-can-03', title: "Manifeste Summers's Verse", type: 'guide', category: 'Vision', domain: 'creativity', linkedProjects: [], linkedPillars: ['meta'] },
+  { id: 'res-can-04', title: 'Spécifications Plane & Linear', type: 'template', category: 'IT', domain: 'cognition', linkedProjects: ['PRJ-PICARD-06'], linkedPillars: ['it'] }
+];
+
 const PICARD_PROJECTS: Project[] = [
   { id: 'PRJ-PICARD-01', title: 'OMK Business OS (B2/B3 Core)', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: B2/B3 Core operations & strategy' },
   { id: 'PRJ-PICARD-02', title: 'ABC OS & Child Care BOS (Franchise)', status: 'active', domain: 'business', pillars: ['operations', 'product'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Franchise scaling & SOP integration' },
   { id: 'PRJ-PICARD-03', title: 'RILCOT Members Space OS', status: 'active', domain: 'relations', pillars: ['people', 'product'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Members space community engine' },
   { id: 'PRJ-PICARD-04', title: 'Alikaly Bana Holding to LLC', status: 'active', domain: 'finance', pillars: ['legal', 'finance'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Legal & corporate transition' },
-  { id: 'PRJ-PICARD-05', title: 'Marina Cleaning BOS & SOP', status: 'active', domain: 'habitat', pillars: ['operations', 'people'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Cleaning operations SOP mapping' },
-  { id: 'PRJ-PICARD-06', title: 'Cerritos Plane Onboarding', status: 'active', domain: 'cognition', pillars: ['meta', 'it'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Pilot onboarding systems' },
+  { id: 'PRJ-PICARD-05', title: 'Marina Cleaning BOS & SOP', status: 'active', domain: 'habitat', pillars: ['operations', 'people'], resources: ['res-can-01'], progress: 100, updatedAt: Date.now(), description: 'Manifest: Cleaning operations SOP mapping' },
+  { id: 'PRJ-PICARD-06', title: 'Cerritos Plane Onboarding', status: 'active', domain: 'cognition', pillars: ['meta', 'it'], resources: ['res-can-04'], progress: 100, updatedAt: Date.now(), description: 'Manifest: Pilot onboarding systems' },
   { id: 'PRJ-PICARD-07', title: 'ClaudeClaw Agent & Mission Control', status: 'active', domain: 'creativity', pillars: ['it', 'product'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Agent mission control AI systems' },
   { id: 'PRJ-PICARD-08', title: 'Graphify Out Context Graphs', status: 'active', domain: 'creativity', pillars: ['it', 'meta'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Graph topology orchestration' },
-  { id: 'PRJ-PICARD-09', title: 'OMK Services BOS', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: OMK external services delivery' },
+  { id: 'PRJ-PICARD-09', title: 'OMK Services BOS', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: ['res-can-02'], progress: 100, updatedAt: Date.now(), description: 'Manifest: OMK external services delivery' },
 ];
 
 export const useParaStore = create<ParaState>()(
@@ -147,7 +155,29 @@ export const useParaStore = create<ParaState>()(
       },
 
       addResource: async (r) => {
-        set(s => ({ resources: [...s.resources, r] }));
+        set(s => {
+          const newResources = [...s.resources, r];
+          const newProjects = s.projects.map(p => {
+             if (r.linkedProjects.includes(p.id) && !p.resources.includes(r.id)) {
+                 return { ...p, resources: [...p.resources, r.id], updatedAt: Date.now() };
+             }
+             return p;
+          });
+          return { resources: newResources, projects: newProjects };
+        });
+
+        // Ensure to persist updated projects to LD if any
+        const currentProjects = get().projects;
+        for (const projId of r.linkedProjects) {
+            const p = currentProjects.find(pr => pr.id === projId);
+            if (p && p.domain) {
+                const ldId = DOMAIN_TO_LD[p.domain];
+                if (ldId) {
+                    await writeToLD(ldId, 'projects', 'update', projectToParaItem(p), 'para');
+                }
+            }
+        }
+
         // Default to ld01 for generic resources in this phase, or match domain logic
         await writeToLD('ld01', 'resources', 'add', {
           id: r.id,
@@ -247,6 +277,35 @@ export const useParaStore = create<ParaState>()(
             if (missingProjects) {
               console.warn('[PARA Store] Injected missing Picard Distillation Projects.');
             }
+
+            // Bidirectional mapping from hydration state projects
+            if (hydratedState.projects) {
+              const picard05 = hydratedState.projects.find(p => p.id === 'PRJ-PICARD-05');
+              if (picard05 && !picard05.resources.includes('res-can-01')) picard05.resources.push('res-can-01');
+
+              const picard09 = hydratedState.projects.find(p => p.id === 'PRJ-PICARD-09');
+              if (picard09 && !picard09.resources.includes('res-can-02')) picard09.resources.push('res-can-02');
+
+              const picard06 = hydratedState.projects.find(p => p.id === 'PRJ-PICARD-06');
+              if (picard06 && !picard06.resources.includes('res-can-04')) picard06.resources.push('res-can-04');
+            }
+
+            if (!hydratedState.resources) {
+              hydratedState.resources = [];
+            }
+
+            let missingResources = false;
+            for (const canonRes of CANONICAL_RESOURCES) {
+              if (!hydratedState.resources.some(r => r.id === canonRes.id)) {
+                hydratedState.resources.push({ ...canonRes });
+                missingResources = true;
+              }
+            }
+
+            if (missingResources) {
+              console.warn('[PARA Store] Injected missing Canonical Resources.');
+            }
+
           }
         };
       }
