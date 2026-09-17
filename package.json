@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "gate": "tsc --noEmit && vite build --mode production",
+    "gate": "TZ=America/New_York tsx src/services/hooks/a3-validation-gate.ts && tsc --noEmit && vite build --mode production",
     "server": "tsx server/blackboard/index.ts"
   },
   "dependencies": {
