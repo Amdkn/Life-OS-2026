@@ -1,14 +1,8 @@
-import { encodeVersionedEnvelope, decodeVersionedEnvelope } from './migrationDefensive';
+import { encodeVersionedEnvelope, decodeVersionedEnvelope } from './storage/scoped';
 
 const LAYOUT_KEY = 'aspace-shell-layout-v1';
 
-export function createScopedStorage(scope: string) {
-  return {
-    getItem: (key: string) => localStorage.getItem(`${scope}:${key}`),
-    setItem: (key: string, value: string) => localStorage.setItem(`${scope}:${key}`, value),
-    removeItem: (key: string) => localStorage.removeItem(`${scope}:${key}`)
-  };
-}
+export { createScopedStorage, encodeVersionedEnvelope, decodeVersionedEnvelope } from './storage/scoped';
 
 let isInstalled = false;
 

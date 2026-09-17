@@ -35,6 +35,16 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    let stop: (() => void) | null = null;
+    import('./apps/frameworks/services/bridge-worker').then(({ startBridgeWorker }) => {
+      stop = startBridgeWorker();
+    }).catch(e => console.error('[Bridge] Initialization failed', e));
+    return () => {
+      if (stop) stop();
+    };
+  }, []);
+
   // Vérifier si migration nécessaire au premier vrai login (pas pendant FirstLaunch)
   useEffect(() => {
     if (session && profile && profile.settings.first_launch === false) {
