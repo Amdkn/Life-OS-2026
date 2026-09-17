@@ -30,7 +30,7 @@ async function runTests() {
     type: 'wy-timeblock',
     status: 'active',
     blockType: 'strategic',
-    title: 'Strategic Focus W1',
+    title: 'Strategic Focus W1', description: '',
     week,
     completed: false,
     startTime: Date.now(),
