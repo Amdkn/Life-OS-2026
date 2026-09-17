@@ -1,4 +1,4 @@
-import { mapScoreCardTaskToLinearIssue, mapWyTacticToLinearIssue, mapParaProjectToLinearIssue } from '../src/lib/linear/adapter';
+import { mapScoreCardTaskToLinearIssue, mapWyTacticToLinearIssue, mapParaProjectToLinearIssue, mapLinearTeamToDomain, mapLinearIssueToWyTactic, mapLinearIssueToScoreCardTask, mapLinearIssueToParaProject } from '../src/lib/linear/adapter';
 import { syncIssue } from '../src/lib/linear/client';
 import * as bbClient from '../src/lib/blackboard/client';
 import type { WyTactic } from '../src/stores/fw-12wy.store';
@@ -52,6 +52,7 @@ async function runTests() {
     title: 'Write test suite',
     week: 2,
     status: 'pending',
+    cycleId: 'CYCLE-2026-Q3',
     description: '',
     createdAt: Date.now(),
     updatedAt: Date.now()
@@ -59,6 +60,7 @@ async function runTests() {
   const wyPayload = mapWyTacticToLinearIssue(mockTactic, 'finance');
   console.assert(wyPayload.title === 'Write test suite', 'Title mismatch');
   console.assert(wyPayload.teamId === 'team-finance', `Team ID mismatch: ${wyPayload.teamId}`);
+  console.assert(wyPayload.cycleId === 'CYCLE-2026-Q3', 'Cycle ID mismatch');
   console.assert(wyPayload._mappedFromType === 'wy-tactic', 'Type mismatch');
   console.log('✅ 12WY mapping passed.');
 
@@ -93,6 +95,26 @@ async function runTests() {
   console.assert(payloadFromEvent._mappedFromId === 'PRJ-444', 'Queued payload ID mismatch');
 
   console.log('✅ Offline queueing passed.');
+
+  // 5. Test Reverse Mapping
+  console.log('\n5. Testing Reverse Mapping...');
+  const domain = mapLinearTeamToDomain({ id: 'team-cognition', name: '', key: '' });
+  console.assert(domain === 'cognition', 'Domain mismatch');
+
+  const tactic = mapLinearIssueToWyTactic({ id: 'LIN-1', title: 'Task', status: 'In Progress', cycleId: 'CYC-1' });
+  console.assert(tactic.status === 'pending', 'WyTactic status mismatch');
+  console.assert(tactic.cycleId === 'CYC-1', 'WyTactic cycle mismatch');
+
+  const scTask = mapLinearIssueToScoreCardTask({ id: 'LIN-2', title: 'SC Task', status: 'Done', teamId: 'team-business' });
+  console.assert(scTask.status === 'done', 'ScoreCard status mismatch');
+  console.assert(scTask.label === 'BUSINESS', 'ScoreCard label mismatch');
+
+  const project = mapLinearIssueToParaProject({ id: 'LIN-3', title: 'A Project', status: 'In Progress', teamId: 'team-habitat' });
+  console.assert(project.status === 'active', 'Project status mismatch');
+  console.assert(project.domain === 'habitat', 'Project domain mismatch');
+
+  console.log('✅ Reverse mapping passed.');
+
   console.log('\n--- ALL TESTS PASSED ---');
 }
 
