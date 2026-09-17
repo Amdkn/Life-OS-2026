@@ -24,6 +24,7 @@ import DealFramework from './components/dashboards/DealFramework';
 
 import A3SwarmRosterView from './components/A3SwarmRosterView';
 import B1SummerVerseCockpit from './components/B1SummerVerseCockpit';
+import B3MatrixCockpit from '../../components/b3-matrix/B3MatrixCockpit';
 
 export default function AgentPortalApp() {
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
@@ -53,6 +54,8 @@ export default function AgentPortalApp() {
         return <A3SwarmRosterView />;
       case 'b1-cockpit':
         return <B1SummerVerseCockpit />;
+      case 'b3-matrix-cockpit':
+        return <B3MatrixCockpit />;
       case 'scorecard':
       default:
         return <ScoreCard />;
