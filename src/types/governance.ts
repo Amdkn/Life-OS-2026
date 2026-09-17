@@ -16,6 +16,7 @@ export interface HandoffTicket {
   state: HandoffState;
   title: string;
   description: string;
+  assignee?: string;
   b2DoDValidated: boolean;
   driftAlerts: string[];
   createdAt: number;
