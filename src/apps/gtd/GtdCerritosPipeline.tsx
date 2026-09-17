@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useGtdStore, type GTDItem } from '../../stores/fw-gtd.store';
 import { useTwelveWeekStore } from '../../stores/fw-12wy.store';
 import { useParaStore } from '../../stores/fw-para.store';
+import { GtdDealSwarmPipeline } from '../frameworks/pipelines/GtdDealSwarmPipeline';
 import {
   Zap, RotateCcw, ListTodo, ShieldAlert, Target,
-  CheckCircle2, Plus, ArrowRight, Trash2, Link as LinkIcon
+  Plus, Trash2
 } from 'lucide-react';
 
 export function GtdCerritosPipeline() {
@@ -18,6 +19,7 @@ export function GtdCerritosPipeline() {
         <button onClick={() => setActiveTab('organize' as any)} className={`px-4 py-2 rounded-xl text-sm font-bold ${activeTab === 'organize' ? 'bg-purple-500/20 text-purple-400' : 'text-white/40 hover:bg-white/5'}`}>3. Organize (Rutherford)</button>
         <button onClick={() => setActiveTab('reflect' as any)} className={`px-4 py-2 rounded-xl text-sm font-bold ${activeTab === 'reflect' ? 'bg-indigo-500/20 text-indigo-400' : 'text-white/40 hover:bg-white/5'}`}>4. Review (Tendi)</button>
         <button onClick={() => setActiveTab('engage' as any)} className={`px-4 py-2 rounded-xl text-sm font-bold ${activeTab === 'engage' ? 'bg-orange-500/20 text-orange-400' : 'text-white/40 hover:bg-white/5'}`}>5. Engage (Freeman)</button>
+        <button onClick={() => setActiveTab('swarm' as any)} className={`px-4 py-2 rounded-xl text-sm font-bold ${activeTab === 'swarm' ? 'bg-purple-500/20 text-purple-400' : 'text-white/40 hover:bg-white/5'}`}>Swarm</button>
       </div>
 
       <div className="flex-1 overflow-auto p-10">
@@ -26,6 +28,7 @@ export function GtdCerritosPipeline() {
         {activeTab === 'organize' && <OrganizeRutherford />}
         {activeTab === 'reflect' && <ReviewTendi />}
         {activeTab === 'engage' && <EngageFreeman />}
+        {activeTab === 'swarm' && <GtdDealSwarmPipeline />}
       </div>
     </div>
   );

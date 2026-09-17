@@ -7,7 +7,7 @@ import { LDId, writeToLD, readFromLD } from '../lib/ld-router';
  * Persistence: ld05/items (IndexedDB)
  */
 
-export type GTDStep = 'capture' | 'clarify' | 'organize' | 'reflect' | 'engage';
+export type GTDStep = 'capture' | 'clarify' | 'organize' | 'reflect' | 'engage' | 'swarm';
 
 export interface ActionLog {
   id: string;
