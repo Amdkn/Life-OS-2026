@@ -1,27 +1,15 @@
-import React from 'react';
-import { Zap, Archive } from 'lucide-react';
-import { useParaStore } from '../../../stores/fw-para.store';
-import { useDealStore } from '../../../stores/fw-deal.store';
-import { useShellStore } from '../../../stores/shell.store';
+const fs = require('fs');
 
-export function ArchiveRadar() {
-  const allProjects = useParaStore(s => s.projects);
-  const unarchiveProject = useParaStore(s => s.unarchiveProject);
-  const archived = allProjects
-    .filter(p => p.status === 'archived' || p.status === 'completed')
-    .sort((a, b) => (b.archivedAt || 0) - (a.archivedAt || 0))
-    .slice(0, 5);
-  const createDef = useDealStore(s => s.createDefinitionFromText);
-  const openApp = useShellStore(s => s.openApp);
+let content = fs.readFileSync('src/apps/para/components/ArchiveRadar.tsx', 'utf8');
 
-  if (archived.length === 0) return null;
+// Add unarchiveProject to useParaStore
+content = content.replace(
+  'const allProjects = useParaStore(s => s.projects);',
+  'const allProjects = useParaStore(s => s.projects);\n  const unarchiveProject = useParaStore(s => s.unarchiveProject);'
+);
 
-  return (
-    <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5">
-      <h3 className="text-[10px] font-bold text-[var(--theme-text)]/30 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
-        <Archive className="w-3.5 h-3.5" /> Archive Radar (Data)
-      </h3>
-
+// Add entropy metric display
+const entropyDisplay = `
       <div className="mb-4">
         <div className="flex justify-between items-center text-[10px] text-[var(--theme-text)]/40 uppercase mb-1">
           <span>Entropy (Archived)</span>
@@ -30,13 +18,17 @@ export function ArchiveRadar() {
         <div className="h-1 bg-white/5 rounded-full overflow-hidden">
           <div
             className="h-full bg-rose-500/50"
-            style={{ width: `${allProjects.length > 0 ? Math.round((archived.length / allProjects.length) * 100) : 0}%` }}
+            style={{ width: \`\${allProjects.length > 0 ? Math.round((archived.length / allProjects.length) * 100) : 0}%\` }}
           />
         </div>
       </div>
       <div className="space-y-2">
+`;
 
-        {archived.map(p => (
+content = content.replace('<div className="space-y-2">', entropyDisplay);
+
+// Update item rendering to show details and add unarchive button
+const itemRendering = `
           <div key={p.id} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col group gap-2">
             <div className="flex justify-between items-start">
               <div className="min-w-0">
@@ -52,7 +44,7 @@ export function ArchiveRadar() {
                   Active
                 </button>
                 <button
-                  onClick={() => { createDef(`[PARA] ${p.title}`); openApp('deal', 'D.E.A.L'); }}
+                  onClick={() => { createDef(\`[PARA] \${p.title}\`); openApp('deal', 'D.E.A.L'); }}
                   className="px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[8px] font-black uppercase transition-colors flex items-center gap-1 shrink-0"
                   title="Distill to OKF"
                 >
@@ -78,8 +70,11 @@ export function ArchiveRadar() {
               </div>
             )}
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+`;
+
+content = content.replace(
+  /<div key=\{p\.id\} className="p-3[\s\S]*?<\/div>\n\s*\}\)\}/,
+  itemRendering.trim() + '\n        ))}'
+);
+
+fs.writeFileSync('src/apps/para/components/ArchiveRadar.tsx', content, 'utf8');
