@@ -4,16 +4,13 @@ import fs from 'fs';
 import path from 'path';
 
 // Common descriptor mock
-function createMockDescriptor(incarnationType: B3IncarnationType): B3WorkerDescriptor {
+function createMockDescriptor(incarnation: B3IncarnationType): B3WorkerDescriptor {
   return {
-    id: `mock-${incarnationType}`,
-    incarnationType,
-    intelligence: 'deterministic_code',
-    determinism: 'strict_atomic',
+    incarnation,
     capabilities: [],
-    estimatedTokenCost: 0,
-    estimatedLatencyMs: 10,
-    ioAuthorizations: [],
+    tokenCost: 0,
+    latency: "low",
+    authorizations: [],
     executionVectors: []
   };
 }
