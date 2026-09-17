@@ -10,7 +10,8 @@ const tsxCliPath = resolve(__dirname, '../node_modules/tsx/dist/cli.mjs');
 const tsFilePath = resolve(__dirname, '../src/lib/tooling/adapters/mcp.ts');
 
 const child = spawn(process.execPath, [tsxCliPath, tsFilePath], {
-  stdio: ['pipe', 'pipe', 'inherit']
+  stdio: ['pipe', 'pipe', 'inherit'],
+  env: process.env
 });
 
 process.stdin.pipe(child.stdin);
