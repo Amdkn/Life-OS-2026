@@ -1,6 +1,8 @@
 /** IDB Wrapper — isolated IndexedDB per area (Invariant #3) */
 import { supabase } from './supabase';
 
+import { getScopedIdbKey } from './storage/scoped';
+
 export class DomainDB {
   private dbName: string;
   private tableName: string;
@@ -8,7 +10,9 @@ export class DomainDB {
   private db: IDBDatabase | null = null;
 
   constructor(dbName: string, version: number = 2) {
-    this.dbName = dbName;
+    // Get tenant/user namespace if defined in a global or environment context, fallback to global for now
+    const currentScope = (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('aspace-tenant-scope')) || 'life-os';
+    this.dbName = getScopedIdbKey(currentScope, dbName);
     this.version = version;
     this.tableName = dbName.replace('aspace_', '');
   }

@@ -37,10 +37,86 @@ export interface Artifact {
   created_at: number;
 }
 
+// --- Local-First IndexedDB Cache ---
+const DB_NAME = 'BlackboardCache';
+const DB_VERSION = 1;
+
+let dbPromise: Promise<IDBDatabase> | null = null;
+
+function getDb(): Promise<IDBDatabase> {
+  if (!dbPromise) {
+    dbPromise = new Promise((resolve, reject) => {
+      // In SSR or testing environments where indexedDB is mocked but window might not have it natively,
+      // fallback to globalThis.indexedDB (handled by fake-indexeddb in tests)
+      const idb = typeof window !== 'undefined' ? window.indexedDB : (globalThis as any).indexedDB;
+      if (!idb) {
+        reject(new Error('IndexedDB is not available in this environment'));
+        return;
+      }
+
+      const request = idb.open(DB_NAME, DB_VERSION);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+      request.onupgradeneeded = (event: any) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains('workspaces')) {
+          db.createObjectStore('workspaces', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('events')) {
+          db.createObjectStore('events', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('artifacts')) {
+          db.createObjectStore('artifacts', { keyPath: 'id' });
+        }
+      };
+    });
+  }
+  return dbPromise;
+}
+
+async function writeToCache(storeName: string, items: any[]) {
+  try {
+    const db = await getDb();
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    items.forEach(item => store.put(item));
+    return new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.warn(`[Blackboard] Failed to write to cache ${storeName}:`, err);
+  }
+}
+
+async function readFromCache(storeName: string): Promise<any[]> {
+  try {
+    const db = await getDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (err) {
+    console.warn(`[Blackboard] Failed to read from cache ${storeName}:`, err);
+    return [];
+  }
+}
+// -----------------------------------
+
 export async function getWorkspaces(): Promise<Workspace[]> {
-  const res = await fetch(`${SERVER_URL}/workspaces`);
-  if (!res.ok) throw new Error('Failed to fetch workspaces');
-  return res.json();
+  try {
+    const res = await fetch(`${SERVER_URL}/workspaces`);
+    if (!res.ok) throw new Error('Failed to fetch workspaces from network');
+    const data = await res.json();
+    await writeToCache('workspaces', data);
+    return data;
+  } catch (err) {
+    console.warn('[Blackboard] Network fetch failed, falling back to cache (workspaces)', err);
+    return readFromCache('workspaces');
+  }
 }
 
 export async function createWorkspace(workspace: Workspace): Promise<Workspace> {
@@ -50,14 +126,27 @@ export async function createWorkspace(workspace: Workspace): Promise<Workspace> 
     body: JSON.stringify(workspace)
   });
   if (!res.ok) throw new Error('Failed to create workspace');
-  return res.json();
+  const data = await res.json();
+  await writeToCache('workspaces', [data]);
+  return data;
 }
 
 export async function getEvents(workspaceId?: string): Promise<BlackboardEvent[]> {
   const url = workspaceId ? `${SERVER_URL}/events?workspace_id=${encodeURIComponent(workspaceId)}` : `${SERVER_URL}/events`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch events');
-  return res.json();
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch events from network');
+    const data = await res.json();
+    await writeToCache('events', data);
+    return data;
+  } catch (err) {
+    console.warn('[Blackboard] Network fetch failed, falling back to cache (events)', err);
+    const cachedEvents = await readFromCache('events');
+    if (workspaceId) {
+      return cachedEvents.filter(e => e.workspace_id === workspaceId);
+    }
+    return cachedEvents;
+  }
 }
 
 export async function appendEvent(event: BlackboardEvent): Promise<BlackboardEvent> {
@@ -67,7 +156,9 @@ export async function appendEvent(event: BlackboardEvent): Promise<BlackboardEve
     body: JSON.stringify(event)
   });
   if (!res.ok) throw new Error('Failed to append event');
-  return res.json();
+  const data = await res.json();
+  await writeToCache('events', [data]);
+  return data;
 }
 
 export async function acquireLock(lock: Lock): Promise<boolean> {
@@ -94,9 +185,17 @@ export async function releaseLock(resourceKey: string, lockedBy: string): Promis
 }
 
 export async function getArtifacts(workspaceId: string): Promise<Artifact[]> {
-  const res = await fetch(`${SERVER_URL}/artifacts?workspace_id=${encodeURIComponent(workspaceId)}`);
-  if (!res.ok) throw new Error('Failed to fetch artifacts');
-  return res.json();
+  try {
+    const res = await fetch(`${SERVER_URL}/artifacts?workspace_id=${encodeURIComponent(workspaceId)}`);
+    if (!res.ok) throw new Error('Failed to fetch artifacts from network');
+    const data = await res.json();
+    await writeToCache('artifacts', data);
+    return data;
+  } catch (err) {
+    console.warn('[Blackboard] Network fetch failed, falling back to cache (artifacts)', err);
+    const cachedArtifacts = await readFromCache('artifacts');
+    return cachedArtifacts.filter(a => a.workspace_id === workspaceId);
+  }
 }
 
 export async function createArtifact(artifact: Artifact): Promise<Artifact> {
@@ -106,9 +205,10 @@ export async function createArtifact(artifact: Artifact): Promise<Artifact> {
     body: JSON.stringify(artifact)
   });
   if (!res.ok) throw new Error('Failed to create artifact');
-  return res.json();
+  const data = await res.json();
+  await writeToCache('artifacts', [data]);
+  return data;
 }
-
 
 export async function tryAcquireLock(resourceKey: string, lockedBy: string, ttlMs: number): Promise<boolean> {
   const expiresAt = Date.now() + ttlMs;
