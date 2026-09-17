@@ -22,6 +22,7 @@ export interface DomainPillar {
 }
 
 export interface Project {
+  description?: string; // V2 Doctrinal Manifest
   id: string;
   title: string;
   status: 'active' | 'paused' | 'completed' | 'archived';
@@ -85,15 +86,15 @@ interface ParaState {
 }
 
 const PICARD_PROJECTS: Project[] = [
-  { id: 'PRJ-PICARD-01', title: 'OMK Business OS (B2/B3 Core)', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-02', title: 'ABC OS & Child Care BOS (Franchise)', status: 'active', domain: 'business', pillars: ['operations', 'product'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-03', title: 'RILCOT Members Space OS', status: 'active', domain: 'relations', pillars: ['people', 'product'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-04', title: 'Alikaly Bana Holding to LLC', status: 'active', domain: 'finance', pillars: ['legal', 'finance'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-05', title: 'Marina Cleaning BOS & SOP', status: 'active', domain: 'habitat', pillars: ['operations', 'people'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-06', title: 'Cerritos Plane Onboarding', status: 'active', domain: 'cognition', pillars: ['meta', 'it'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-07', title: 'ClaudeClaw Agent & Mission Control', status: 'active', domain: 'creativity', pillars: ['it', 'product'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-08', title: 'Graphify Out Context Graphs', status: 'active', domain: 'creativity', pillars: ['it', 'meta'], resources: [], progress: 100, updatedAt: Date.now() },
-  { id: 'PRJ-PICARD-09', title: 'OMK Services BOS', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now() },
+  { id: 'PRJ-PICARD-01', title: 'OMK Business OS (B2/B3 Core)', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: B2/B3 Core operations & strategy' },
+  { id: 'PRJ-PICARD-02', title: 'ABC OS & Child Care BOS (Franchise)', status: 'active', domain: 'business', pillars: ['operations', 'product'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Franchise scaling & SOP integration' },
+  { id: 'PRJ-PICARD-03', title: 'RILCOT Members Space OS', status: 'active', domain: 'relations', pillars: ['people', 'product'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Members space community engine' },
+  { id: 'PRJ-PICARD-04', title: 'Alikaly Bana Holding to LLC', status: 'active', domain: 'finance', pillars: ['legal', 'finance'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Legal & corporate transition' },
+  { id: 'PRJ-PICARD-05', title: 'Marina Cleaning BOS & SOP', status: 'active', domain: 'habitat', pillars: ['operations', 'people'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Cleaning operations SOP mapping' },
+  { id: 'PRJ-PICARD-06', title: 'Cerritos Plane Onboarding', status: 'active', domain: 'cognition', pillars: ['meta', 'it'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Pilot onboarding systems' },
+  { id: 'PRJ-PICARD-07', title: 'ClaudeClaw Agent & Mission Control', status: 'active', domain: 'creativity', pillars: ['it', 'product'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Agent mission control AI systems' },
+  { id: 'PRJ-PICARD-08', title: 'Graphify Out Context Graphs', status: 'active', domain: 'creativity', pillars: ['it', 'meta'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: Graph topology orchestration' },
+  { id: 'PRJ-PICARD-09', title: 'OMK Services BOS', status: 'active', domain: 'business', pillars: ['growth', 'operations'], resources: [], progress: 100, updatedAt: Date.now(), description: 'Manifest: OMK external services delivery' },
 ];
 
 export const useParaStore = create<ParaState>()(

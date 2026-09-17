@@ -17,7 +17,7 @@ export function projectToParaItem(project: Project): ParaItem {
   return {
     id: project.id,
     title: project.title,
-    description: '', // Géré séparément si besoin ou stocké dans metadata
+    description: project.description || '', // Géré séparément si besoin ou stocké dans metadata
     status: project.status as ParaItem['status'],
     updatedAt: project.updatedAt || Date.now(),
     pillars: project.pillars,
