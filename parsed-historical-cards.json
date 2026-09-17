@@ -1,0 +1,154 @@
+[
+  {
+    "id": "IMPORT-OBJ-W1_Quarter_Intent_Q3_2026-0",
+    "title": "Quarter Intent Q3 2026: activer le triptyque MORTY sur Life-OS-2026",
+    "provenance": "Source: 20_Life_OS/23_12WY_SNW/W1_Quarter_Intent_Q3_2026.md | Indicateurs résultat: Livrables W1-W4 presentes sur disque (nombre verifiable); BETA Life-OS-2026 declaree deployee (source seulement, pas re-verifie) | Indicateurs action: Nombre de handoff/packets ecrits par semaine",
+    "status": "historique",
+    "proposedLinks": [
+      "⚠ liens proposés (déclarés, non canon)"
+    ],
+    "domainTags": [
+      "LD01",
+      "LD02",
+      "LD04"
+    ],
+    "horizonTag": "H10",
+    "type": "historical-card"
+  },
+  {
+    "id": "IMPORT-OBJ-W1_Quarter_Intent_Q3_2026-1",
+    "title": "Item 1 verbatim A0: Introduction de SOB a Abdaty avec OMK Services BOS & ABC OS-Community",
+    "provenance": "Source: 20_Life_OS/23_12WY_SNW/W1_Quarter_Intent_Q3_2026.md (Rock decomposition W1) | Indicateurs résultat: Handoff Burnham present sur disque (chemin a confirmer) | Indicateurs action: 1 introduction physique faite (terrain A0)",
+    "status": "propose",
+    "proposedLinks": [
+      "⚠ liens proposés (déclarés, non canon)"
+    ],
+    "domainTags": [
+      "LD01",
+      "LD08"
+    ],
+    "horizonTag": "H10",
+    "type": "historical-card"
+  },
+  {
+    "id": "IMPORT-OBJ-W1_Item2_13e_Semaine_Rock_Decomposition-2",
+    "title": "Item 2 verbatim A0: Definir 09/14 comme la 13e semaine + 09/21 comme la Semaine 0 du 4e Cycle",
+    "provenance": "Source: 20_Life_OS/23_12WY_SNW/W1_Item2_13e_Semaine_Rock_Decomposition.md | Indicateurs résultat: Ce document 12wy-alignement existe (semaine 0 du travail d'alignement) | Indicateurs action: Checkpoint LD01-LD08 W13 effectue (propose, pas fait)",
+    "status": "propose",
+    "proposedLinks": [
+      "⚠ liens proposés (déclarés, non canon)"
+    ],
+    "domainTags": [
+      "LD01",
+      "LD04"
+    ],
+    "horizonTag": "H10",
+    "type": "historical-card"
+  },
+  {
+    "id": "IMPORT-OBJ-W4_Quarter_Sprint_Init-3",
+    "title": "Sprint W4 (init 2026-09-07): maintenir retour au VERT deterministe sur les 8 jauges LD01-LD08",
+    "provenance": "Source: 20_Life_OS/23_12WY_SNW/W4_Quarter_Sprint_Init.md | Indicateurs résultat: Nombre de LD GREEN au prochain pulse (cible 8/8, source W4 doc) | Indicateurs action: run verify_wheel_pulse.py avant W13",
+    "status": "historique",
+    "proposedLinks": [
+      "⚠ liens proposés (déclarés, non canon)"
+    ],
+    "domainTags": [
+      "LD01",
+      "LD02",
+      "LD03",
+      "LD04",
+      "LD05",
+      "LD06",
+      "LD07",
+      "LD08"
+    ],
+    "horizonTag": "H10",
+    "type": "historical-card"
+  },
+  {
+    "id": "IMPORT-OBJ-W4_Quarter_Sprint_Init-4",
+    "title": "Sprint W4: consolider le cadencement des boucles GTD/PARA sous le filtre A1 Beth",
+    "provenance": "Source: 20_Life_OS/23_12WY_SNW/W4_Quarter_Sprint_Init.md | Indicateurs résultat: Boucle GTD/PARA re vue sous filtre Beth (a mesurer) | Indicateurs action: 1 revue cadence hebdo (proposée W13)",
+    "status": "historique",
+    "proposedLinks": [
+      "⚠ liens proposés (déclarés, non canon)"
+    ],
+    "domainTags": [
+      "LD01",
+      "LD02"
+    ],
+    "horizonTag": "H1",
+    "type": "historical-card"
+  },
+  {
+    "id": "IMPORT-OBJ-W4_Quarter_Sprint_Init-5",
+    "title": "Sprint W4: aligner les flux d'execution Life Core avec le dispatch n8n et le tableau de bord Agent OS 5555",
+    "provenance": "Source: 20_Life_OS/23_12WY_SNW/W4_Quarter_Sprint_Init.md | Indicateurs résultat: Flux Life Core visibles sur dashboard 5555 (a mesurer) | Indicateurs action: 1 verification port/dispatch par semaine (proposée)",
+    "status": "historique",
+    "proposedLinks": [
+      "⚠ liens proposés (déclarés, non canon)"
+    ],
+    "domainTags": [
+      "LD01",
+      "LD07"
+    ],
+    "horizonTag": "H1",
+    "type": "historical-card"
+  },
+  {
+    "id": "IMPORT-OBJ-Ikigai_Pillars_Horizons_Kardashev-6",
+    "title": "H1 Profession: deployer Summer-verse S1 / Agency as a Service, monetiser le bypass technologique pour Million de Valeur de Liberation",
+    "provenance": "Source: 20_Life_OS/21_Ikigai_Orville/Ikigai_Pillars_Horizons_Kardashev.md (H1 table) | Indicateurs résultat: Mesure de valeur H1 (a definir par A0, pas inventee ici) | Indicateurs action: Livraisons Q3 tracées via OBJ-Q3-INTENT",
+    "status": "historique",
+    "proposedLinks": [
+      "⚠ liens proposés (déclarés, non canon)"
+    ],
+    "domainTags": [
+      "LD01",
+      "LD02"
+    ],
+    "horizonTag": "H1",
+    "type": "historical-card"
+  },
+  {
+    "id": "OBJ-W1-I2-13E-SEMAINE",
+    "title": "Checkpoint Life Wheel sync LD01-LD08 (usage canon declare de W13)",
+    "provenance": "source objectif: OBJ-W1-I2-13E-SEMAINE",
+    "status": "propose",
+    "proposedLinks": [],
+    "domainTags": [],
+    "horizonTag": "",
+    "type": "historical-card"
+  },
+  {
+    "id": "OBJ-W4-SPRINT-VERT",
+    "title": "Préparer la revue des 8 domaines : pour chacun, un fait sourcé, un besoin actuel et une décision maintenir/avancer/reporter ; conserver les inconnus, sans exiger huit jauges vertes",
+    "provenance": "source objectif: OBJ-W4-SPRINT-VERT",
+    "status": "propose",
+    "proposedLinks": [],
+    "domainTags": [],
+    "horizonTag": "",
+    "type": "historical-card"
+  },
+  {
+    "id": "OBJ-W1-I2-13E-SEMAINE",
+    "title": "Ratifier ou invalider le label proposition 'W13' et ouvrir W0 Cycle 4 (2026-09-21)",
+    "provenance": "source objectif: OBJ-W1-I2-13E-SEMAINE",
+    "status": "propose",
+    "proposedLinks": [],
+    "domainTags": [],
+    "horizonTag": "",
+    "type": "historical-card"
+  },
+  {
+    "id": "OBJ-Q3-INTENT",
+    "title": "Prioriser LD01 puis LD02 dans le tri des livrables Q3 (buffer W13)",
+    "provenance": "source objectif: OBJ-Q3-INTENT",
+    "status": "propose",
+    "proposedLinks": [],
+    "domainTags": [],
+    "horizonTag": "",
+    "type": "historical-card"
+  }
+]
