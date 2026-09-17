@@ -12,6 +12,7 @@ import {
   createArtifact,
   getArtifactsByWorkspace
 } from './repository.js';
+import { A3CronDispatcher } from '../../src/services/telemetry/a3-cron-dispatcher.js';
 
 const app = express();
 app.use(cors());
@@ -19,6 +20,10 @@ app.use(express.json());
 
 // Initialize the database and schema
 initDb();
+
+// Start A3 Cron Dispatcher
+const dispatcher = new A3CronDispatcher();
+dispatcher.start();
 
 // Workspaces
 app.get('/api/blackboard/workspaces', (req, res) => {
