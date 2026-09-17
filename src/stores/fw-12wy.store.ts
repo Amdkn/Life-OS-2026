@@ -13,6 +13,8 @@ export interface WyVision extends ParaItem {
   meaningHorizon?: string; // H1, H3, H10, H25, H90
   operationalCadence?: string; // weekly, cycle
   provenance?: string;
+  conflict?: string;
+  visionStatus?: string;
   type: 'wy-vision';
   domainId: string; // V0.6.7 REQUIRED
   ikigaiVisionId?: string;
@@ -72,6 +74,7 @@ interface TwelveWeekState {
   setActiveGoalId: (id: string | null) => void;
   setActiveCycleId: (id: string | null) => void;
   addVision: (v: WyVision) => Promise<void>;
+  updateVision: (v: WyVision) => Promise<void>;
   addGoal: (g: WyGoal) => Promise<void>;
   addTactic: (t: WyTactic) => Promise<void>;
   updateTacticStatus: (id: string, status: WyTactic['status']) => Promise<void>;
@@ -117,6 +120,10 @@ export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
   addVision: async (v) => {
     set(s => ({ visions: [...s.visions, v] }));
     await writeToLD('ld01', 'resources', 'add', v, '12wy');
+  },
+  updateVision: async (v) => {
+    set(s => ({ visions: s.visions.map(vision => vision.id === v.id ? v : vision) }));
+    await writeToLD('ld01', 'resources', 'update', v, '12wy');
   },
   addGoal: async (g) => {
     set(s => ({ goals: [...s.goals, g] }));
