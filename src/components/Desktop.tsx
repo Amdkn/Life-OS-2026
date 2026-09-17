@@ -8,6 +8,7 @@ import { ToastContainer } from './Toast';
 import { AppDrawer } from './AppDrawer';
 import { ViewportGuard } from './ViewportGuard';
 import { ErrorBoundary } from './ErrorBoundary';
+import { AssistantOverlay } from './AssistantOverlay/AssistantOverlay';
 import { useShellStore } from '../stores/shell.store';
 import { useOsSettingsStore } from '../stores/os-settings.store';
 import { getApp, getAllApps } from '../lib/app-registry';
@@ -187,6 +188,7 @@ export function Desktop() {
         <ToastContainer />
         <AppDrawer />
         <Dock />
+        <AssistantOverlay />
       </div>
     </ViewportGuard>
   );
