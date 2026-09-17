@@ -21,7 +21,7 @@ export interface GTDItem {
   id: string;
   type: string; // added for LdEntity compliance
   content: string;
-  status: 'inbox' | 'actionable' | 'incubating' | 'reference' | 'trash' | 'completed';
+  status: 'inbox' | 'actionable' | 'incubating' | 'reference' | 'trash' | 'completed' | 'delegated' | 'deferred' | 'archived' | 'dropped';
   context?: string;
   energy?: 'low' | 'medium' | 'high';
   timeEstimate?: number;
