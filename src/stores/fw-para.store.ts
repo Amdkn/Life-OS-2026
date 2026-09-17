@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { LDId, writeToLD } from '../lib/ld-router';
 import { DOMAIN_TO_LD, projectToParaItem } from '../utils/paraAdapter';
+import { exportParaToRdf } from '../lib/paraRdfExporter';
 
 /** 
  * PARA Framework Store — V0.4.2 Picard
@@ -80,6 +81,7 @@ interface ParaState {
   archiveProject: (id: string, reason?: string, lessonsLearned?: string) => Promise<void>;
   unarchiveProject: (id: string) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
+  exportToRdf: () => { turtle: string; jsonld: string };
 }
 
 const PICARD_PROJECTS: Project[] = [
@@ -179,6 +181,11 @@ export const useParaStore = create<ParaState>()(
           const ldId = DOMAIN_TO_LD[project.domain];
           if (ldId) await writeToLD(ldId, 'projects', 'delete', { id }, 'para');
         }
+      },
+
+      exportToRdf: () => {
+        const state = get();
+        return exportParaToRdf(state.projects, state.resources);
       }
     }),
     { 
