@@ -7,6 +7,7 @@ import { useLifeWheelStore } from '../../../stores/fw-wheel.store';
 export function VisionCommandCard({ visionId }: { visionId: string }) {
   const setActiveVisionId = useTwelveWeekStore(s => s.setActiveVisionId);
   const setActiveGoalId = useTwelveWeekStore(s => s.setActiveGoalId);
+  const updateVision = useTwelveWeekStore(s => s.updateVision);
 
   const allVisions = useTwelveWeekStore(s => s.visions);
   const vision = allVisions.find(v => v.id === visionId);
@@ -36,6 +37,10 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
 
   if (!vision) return null;
 
+  const handleUpdate = (updates: Partial<typeof vision>) => {
+    updateVision({ ...vision, ...updates });
+  };
+
   return (
     <div className="flex-1 flex flex-col p-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
 
@@ -56,7 +61,7 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
            <div>
              <h1 className="text-4xl font-black text-white tracking-tight">{vision.title}</h1>
              <div className="flex items-center gap-3 mt-2">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500/80 bg-amber-500/10 px-2 py-0.5 rounded">{getHorizonLabel(vision.meaningHorizon || ikigaiRef?.horizon)}</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500/80 bg-amber-500/10 px-2 py-0.5 rounded">{getHorizonLabel(vision.meaningHorizon)}</span>
                 {vision.operationalCadence && (
                    <span className="text-[10px] uppercase font-bold tracking-widest text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
                      {vision.operationalCadence}
@@ -80,16 +85,46 @@ export function VisionCommandCard({ visionId }: { visionId: string }) {
         <h3 className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/40 flex items-center gap-2 mb-3">
           <Box className="w-3.5 h-3.5 text-amber-400/80" /> Provenance Historique & Statut
         </h3>
-        {vision.provenance ? (
-          <p className="text-sm text-white/70 italic mb-4 leading-relaxed">« {vision.provenance} »</p>
-        ) : (
-          <p className="text-sm text-white/70 italic mb-4 leading-relaxed">
-            « Quarter Intent (Q3-2026, statut source: historique (W1 2026-06-15-&gt;07-05); aucune re-lecture au 2026-09-11): Activer le triptyque MORTY (12WY superset PARA superset DEAL) sur Life-OS-2026 avec 6 frameworks Life OS canoniques orchestres par 2 A1 Gatekeepers (Beth Ikigai + Morty Focus). »
-          </p>
-        )}
-        <span className="text-[9px] uppercase font-bold tracking-widest text-amber-400/80 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
-          {vision.provenance ? "Statut: A SOURCER / Actif" : "Statut: Historique (Non promu en engagement actif)"}
-        </span>
+
+        <div className="space-y-4">
+           <div>
+              <label className="block text-[9px] uppercase font-bold tracking-widest text-white/30 mb-2">Source / Provenance (ex: W1_Quarter_Intent)</label>
+              <textarea
+                onBlur={(e) => handleUpdate({ provenance: e.target.value })}
+                defaultValue={vision.provenance ?? ''}
+                placeholder="Quarter Intent (Q3-2026, statut source: historique (W1 2026-06-15->07-05); aucune re-lecture au 2026-09-11): Activer le triptyque MORTY (12WY superset PARA superset DEAL) sur Life-OS-2026 avec 6 frameworks Life OS canoniques orchestres par 2 A1 Gatekeepers (Beth Ikigai + Morty Focus)."
+                className="w-full bg-black/30 border border-white/5 rounded-lg p-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-amber-500/30 transition-colors"
+                rows={3}
+              />
+           </div>
+
+           <div className="grid grid-cols-2 gap-4">
+              <div>
+                 <label className="block text-[9px] uppercase font-bold tracking-widest text-white/30 mb-2">Statut 12WY</label>
+                 <select
+                   value={vision.visionStatus ?? ''}
+                   onChange={(e) => handleUpdate({ visionStatus: e.target.value })}
+                   className="w-full bg-black/30 border border-white/5 rounded-lg p-2.5 text-sm text-white/80 focus:outline-none focus:border-amber-500/30 transition-colors"
+                 >
+                   <option value="">A SOURCER</option>
+                   <option value="historique">Statut historique Q3 2026 (Aucun engagement actif)</option>
+                   <option value="actif">Actif (Vérifié)</option>
+                   <option value="obsolete">Obsolète / Remplacé</option>
+                 </select>
+              </div>
+
+              <div>
+                 <label className="block text-[9px] uppercase font-bold tracking-widest text-white/30 mb-2">Conflit détecté (Optionnel)</label>
+                 <input
+                   type="text"
+                   defaultValue={vision.conflict ?? ''}
+                   onBlur={(e) => handleUpdate({ conflict: e.target.value })}
+                   placeholder="ex: Contradiction horizon..."
+                   className="w-full bg-black/30 border border-white/5 rounded-lg p-2.5 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-red-500/30 transition-colors"
+                 />
+              </div>
+           </div>
+        </div>
       </div>
 
       {/* Child Goals Grid */}
