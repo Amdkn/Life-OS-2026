@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS artifacts (
   id TEXT PRIMARY KEY,
   workspace_id TEXT,
   name TEXT NOT NULL,
-  content TEXT NOT NULL,
-  content_type TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  content_path TEXT NOT NULL,
   created_at INTEGER NOT NULL,
   FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
 );

@@ -32,8 +32,8 @@ export interface Artifact {
   id: string;
   workspace_id: string | null;
   name: string;
-  content: string;
-  content_type: string;
+  mime_type: string;
+  content_path: string;
   created_at: number;
 }
 

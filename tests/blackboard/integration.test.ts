@@ -113,8 +113,8 @@ async function runTests() {
       id: 'art-1',
       workspace_id: 'ws-123',
       name: 'Test Artifact',
-      content: 'Hello, World!',
-      content_type: 'text/plain',
+      mime_type: 'text/plain',
+      content_path: '/artifacts/test.txt',
       created_at: Date.now(),
     };
     await client.createArtifact(artifact);
