@@ -210,6 +210,19 @@ const SkillTreeNexus: React.FC = () => {
                       ) : (
                           <div className="text-[10px] text-white/30 italic mt-2">No skills registered</div>
                       )}
+
+                      {manifest && manifest.dependencies && manifest.dependencies.length > 0 && (
+                        <div className="mt-3 pt-2 border-t border-white/10">
+                          <span className="text-[9px] font-black uppercase text-white/40 mb-1 block">Dependencies</span>
+                          <div className="flex flex-wrap gap-1">
+                            {manifest.dependencies.map((dep, dIdx) => (
+                              <span key={dIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-black/40 text-[var(--accent-primary)] font-mono border border-[var(--accent-primary)]/20">
+                                {dep}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

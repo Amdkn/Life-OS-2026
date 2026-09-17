@@ -27,7 +27,7 @@ export default function DiscoveryWheelEngine() {
           const rawScore = telemetry.scores[domain.id];
           // Determine status string based on whether we have a non-zero value
           // Technically 0 could be valid but PRD says "Une jauge sans donnée source affiche « non mesuré »"
-          const displayScore = (rawScore && rawScore > 0) ? `${rawScore}%` : 'non mesuré';
+          const displayScore = (rawScore !== undefined && rawScore !== null) ? `${rawScore}%` : 'non mesuré';
 
           if (!config) return null; // Safe guard
 

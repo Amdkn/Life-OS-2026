@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { requireAuth, enforceTenant, rateLimiter, auditLog, sanitizePath } from '../auth/middleware.js';
 
 const app = express();
 const PORT = 3001;
@@ -14,10 +15,14 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(sanitizePath);
+app.use(auditLog);
+app.use(rateLimiter(100, 60000)); // 100 requests per minute
 
 // Validation schemas
 const LifeToBusinessSchema = z.object({
   availableBandwidthBlocks: z.number().min(0, "Bandwidth must be a positive number"),
+  tenantId: z.string().optional(),
 });
 
 // Mock/Empty states according to PRD
@@ -28,7 +33,8 @@ const EMPTY_BUSINESS_STATE = {
 };
 
 // POST /api/bridge/life-to-business
-app.post('/api/bridge/life-to-business', (req, res) => {
+// Requires 'write' scope
+app.post('/api/bridge/life-to-business', requireAuth(['write']), enforceTenant, (req, res) => {
   try {
     const data = LifeToBusinessSchema.parse(req.body);
 
@@ -62,7 +68,8 @@ app.post('/api/bridge/life-to-business', (req, res) => {
 });
 
 // GET /api/bridge/business-to-life
-app.get('/api/bridge/business-to-life', (req, res) => {
+// Requires 'read' scope
+app.get('/api/bridge/business-to-life', requireAuth(['read']), enforceTenant, (req, res) => {
   // Always returning empty state if Business OS is not natively connected.
   // We don't hardcode or invent data.
   res.status(200).json(EMPTY_BUSINESS_STATE);

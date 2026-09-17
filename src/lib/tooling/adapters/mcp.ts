@@ -1,3 +1,5 @@
+import { mcpToolsRegistry } from "../../../../mcp/toolsRegistry.js";
+
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -8,6 +10,8 @@ import { useTwelveWeekStore } from '../../../stores/fw-12wy.store.js';
 import { useLifeWheelStore } from '../../../stores/fw-wheel.store.js';
 import { appendEvent, BlackboardEvent } from '../../blackboard/client.js';
 import 'fake-indexeddb/auto'; // Mock indexeddb for the frontend stores since it runs in node
+
+import { checkMcpAuth, getAuthToken } from "../../../../mcp/auth.js";
 
 export const life_os_get_tactics = async (week: number, cycleId?: string) => {
   const state = useTwelveWeekStore.getState();
@@ -144,6 +148,16 @@ export function createMCPServer() {
   });
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const authHeader = (request as any).meta?.authorization as string;
+    if (!authHeader) {
+        throw new Error("Missing authorization header");
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const requiredScopes = mcpToolsRegistry[request.params.name]?.requiredScopes || ["read"];
+    if (!checkMcpAuth(token, requiredScopes)) {
+        throw new Error("Unauthorized");
+    }
+
     try {
       if (request.params.name === "life_os_get_tactics") {
         const args = request.params.arguments as { week: number, cycleId?: string };

@@ -16,23 +16,31 @@ const businessOsSquads = [
 const registry: Record<string, A3SkillManifest> = {};
 
 // Initialize manifests for canonical A3 agents
-canonicalA3Agents.forEach((agentId) => {
+canonicalA3Agents.forEach((agentId, index) => {
   registry[agentId] = {
     id: `skill-${agentId}`,
     agentId,
-    skills: [],
-    tools: []
+    skills: ['Logic Synthesis', 'Diplomacy Protocol', 'Tactical Routing'],
+    tools: [
+      { name: 'Blackboard Scanner', capability: 'verified' },
+      { name: 'Core Engine Integrator', capability: index % 2 === 0 ? 'verified' : 'unverified' }
+    ],
+    dependencies: index > 0 ? [`skill-${canonicalA3Agents[0]}`] : []
   };
 });
 
 // Initialize manifests for Business OS Squads
-businessOsSquads.forEach((squadName) => {
+businessOsSquads.forEach((squadName, index) => {
   const squadId = squadName.toLowerCase();
   registry[squadId] = {
     id: `skill-${squadId}`,
     agentId: squadName,
-    skills: [],
-    tools: []
+    skills: ['Market Analysis', 'Resource Distribution', 'Execution Strategy'],
+    tools: [
+      { name: 'Financial Pipeline', capability: 'verified' },
+      { name: 'Growth Modeler', capability: index % 2 === 0 ? 'verified' : 'unverified' }
+    ],
+    dependencies: index > 0 ? [`skill-${businessOsSquads[0].toLowerCase()}`] : []
   };
 });
 
