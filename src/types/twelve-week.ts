@@ -1,4 +1,4 @@
-export type MeaningHorizon = 'H1' | 'H3' | 'H10' | 'H25' | 'H90';
+export type MeaningHorizon = 'H1' | 'H3' | 'H10' | 'H25' | 'H30' | 'H90';
 export type OperationalCadence = 'weekly' | 'cycle';
 
 export interface SolarpunkVisionContext {

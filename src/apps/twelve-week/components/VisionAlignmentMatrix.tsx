@@ -8,7 +8,7 @@ const HORIZONS: { id: MeaningHorizon; label: string; year: string }[] = [
   { id: 'H1', label: 'H1', year: '1 an' },
   { id: 'H3', label: 'H3', year: '3 ans' },
   { id: 'H10', label: 'H10', year: '10 ans' },
-  { id: 'H25', label: 'H25', year: '25 ans' },
+  { id: 'H30', label: 'H30', year: '30 ans' },
   { id: 'H90', label: 'H90', year: '90 ans' },
 ];
 
