@@ -27,7 +27,7 @@ const horizonFilters = [
   { id: 'H1',  label: 'H1 (1yr)' },
   { id: 'H3',  label: 'H3 (3yr)' },
   { id: 'H10', label: 'H10 (10yr)' },
-  { id: 'H25', label: 'H25 (25yr)' },
+  { id: 'H30', label: 'H30 (30yr)' },
   { id: 'H90', label: 'H90 (Life)' },
 ];
 

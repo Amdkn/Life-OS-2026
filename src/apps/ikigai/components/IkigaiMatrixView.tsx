@@ -20,7 +20,7 @@ const HORIZONS: { id: IkigaiHorizon, label: string, desc: string }[] = [
   { id: 'H1', label: '1 Year', desc: 'Immediate Action' },
   { id: 'H3', label: '3 Years', desc: 'Tactical Pivot' },
   { id: 'H10', label: '10 Years', desc: 'Strategic Era' },
-  { id: 'H25', label: '25 Years', desc: 'Generational' },
+  { id: 'H30', label: '30 Years', desc: 'Multi-Horizon' },
   { id: 'H90', label: 'Solarpunk', desc: 'Civilization' },
 ];
 
