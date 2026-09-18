@@ -521,31 +521,55 @@ export const useTwelveWeekStore = create<TwelveWeekState>((set, get) => ({
       const loadedTactics = data.filter(d => (d as any).type === 'wy-tactic') as any as WyTactic[];
       const loadedTimeBlocks = data.filter(d => (d as any).type === 'wy-timeblock') as any as WyTimeBlock[];
 
-      if (loadedVisions.length > 0) {
+      // Purge proactive des reliques obsoletes (ex: vieux mock OMK Service)
+      const obsoleteVisions = loadedVisions.filter(v => v.title === 'OMK Service' || v.id === 'vis-q3-craft-omk');
+      for (const obs of obsoleteVisions) {
+        try {
+          await writeToLD('ld01', 'resources', 'delete', obs.id, '12wy');
+        } catch (e) {
+          console.warn('[12WY Store] Failed to purge obsolete record', obs.id);
+        }
+      }
+
+      const cleanLoadedVisions = loadedVisions.filter(v => v.title !== 'OMK Service' && v.id !== 'vis-q3-craft-omk');
+      const hasAllCanonicals = CANONICAL_WY_VISIONS.every(cv => cleanLoadedVisions.some(lv => lv.id === cv.id));
+
+      if (cleanLoadedVisions.length >= 20 && hasAllCanonicals) {
         set({
-          visions: loadedVisions,
+          visions: cleanLoadedVisions,
           goals: loadedGoals.length > 0 ? loadedGoals : [...CANONICAL_WY_GOALS],
           tactics: loadedTactics.length > 0 ? loadedTactics : [...CANONICAL_WY_TACTICS],
           timeBlocks: loadedTimeBlocks,
           isHydrated: true
         });
       } else {
-        // Ensemencer la base persistee avec les 20 visions canoniques
+        // Garantir l'incorporation deterministe des 20 visions canoniques
+        const finalVisions = [
+          ...CANONICAL_WY_VISIONS,
+          ...cleanLoadedVisions.filter(lv => !CANONICAL_WY_VISIONS.some(cv => cv.id === lv.id))
+        ];
+
         set({
-          visions: [...CANONICAL_WY_VISIONS],
-          goals: [...CANONICAL_WY_GOALS],
-          tactics: [...CANONICAL_WY_TACTICS],
+          visions: finalVisions,
+          goals: loadedGoals.length > 0 ? loadedGoals : [...CANONICAL_WY_GOALS],
+          tactics: loadedTactics.length > 0 ? loadedTactics : [...CANONICAL_WY_TACTICS],
           timeBlocks: loadedTimeBlocks,
           isHydrated: true
         });
+
+        // Persister les 20 visions canoniques dans IndexedDB
         for (const v of CANONICAL_WY_VISIONS) {
           await writeToLD('ld01', 'resources', 'add', v, '12wy');
         }
-        for (const g of CANONICAL_WY_GOALS) {
-          await writeToLD('ld01', 'resources', 'add', g, '12wy');
+        if (loadedGoals.length === 0) {
+          for (const g of CANONICAL_WY_GOALS) {
+            await writeToLD('ld01', 'resources', 'add', g, '12wy');
+          }
         }
-        for (const t of CANONICAL_WY_TACTICS) {
-          await writeToLD('ld01', 'resources', 'add', t, '12wy');
+        if (loadedTactics.length === 0) {
+          for (const t of CANONICAL_WY_TACTICS) {
+            await writeToLD('ld01', 'resources', 'add', t, '12wy');
+          }
         }
       }
     } catch(e) {

@@ -92,25 +92,7 @@ export default function TwelveWeekApp() {
             activeVisionId ? (
               <VisionCommandCard visionId={activeVisionId} />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
-                {visions.map(v => (
-                  <div 
-                    key={v.id} 
-                    onClick={() => useTwelveWeekStore.getState().setActiveVisionId(v.id)}
-                    className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-teal-500/20 transition-all cursor-pointer group"
-                  >
-                      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-teal-400 transition-colors">{v.title}</h3>
-                      <p className="text-xs text-white/40 leading-relaxed truncate">{v.description || 'No vision constitution recorded yet.'}</p>
-                  </div>
-                ))}
-                <button 
-                  onClick={() => setIsVisionModalOpen(true)}
-                  className="p-6 rounded-3xl border border-dashed border-white/10 hover:bg-white/5 transition-all flex flex-col items-center justify-center opacity-40 hover:opacity-100"
-                >
-                  <Plus className="w-8 h-8 mb-2" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">New Vision</span>
-                </button>
-              </div>
+              <VisionAlignmentMatrix />
             )
           ) : activeTab === 'planning' ? (
             activeGoalId ? (
@@ -184,4 +166,3 @@ export default function TwelveWeekApp() {
     </div>
   );
 }
-
