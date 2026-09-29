@@ -1,0 +1,76 @@
+{
+  "schema": "aspace.terra-m4.jules-dispatch.v1",
+  "repo": "Amdkn/Life-OS-2026",
+  "base_branch": "main",
+  "parent_issue": 81,
+  "max_parallel_root_cells": 3,
+  "cells": [
+    {
+      "id": "T1",
+      "issue": 82,
+      "title": "Terra T1 — Canonical Life Runtime + Blackboard supervision",
+      "wave": "A",
+      "depends_on": [],
+      "jules_ready": true,
+      "write_scope": ["server/blackboard/**", "scripts/runtime/**", "tests/blackboard/**", "package.json scripts if strictly necessary"],
+      "required_tests": ["Blackboard schema tests", "runtime restart/idempotence canary"]
+    },
+    {
+      "id": "T2",
+      "issue": 83,
+      "title": "Terra T2 — IndexedDB ↔ Supabase convergence",
+      "wave": "A",
+      "depends_on": [],
+      "jules_ready": true,
+      "write_scope": ["src/lib/idb.ts", "src/lib/sync.ts", "src/services/migration.service.ts", "src/types/migration.ts", "supabase/**", "scripts/test-offline-recovery.ts", "focused sync tests"],
+      "required_tests": ["offline recovery", "tombstone no-resurrection", "migration replay", "multi-user isolation"]
+    },
+    {
+      "id": "T3",
+      "issue": 84,
+      "title": "Terra T3 — B3 contract + System-One convergence",
+      "wave": "A",
+      "depends_on": [],
+      "jules_ready": true,
+      "write_scope": ["src/types/b3-*.ts", "src/services/b3-*.ts", "src/services/__tests__/b3-matrix-engine.test.ts", "scripts/test-b3-*.ts", "src/components/b3-matrix/**", "directly affected B3 consumers"],
+      "required_tests": ["npm run lint", "npm run build", "B3 deterministic tests"]
+    },
+    {
+      "id": "T4",
+      "issue": 85,
+      "title": "Terra T4 — Evidence-backed runtime presence + cron receipts",
+      "wave": "B",
+      "depends_on": ["T1", "T3"],
+      "jules_ready": false,
+      "write_scope": ["src/apps/agent-portal/**", "src/services/cron-registry/**", "src/services/telemetry/**", "src/stores/crons.store.ts", "focused presence tests"],
+      "required_tests": ["presence TTL", "cron effect receipt", "restart no-duplicate"]
+    },
+    {
+      "id": "T5",
+      "issue": 86,
+      "title": "Terra T5 — GWS Life projection",
+      "wave": "B",
+      "depends_on": ["T2"],
+      "jules_ready": false,
+      "write_scope": ["src/services/gws/**", "scripts/gws/**", "tests/gws/**", "minimal projection UI links"],
+      "required_tests": ["idempotent replay", "offline Terra", "external edit reconciliation"]
+    },
+    {
+      "id": "T6",
+      "issue": 87,
+      "title": "Terra T6 — M4 end-to-end convergence canary",
+      "wave": "C",
+      "depends_on": ["T1", "T2", "T3", "T4", "T5"],
+      "jules_ready": false,
+      "write_scope": ["integration/e2e fixtures", "bounded glue only"],
+      "required_tests": ["full intent trace", "Blackboard restart", "Supabase reconnect", "duplicate replay", "stale binding", "provider failure", "GWS failure"]
+    }
+  ],
+  "dispatch_rules": [
+    "Ryan may dispatch T1,T2,T3 concurrently after confirming no active conflicting Jules session",
+    "Dependent cells become ready only from integration receipts, never from PR existence alone",
+    "Jules creates PRs but never merges or deploys",
+    "Ryan reviews and integrates each independent passing root without waiting for the other roots",
+    "No false In Progress: remote Jules session/readback or active branch evidence is required"
+  ]
+}
