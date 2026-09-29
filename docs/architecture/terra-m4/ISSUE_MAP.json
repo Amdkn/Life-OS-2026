@@ -1,0 +1,23 @@
+{
+  "schema": "aspace.terra-m4.issue-map.v1",
+  "repo": "Amdkn/Life-OS-2026",
+  "parent": 81,
+  "maturity_from": "M3_INTEGRATED_PLATFORM",
+  "maturity_to": "M4_OPERATIONAL_CONVERGENCE",
+  "cells": [
+    {"id":"T1","issue":82,"name":"Canonical Life Runtime + Blackboard supervision","wave":"A","depends_on":[],"owner":"ryan-build","worker":"jules"},
+    {"id":"T2","issue":83,"name":"IndexedDB ↔ Supabase convergence","wave":"A","depends_on":[],"owner":"ryan-build","worker":"jules"},
+    {"id":"T3","issue":84,"name":"B3 contract + System-One convergence","wave":"A","depends_on":[],"owner":"ryan-build","worker":"jules"},
+    {"id":"T4","issue":85,"name":"Runtime presence + cron effect receipts","wave":"B","depends_on":["T1","T3"],"owner":"ryan-build","worker":"jules"},
+    {"id":"T5","issue":86,"name":"GWS Life projection","wave":"B","depends_on":["T2"],"owner":"ryan-build","worker":"jules"},
+    {"id":"T6","issue":87,"name":"M4 end-to-end convergence canary","wave":"C","depends_on":["T1","T2","T3","T4","T5"],"owner":"ryan-build","worker":"jules"}
+  ],
+  "rules": [
+    "gate_pass_advances_same_mission",
+    "no_auto_merge",
+    "jules_works_bounded_scope_only",
+    "ryan_integrates_and_certifies",
+    "river_operates_published_capabilities",
+    "no_false_in_progress"
+  ]
+}
