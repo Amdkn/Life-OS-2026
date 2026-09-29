@@ -1,0 +1,38 @@
+{
+  "schema": "aspace.terra-convergence-factory.v1",
+  "factory_id": "TERRA-M3-M4-CONVERGENCE",
+  "maturity_from": "M3_INTEGRATED_PLATFORM_PRE_CONVERGENCE",
+  "maturity_to": "M4_OPERATIONAL_CONVERGENCE",
+  "primary_build_owner": "ryan-build",
+  "primary_worker": "jules",
+  "flow_owner": "river-flow",
+  "gates": [
+    "T0_BASELINE_TRUTH",
+    "T1_CANONICAL_BOOTSTRAP",
+    "T2_PERSISTENCE_CONTRACT",
+    "T3_TERRA_API_RUNTIME",
+    "T4_BLACKBOARD_WORKGRAPH",
+    "T5_B3_RUNTIME_TRUTH",
+    "T6_GWS_OPERATIONAL_PROJECTION",
+    "T7_M4_RELEASE_CANARY"
+  ],
+  "authorities": {
+    "local_personal_state": "IndexedDB",
+    "local_operational_events": "Terra Blackboard",
+    "durable_life_projection": "Terra Supabase",
+    "agent_execution_coordination": "Astra WorkGraph",
+    "source_collaboration": "Git/GitHub",
+    "daily_external_effects": "Google Workspace",
+    "human_projection": "Amy"
+  },
+  "invariants": [
+    "gate is evidence, not a future project",
+    "no universal SSOT is introduced",
+    "build success without typecheck success is not release success",
+    "external side effects require typed CapabilityRequest and EffectReceipt",
+    "cron fired is not cron succeeded",
+    "UNKNOWN is never automatic retry",
+    "ChatGPT session state is not a runtime dependency",
+    "canonical runtime path is resolved independently from navigation projections"
+  ]
+}
