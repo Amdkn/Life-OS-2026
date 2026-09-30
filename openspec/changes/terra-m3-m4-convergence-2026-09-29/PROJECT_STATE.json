@@ -1,0 +1,186 @@
+{
+  "schema": "aspace.terra.m4.project-state.v1",
+  "mission": {
+    "issue": 88,
+    "repo": "Amdkn/Life-OS-2026",
+    "objective": "M3 Integrated Platform -> M4 Operational Convergence",
+    "rule": "Gate != future project",
+    "status": "IN_PROGRESS",
+    "canonical_runtime_path": "C:\\Users\\amado\\ASpace_Worlds\\Life_OS_2026"
+  },
+  "design": {
+    "pr": 94,
+    "merged_commit": "fca3b3f086fd9288e23a25f421427f24fc9e274e",
+    "source": "openspec/changes/terra-m3-m4-convergence-2026-09-29/"
+  },
+  "cells": [
+    {
+      "issue": 89,
+      "owner": "Ryan/BUILD",
+      "worker": "Jules",
+      "gates": [
+        "T0",
+        "T5"
+      ],
+      "status": "READY",
+      "depends_on": []
+    },
+    {
+      "issue": 90,
+      "owner": "Graham/Rory STATE",
+      "worker": "Jules",
+      "gates": [
+        "T1",
+        "T2"
+      ],
+      "status": "READY",
+      "depends_on": [
+        "T0"
+      ]
+    },
+    {
+      "issue": 91,
+      "owner": "Ryan/River RUNTIME",
+      "worker": "Jules",
+      "gates": [
+        "T3",
+        "T4"
+      ],
+      "status": "BLOCKED_BY_DEPENDENCY",
+      "depends_on": [
+        "T1",
+        "T2"
+      ]
+    },
+    {
+      "issue": 93,
+      "owner": "River/FLOW + Amy/PRESENT",
+      "worker": "Jules+River",
+      "gates": [
+        "T6",
+        "T7"
+      ],
+      "status": "BLOCKED_BY_DEPENDENCY",
+      "depends_on": [
+        "T3",
+        "T4",
+        "T5"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "T0",
+      "name": "Baseline Truth",
+      "status": "READY",
+      "cell": 89,
+      "acceptance": [
+        "npm run lint PASS",
+        "npm run build PASS",
+        "B3 tests green",
+        "Windows release gate tracked or PASS"
+      ]
+    },
+    {
+      "id": "T1",
+      "name": "Canonical Bootstrap",
+      "status": "WAITING",
+      "cell": 90,
+      "depends_on": [
+        "T0"
+      ]
+    },
+    {
+      "id": "T2",
+      "name": "Persistence Contract",
+      "status": "WAITING",
+      "cell": 90,
+      "depends_on": [
+        "T1"
+      ]
+    },
+    {
+      "id": "T3",
+      "name": "Terra API Runtime",
+      "status": "WAITING",
+      "cell": 91,
+      "depends_on": [
+        "T1",
+        "T2"
+      ]
+    },
+    {
+      "id": "T4",
+      "name": "Blackboard / WorkGraph",
+      "status": "WAITING",
+      "cell": 91,
+      "depends_on": [
+        "T3"
+      ]
+    },
+    {
+      "id": "T5",
+      "name": "B3 Runtime Truth",
+      "status": "WAITING",
+      "cell": 89,
+      "depends_on": [
+        "T0"
+      ]
+    },
+    {
+      "id": "T6",
+      "name": "GWS Operational Projection",
+      "status": "WAITING",
+      "cell": 93,
+      "depends_on": [
+        "T3",
+        "T4",
+        "T5"
+      ]
+    },
+    {
+      "id": "T7",
+      "name": "M4 Release Canary",
+      "status": "WAITING",
+      "cell": 93,
+      "depends_on": [
+        "T6"
+      ]
+    }
+  ],
+  "continuation_contract": {
+    "issue_comment_event_types": [
+      "WORKER_BOUND",
+      "GATE_RECEIPT",
+      "BLOCKER",
+      "REOPEN",
+      "MERGE",
+      "RELEASE"
+    ],
+    "worker_binding_fields": [
+      "runtime",
+      "session_id",
+      "branch",
+      "issue",
+      "work_id",
+      "state",
+      "updated_at"
+    ],
+    "gate_receipt_fields": [
+      "gate",
+      "verdict",
+      "evidence",
+      "pr",
+      "commit",
+      "next_gate"
+    ],
+    "verdicts": [
+      "CONTINUE",
+      "WAIT",
+      "REOPEN",
+      "DONE"
+    ],
+    "completion_rule": "Mission #88 closes only after T7 PASS with real end-to-end intent, restart/replay evidence, durable receipts and truthful UI projection."
+  },
+  "last_updated": "2026-09-30"
+}
