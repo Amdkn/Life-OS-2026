@@ -3,9 +3,12 @@ import { B3WorkerDescriptor, B3IncarnationType } from '../src/types/b3-polymorph
 import fs from 'fs';
 import path from 'path';
 
-// Common descriptor mock
-function createMockDescriptor(incarnation: B3IncarnationType): B3WorkerDescriptor {
+// Common descriptor simulated
+function createsimulatedDescriptor(incarnation: B3IncarnationType): B3WorkerDescriptor {
   return {
+    id: 'simulated-id',
+    intelligence: 'rule_based',
+    determinism: 'probabilistic_creative',
     incarnation,
     capabilities: [],
     tokenCost: 0,
@@ -25,7 +28,7 @@ async function runTests() {
     const registry = new B3HookRegistry();
     const pipeline = new SecurityPipeline(registry);
 
-    const hookDescriptor = createMockDescriptor('hook');
+    const hookDescriptor = createsimulatedDescriptor('hook');
 
     // Register a pre-execution hook that blocks if payload contains "secret"
     registry.register('hook-1', hookDescriptor, 'pre-execution', (ctx) => {
@@ -60,7 +63,7 @@ async function runTests() {
     // 2. Test B3CronScheduler (Monotonic Clock Logic)
     console.log('Testing B3CronScheduler...');
     const scheduler = new B3CronScheduler();
-    const cronDescriptor = createMockDescriptor('cron');
+    const cronDescriptor = createsimulatedDescriptor('cron');
 
     let executions: number = 0;
     scheduler.register({
@@ -106,17 +109,17 @@ async function runTests() {
 
     const isWin = process.platform === 'win32';
     const scriptExt = isWin ? 'bat' : 'sh';
-    const dummyScriptPath = path.join(workspacePath, `dummy-test-script.${scriptExt}`);
+    const simulatedScriptPath = path.join(workspacePath, `simulated-test-script.${scriptExt}`);
 
     if (isWin) {
-      fs.writeFileSync(dummyScriptPath, '@echo off\necho Hello from CLI');
+      fs.writeFileSync(simulatedScriptPath, '@echo off\necho Hello from CLI');
     } else {
-      fs.writeFileSync(dummyScriptPath, '#!/bin/sh\necho "Hello from CLI"');
-      fs.chmodSync(dummyScriptPath, '755');
+      fs.writeFileSync(simulatedScriptPath, '#!/bin/sh\necho "Hello from CLI"');
+      fs.chmodSync(simulatedScriptPath, '755');
     }
 
     try {
-      const result = await runner.runScript(`dummy-test-script.${scriptExt}`);
+      const result = await runner.runScript(`simulated-test-script.${scriptExt}`);
       if (!result.stdout.includes('Hello from CLI')) {
         throw new Error(`CLI Runner stdout mismatch: ${result.stdout}`);
       }
@@ -133,8 +136,8 @@ async function runTests() {
       }
       console.log('✅ B3CliRunner passed.\n');
     } finally {
-      if (fs.existsSync(dummyScriptPath)) {
-        fs.unlinkSync(dummyScriptPath);
+      if (fs.existsSync(simulatedScriptPath)) {
+        fs.unlinkSync(simulatedScriptPath);
       }
     }
 

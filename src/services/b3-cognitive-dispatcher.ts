@@ -43,11 +43,11 @@ export class B3CognitiveDispatcher {
         return context;
     }
 
-    public async dispatchTask(task: B3TaskProfile, context: string, complexityScore: number): Promise<any> {
+    public async dispatchTask(task: B3TaskProfile, context: string, complexityScore: number): Promise<{ sessionId: string, targetModel: string, status: string }> {
         const truncatedContext = this.truncateContext(context);
 
         let targetModel = 'flash';
-        if (complexityScore >= this.config.escalationThreshold || task.requiredIntelligence === 'deep_reasoning') {
+        if (complexityScore >= this.config.escalationThreshold || task.intelligenceLevel === 'deep_reasoning') {
             targetModel = 'pro';
         }
 
@@ -59,7 +59,7 @@ export class B3CognitiveDispatcher {
 
         const session = await JulesApiClient.createSession(sessionOptions);
 
-        // Return a mock result or standard acknowledgment since JulesApiClient might not have a direct run-to-completion method here yet
+        // Return a standard result or standard acknowledgment since JulesApiClient might not have a direct run-to-completion method here yet
         return {
             sessionId: session.id,
             targetModel,

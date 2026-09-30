@@ -13,16 +13,16 @@ export type HookPhase = 'pre-execution' | 'post-execution';
 export interface B3HookContext {
   workerId: string;
   operation: string;
-  payload: any;
+  payload: unknown;
   budgetIter?: number;
 }
 
-export type HookFn = (context: B3HookContext) => { allowed: boolean; reason?: string; modifiedPayload?: any };
+export type HookFn = (context: B3HookContext) => { allowed: boolean; reason?: string; modifiedPayload?: unknown };
 
 // --- System Hooks ---
 export const b1b2AuthorizationHook: HookFn = (context: B3HookContext) => {
-  if (context.payload && context.payload.docketRef) {
-    if (!context.payload.isB2Authorized) {
+  if (context.payload && typeof context.payload === "object" && "docketRef" in context.payload) {
+    if (!("isB2Authorized" in context.payload && context.payload.isB2Authorized)) {
       return { allowed: false, reason: "Blocked by B1/B2 rule: A3/B3 work requires B2 validation" };
     }
   }
@@ -231,7 +231,7 @@ export class SecurityPipeline {
   /**
    * Routes cognitive B3 output through validation hooks before approving disk writes or API calls.
    */
-  validateCognitiveOutput(context: B3HookContext): { allowed: boolean; reason?: string; validatedPayload?: any } {
+  validateCognitiveOutput(context: B3HookContext): { allowed: boolean; reason?: string; validatedPayload?: unknown } {
     const preRes = this.hookRegistry.executeHooks('pre-execution', context);
     if (!preRes.allowed) return { allowed: false, reason: preRes.reason };
 

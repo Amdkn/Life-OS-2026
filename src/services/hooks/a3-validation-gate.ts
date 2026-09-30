@@ -1,3 +1,4 @@
+process.env.TZ = 'America/New_York';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';

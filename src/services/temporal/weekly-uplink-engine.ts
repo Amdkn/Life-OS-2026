@@ -104,13 +104,13 @@ export function registerWeeklyUplinkCron() {
     id: 'cron-weekly',
     descriptor: {
       id: 'cron-weekly-uplink',
-      incarnationType: 'cron',
+      incarnation: 'cron',
       intelligence: 'deterministic_code',
       determinism: 'strict_atomic',
       capabilities: ['store_mutation', 'blackboard_post'],
-      estimatedTokenCost: 0,
-      estimatedLatencyMs: 50,
-      ioAuthorizations: ['para', '12wy', 'blackboard'],
+      tokenCost: 0,
+      latency: 'low',
+      authorizations: ['para', '12wy', 'blackboard'],
       executionVectors: ['cron']
     },
     frequency: 'weekly',

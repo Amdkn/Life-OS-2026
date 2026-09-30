@@ -79,7 +79,7 @@ export default function B3MatrixCockpit() {
                          lastLogs: 'Initialization from Swarm Topology...',
                          triggers: [ev.event_type],
                          measuredComputeTime: payload.metrics?.assemblyTimeMs,
-                         measuredBudgetTokens: w.estimatedTokenCost
+                         measuredBudgetTokens: w.tokenCost
                      });
                  }
              });
@@ -98,13 +98,13 @@ export default function B3MatrixCockpit() {
                  // Discover ad-hoc worker from receipt
                  workerMap.set(wid, {
                      id: wid,
-                     incarnationType: payload.incarnationType || 'agent',
+                     incarnation: payload.incarnation || 'agent',
                      intelligence: payload.intelligence,
                      determinism: payload.determinism,
                      capabilities: payload.capabilities || [],
-                     estimatedTokenCost: payload.budgetTokens || 0,
-                     estimatedLatencyMs: payload.computeTime || 0,
-                     ioAuthorizations: payload.ioAuthorizations || [],
+                     tokenCost: payload.budgetTokens || 0,
+                     latency: payload.computeTime || 0,
+                     authorizations: payload.authorizations || [],
                      executionVectors: payload.executionVectors || [],
                      status: payload.status || 'Complete',
                      lastLogs: (payload.logs || 'Discovered from telemetry.').substring(0, 500),
@@ -255,7 +255,7 @@ export default function B3MatrixCockpit() {
                 <h2 className="text-xl font-black text-white uppercase tracking-wider mb-1 truncate w-64" title={selectedWorker.id}>{selectedWorker.id}</h2>
                 <div className="flex items-center gap-2 mt-2">
                     <span className="px-2 py-1 rounded bg-[var(--glass-l2-bg)] text-[9px] font-black uppercase text-[var(--brass)] border border-[var(--brass)]/30">
-                        {selectedWorker.incarnationType}
+                        {selectedWorker.incarnation}
                     </span>
                     <span className={`px-2 py-1 rounded text-[9px] font-black uppercase ${
                         selectedWorker.status === 'Running' ? 'bg-emerald-500/20 text-emerald-400' :
@@ -278,13 +278,13 @@ export default function B3MatrixCockpit() {
                 <div className="grid grid-cols-2 gap-3">
                     <div className="bg-[var(--glass-l2-bg)] border border-[var(--glass-border-subtle)] rounded-xl p-3">
                         <div className="text-[8px] font-black uppercase text-[var(--text-muted)] tracking-widest mb-1">Measured Time</div>
-                        <div className="text-sm font-mono text-white">{selectedWorker.measuredComputeTime || selectedWorker.estimatedLatencyMs} ms</div>
+                        <div className="text-sm font-mono text-white">{selectedWorker.measuredComputeTime || selectedWorker.latency} ms</div>
                     </div>
                     <div className="bg-[var(--glass-l2-bg)] border border-[var(--glass-border-subtle)] rounded-xl p-3">
                         <div className="text-[8px] font-black uppercase text-[var(--text-muted)] tracking-widest mb-1">Measured Tokens</div>
                         <div className="text-sm font-mono text-white flex items-center gap-1">
-                            {selectedWorker.measuredBudgetTokens !== undefined ? selectedWorker.measuredBudgetTokens : selectedWorker.estimatedTokenCost}
-                            {selectedWorker.measuredBudgetTokens === 0 && selectedWorker.incarnationType !== 'agent' && <ShieldCheck className="w-3 h-3 text-emerald-400" />}
+                            {selectedWorker.measuredBudgetTokens !== undefined ? selectedWorker.measuredBudgetTokens : selectedWorker.tokenCost}
+                            {selectedWorker.measuredBudgetTokens === 0 && selectedWorker.incarnation !== 'agent' && <ShieldCheck className="w-3 h-3 text-emerald-400" />}
                         </div>
                     </div>
                 </div>
@@ -309,7 +309,7 @@ export default function B3MatrixCockpit() {
                         <Lock className="w-4 h-4" /> I/O Capabilities
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                        {selectedWorker.capabilities.concat(selectedWorker.ioAuthorizations).map((c, i) => (
+                        {selectedWorker.capabilities.concat(selectedWorker.authorizations).map((c, i) => (
                             <span key={i} className="text-[10px] font-bold uppercase px-2 py-1 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 rounded-lg">
                                 {c}
                             </span>
@@ -378,7 +378,7 @@ function WorkerBadge({ worker, isSelected, onClick }: { worker: MatrixWorker, is
             `}
             title={worker.id}
         >
-            {typeIcons[worker.incarnationType] || <Cpu className="w-3 h-3" />}
+            {typeIcons[worker.incarnation] || <Cpu className="w-3 h-3" />}
             <span className="truncate max-w-[100px]">{worker.id.split('-')[0]}</span>
         </button>
     );
