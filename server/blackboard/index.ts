@@ -118,13 +118,34 @@ app.post('/api/blackboard/artifacts', (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', time: Date.now() });
+});
+
+let serverInstance: any = null;
+
+export function startServer(port: number = 4445) {
+  if (serverInstance) return serverInstance;
+  serverInstance = app.listen(port, () => {
+    console.log(`Blackboard server listening on port ${port}`);
+  });
+  return serverInstance;
+}
+
+export function stopServer() {
+  if (serverInstance) {
+    serverInstance.close();
+    serverInstance = null;
+    dispatcher.stop();
+  }
+}
+
 // For testing purposes, we export the app
 export { app };
 
 // Start the server if this file is run directly
-if (process.argv[1].endsWith('index.ts') || process.argv[1].endsWith('index.js')) {
-  const PORT = process.env.PORT || 4445;
-  app.listen(PORT, () => {
-    console.log(`Blackboard server listening on port ${PORT}`);
-  });
+if (process.argv[1] && (process.argv[1].endsWith('index.ts') || process.argv[1].endsWith('index.js'))) {
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4445;
+  startServer(PORT);
 }

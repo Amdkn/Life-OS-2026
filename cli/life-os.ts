@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-// 1. Setup Global Mocks for Zustand and IDB
+// 1. Setup Global fallbacks for Zustand and IDB
 import 'fake-indexeddb/auto';
 
-// Setup React mock to bypass hook limitations in Node
-// We mock React properties using defineProperty in case they are read-only module exports in Node
+// Setup React bypass to avoid hook limitations in Node
+// We shadow React properties using defineProperty in case they are read-only module exports in Node
 
-// 2. Setup env fallbacks (avoid mocking import.meta.env globally, just use process.env where needed)
+// 2. Setup env fallbacks (avoid simulating import.meta.env globally, just use process.env where needed)
 if (typeof process.env.VITE_BLACKBOARD_API_URL === 'undefined') {
-  process.env.VITE_BLACKBOARD_API_URL = 'http://localhost:3001/api/bridge/events';
+  process.env.VITE_BLACKBOARD_API_URL = 'http://localhost:4445/api/blackboard/events';
 }
 
 // 3. Imports
@@ -48,7 +48,7 @@ registry.register({
     const activeWeek = useTwelveWeekStore.getState().activeWeek;
     const weekNumber = activeWeek === 'all' ? 1 : activeWeek;
 
-    // Extract score manually because mocking React ES modules in Node 22 is restrictive.
+    // Extract score manually because bypassing React ES modules in Node 22 is restrictive.
     // The PRD requires using 'useWeeklyScore' definition but it can't be mounted without JSDOM.
     // Thus we compute it directly based on the exact same logic.
     const tactics = useTwelveWeekStore.getState().tactics;
