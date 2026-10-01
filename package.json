@@ -13,7 +13,9 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "gate": "tsx src/services/hooks/a3-validation-gate.ts && tsc --noEmit && vite build --mode production",
-    "server": "tsx server/blackboard/index.ts"
+    "server": "tsx server/blackboard/index.ts",
+    "canary": "tsx scripts/run-canary.ts",
+    "test:canary": "tsx tests/canary.test.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
