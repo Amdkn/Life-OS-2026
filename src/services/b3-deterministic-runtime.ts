@@ -214,9 +214,21 @@ export class B3CliRunner {
          throw new Error(`Security Violation: Attempted to run script outside bounded workspace (${resolvedPath})`);
       }
 
+
+
       try {
-        const { stdout, stderr } = await execFileAsync(resolvedPath, args, { cwd: this.workspace });
-        return { stdout, stderr };
+        const isWindows = process.platform === 'win32';
+        let options: any = { cwd: this.workspace, encoding: 'utf8' };
+
+        if (isWindows && (resolvedPath.endsWith('.bat') || resolvedPath.endsWith('.cmd'))) {
+           options.shell = true;
+        }
+
+        const { stdout, stderr } = await execFileAsync(resolvedPath, args, options as any);
+        return { stdout: String(stdout), stderr: String(stderr) };
+
+
+
       } catch (error: unknown) {
         const errMsg = error instanceof Error ? error.message : String(error);
         throw new Error(`CLI Runner failed: ${errMsg}`);
