@@ -1,0 +1,42 @@
+name: Terra State CI
+
+on:
+  pull_request:
+    paths:
+      - "scripts/run-canary.ts"
+      - "tests/canary.test.ts"
+      - "src/lib/supabase.ts"
+      - "src/lib/idb.ts"
+      - "src/lib/outbox/**"
+      - "supabase/migrations/**"
+      - "package.json"
+      - "test-all.sh"
+      - ".github/workflows/terra-state-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/run-canary.ts"
+      - "tests/canary.test.ts"
+      - "src/lib/supabase.ts"
+      - "src/lib/idb.ts"
+      - "src/lib/outbox/**"
+      - "supabase/migrations/**"
+      - "package.json"
+      - "test-all.sh"
+      - ".github/workflows/terra-state-ci.yml"
+
+jobs:
+  verify-state:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Canary control-flow regression
+        run: npm run test:canary
+      - name: TypeScript
+        run: npm run lint
