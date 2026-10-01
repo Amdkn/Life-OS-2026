@@ -1,8 +1,13 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
-const DB_DIR = path.join(process.cwd(), 'data');
+// Find project root dynamically, so DB isn't cwd-dependent
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.join(__dirname, '..', '..');
+
+const DB_DIR = path.join(ROOT_DIR, 'data');
 const DB_PATH = path.join(DB_DIR, 'blackboard.sqlite');
 
 if (!fs.existsSync(DB_DIR)) {

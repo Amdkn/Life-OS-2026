@@ -8,10 +8,10 @@ export interface CronJobConfig {
 }
 
 export const A3_CRON_REGISTRY: CronJobConfig[] = [
-  { id: 'cron-telemetry', name: 'Télémetrie (Yas / Kernel Core)', frequencyMs: 60 * 1000 },
+  { id: 'cron-telemetry', name: 'TÃ©lÃ©metrie (Yas / Kernel Core)', frequencyMs: 60 * 1000 },
   { id: 'cron-weekly', name: 'Revue hebdomadaire Wx (Tendi & River Song)', frequencyMs: 7 * 24 * 60 * 60 * 1000 },
-  { id: 'cron-audit', name: 'Audit homéostasie cognitive (Hugh Culber & Rory)', frequencyMs: 24 * 60 * 60 * 1000 },
-  { id: 'cron-distillation', name: 'Distillation incrémentale 50_ (Graham & Rick)', frequencyMs: 24 * 60 * 60 * 1000 },
+  { id: 'cron-audit', name: 'Audit homÃ©ostasie cognitive (Hugh Culber & Rory)', frequencyMs: 24 * 60 * 60 * 1000 },
+  { id: 'cron-distillation', name: 'Distillation incrÃ©mentale 50_ (Graham & Rick)', frequencyMs: 24 * 60 * 60 * 1000 },
 ];
 
 const WORKSPACE_ID = 'cron-registry-workspace';
@@ -66,7 +66,9 @@ export class A3CronDispatcher {
       if (ev.event_type === 'cron_pulsed') {
         try {
            const payload = JSON.parse(ev.payload_json);
-           if (payload.id === job.id && payload.status === 'success') {
+           // We now accept 'UNKNOWN' as a valid pulse completion since it means it ran,
+           // but lacks effect evidence. 'success' is preserved for legacy rows.
+           if (payload.id === job.id && (payload.status === 'success' || payload.status === 'UNKNOWN')) {
               lastRun = ev.timestamp;
               break;
            }
@@ -97,7 +99,32 @@ export class A3CronDispatcher {
     }
 
     try {
-      // Create pulse event in blackboard
+      // We simulate SCHEDULED -> CLAIMED -> EXECUTING locally via the lock and run invocation.
+      // Since actual external effect evidence cannot be evaluated without an external GWS or Worker
+      // receipt, we correctly transition to 'UNKNOWN' to reflect lack of truth.
+      const correlationId = crypto.randomUUID();
+
+      // 1. Emit bridging event to action_receipt view.
+      // [BLOCKER] #91 WorkGraph adapter missing: No executable Astra WorkGraph interface exists in this runtime.
+      const actionReceiptEvent: BlackboardEvent = {
+        id: crypto.randomUUID(),
+        workspace_id: WORKSPACE_ID,
+        actor_id: ACTOR_ID,
+        actor_layer: ACTOR_LAYER,
+        event_type: 'action_receipt',
+        payload_json: JSON.stringify({
+          id: job.id,
+          name: job.name,
+          status: 'UNKNOWN',
+          correlation_id: correlationId,
+          lifecycle: 'SCHEDULED -> CLAIMED -> EXECUTING -> UNKNOWN',
+          timezone: 'America/New_York'
+        }),
+        timestamp: Date.now(),
+      };
+      appendEvent(actionReceiptEvent);
+
+      // 2. Create legacy pulse event in blackboard for telemetry
       const event: BlackboardEvent = {
         id: crypto.randomUUID(),
         workspace_id: WORKSPACE_ID,
@@ -107,14 +134,15 @@ export class A3CronDispatcher {
         payload_json: JSON.stringify({
           id: job.id,
           name: job.name,
-          status: 'success',
+          status: 'UNKNOWN',
+          correlation_id: correlationId,
           timezone: 'America/New_York'
         }),
         timestamp: Date.now(),
       };
 
       appendEvent(event);
-      console.log(`[A3CronDispatcher] Executed cron: ${job.id}`);
+      console.log(`[A3CronDispatcher] Executed cron: ${job.id} (Status: UNKNOWN)`);
 
     } catch (error: any) {
       console.error(`[A3CronDispatcher] Failed cron: ${job.id}`, error);

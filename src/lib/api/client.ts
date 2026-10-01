@@ -19,14 +19,21 @@ export type BusinessToLifeResponse = z.infer<typeof BusinessToLifeResponseSchema
 /**
  * Envoie la bande passante disponible à Business OS via le harnais local
  */
-export async function sendBandwidthToBusiness(payload: LifeToBusinessPayload): Promise<boolean> {
+export async function sendBandwidthToBusiness(payload: LifeToBusinessPayload, token?: string): Promise<boolean> {
+  if (!token) {
+    console.warn('[API Client] Missing auth token for sendBandwidthToBusiness');
+    return false;
+  }
+
   try {
     const validatedPayload = LifeToBusinessPayloadSchema.parse(payload);
 
     const response = await fetch(`${API_BASE_URL}/life-to-business`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'x-correlation-id': globalThis.crypto.randomUUID()
       },
       body: JSON.stringify(validatedPayload)
     });
@@ -46,9 +53,18 @@ export async function sendBandwidthToBusiness(payload: LifeToBusinessPayload): P
 /**
  * Récupère les jalons et deadlines depuis Business OS
  */
-export async function fetchBusinessMilestones(): Promise<BusinessToLifeResponse | null> {
+export async function fetchBusinessMilestones(token?: string): Promise<BusinessToLifeResponse | null> {
+  if (!token) {
+    console.warn('[API Client] Missing auth token for fetchBusinessMilestones');
+    return null;
+  }
+
   try {
-    const response = await fetch(`${API_BASE_URL}/business-to-life`);
+    const response = await fetch(`${API_BASE_URL}/business-to-life`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
     if (!response.ok) {
       console.warn('[API Client] Echec de la récupération des jalons de Business OS', response.statusText);

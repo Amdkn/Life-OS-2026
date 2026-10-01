@@ -19,8 +19,11 @@ async function runTests() {
   });
 
   try {
+    // Create a local test token to authorize against the harness.
+    const testToken = Buffer.from('test-principal:test-tenant:read,write,dispatch').toString('base64');
+
     console.log('\n--- Testing POST /api/bridge/life-to-business ---');
-    const success = await sendBandwidthToBusiness({ availableBandwidthBlocks: 5 });
+    const success = await sendBandwidthToBusiness({ availableBandwidthBlocks: 5 }, testToken);
     if (success) {
       console.log('✅ POST request successful and validated');
     } else {
@@ -29,7 +32,7 @@ async function runTests() {
     }
 
     console.log('\n--- Testing GET /api/bridge/business-to-life ---');
-    const response = await fetchBusinessMilestones();
+    const response = await fetchBusinessMilestones(testToken);
     if (response && response.status === 'disconnected') {
       console.log('✅ GET request successful, returned explicit disconnected state');
       console.log(JSON.stringify(response, null, 2));
