@@ -13,16 +13,16 @@ export type HookPhase = 'pre-execution' | 'post-execution';
 export interface B3HookContext {
   workerId: string;
   operation: string;
-  payload: any;
+  payload: unknown;
   budgetIter?: number;
 }
 
-export type HookFn = (context: B3HookContext) => { allowed: boolean; reason?: string; modifiedPayload?: any };
+export type HookFn = (context: B3HookContext) => { allowed: boolean; reason?: string; modifiedPayload?: unknown };
 
 // --- System Hooks ---
 export const b1b2AuthorizationHook: HookFn = (context: B3HookContext) => {
-  if (context.payload && context.payload.docketRef) {
-    if (!context.payload.isB2Authorized) {
+  if (context.payload && typeof context.payload === "object" && "docketRef" in context.payload) {
+    if (!("isB2Authorized" in context.payload && context.payload.isB2Authorized)) {
       return { allowed: false, reason: "Blocked by B1/B2 rule: A3/B3 work requires B2 validation" };
     }
   }
@@ -214,9 +214,21 @@ export class B3CliRunner {
          throw new Error(`Security Violation: Attempted to run script outside bounded workspace (${resolvedPath})`);
       }
 
+
+
       try {
-        const { stdout, stderr } = await execFileAsync(resolvedPath, args, { cwd: this.workspace });
-        return { stdout, stderr };
+        const isWindows = process.platform === 'win32';
+        let options: any = { cwd: this.workspace, encoding: 'utf8' };
+
+        if (isWindows && (resolvedPath.endsWith('.bat') || resolvedPath.endsWith('.cmd'))) {
+           options.shell = true;
+        }
+
+        const { stdout, stderr } = await execFileAsync(resolvedPath, args, options as any);
+        return { stdout: String(stdout), stderr: String(stderr) };
+
+
+
       } catch (error: unknown) {
         const errMsg = error instanceof Error ? error.message : String(error);
         throw new Error(`CLI Runner failed: ${errMsg}`);
@@ -231,7 +243,7 @@ export class SecurityPipeline {
   /**
    * Routes cognitive B3 output through validation hooks before approving disk writes or API calls.
    */
-  validateCognitiveOutput(context: B3HookContext): { allowed: boolean; reason?: string; validatedPayload?: any } {
+  validateCognitiveOutput(context: B3HookContext): { allowed: boolean; reason?: string; validatedPayload?: unknown } {
     const preRes = this.hookRegistry.executeHooks('pre-execution', context);
     if (!preRes.allowed) return { allowed: false, reason: preRes.reason };
 

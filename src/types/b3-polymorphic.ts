@@ -21,7 +21,10 @@ export type DeterminismLevel =
   | 'probabilistic_creative';
 
 export interface B3WorkerDescriptor {
+  id: string;
   incarnation: B3IncarnationType;
+  intelligence: IntelligenceLevel;
+  determinism: DeterminismLevel;
   capabilities: string[];
   tokenCost: number | null; // null if not applicable (e.g. deterministic script)
   latency: 'low' | 'medium' | 'high';

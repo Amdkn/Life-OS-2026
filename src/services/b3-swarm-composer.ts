@@ -30,23 +30,23 @@ export class B3SwarmComposer {
       const workers: B3WorkerDescriptor[] = [];
       const workerIds = new Set<string>();
 
-      const addWorker = (profile: B3TaskProfile, typeOverride: B3WorkerDescriptor['incarnationType']) => {
+      const addWorker = (profile: B3TaskProfile, typeOverride: B3WorkerDescriptor['incarnation']) => {
         let descriptor = resolveIncarnation(profile) as B3WorkerDescriptor;
         if ('compositeDetails' in descriptor) {
              // Extract primary if resolving to composite
              descriptor = {
                  id: descriptor.id,
-                 incarnationType: typeOverride,
+                 incarnation: typeOverride,
                  intelligence: descriptor.intelligence,
                  determinism: descriptor.determinism,
                  capabilities: descriptor.capabilities,
-                 estimatedTokenCost: descriptor.estimatedTokenCost,
-                 estimatedLatencyMs: descriptor.estimatedLatencyMs,
-                 ioAuthorizations: descriptor.ioAuthorizations,
+                 tokenCost: descriptor.tokenCost,
+                 latency: descriptor.latency,
+                 authorizations: descriptor.authorizations,
                  executionVectors: descriptor.executionVectors
              };
         } else {
-            descriptor = { ...descriptor, incarnationType: typeOverride };
+            descriptor = { ...descriptor, incarnation: typeOverride };
         }
 
         // Ensure interface compatibility / unique IDs
@@ -63,44 +63,49 @@ export class B3SwarmComposer {
       addWorker({
         id: `${missionDirective.id}-ingestion`,
         description: 'Ingestion and substrate setup',
-        requiredDeterminism: 'strict_atomic',
-        requiredIntelligence: 'deterministic_code'
+        requiredCapabilities: [],
+        determinismLevel: 'strict_atomic',
+        intelligenceLevel: 'deterministic_code'
       }, 'cli');
 
       // 2. MCP Access (Ontology/Plumbing)
       addWorker({
         id: `${missionDirective.id}-mcp-access`,
         description: 'Access to knowledge base via MCP',
-        requiredDeterminism: 'strict_atomic', // Or gated
-        requiredIntelligence: 'rule_based'
+        requiredCapabilities: [],
+        determinismLevel: 'strict_atomic', // Or gated
+        intelligenceLevel: 'rule_based'
       }, 'mcp');
 
       // 3. Analysis Agent 1 (Cognitive)
       addWorker({
         id: `${missionDirective.id}-analysis-1`,
         description: 'Parallel cognitive analysis worker 1',
-        requiredDeterminism: 'probabilistic_creative',
-        requiredIntelligence: 'light_llm'
+        requiredCapabilities: [],
+        determinismLevel: 'probabilistic_creative',
+        intelligenceLevel: 'light_llm'
       }, 'agent');
 
       // 4. Analysis Agent 2 (Cognitive)
       addWorker({
         id: `${missionDirective.id}-analysis-2`,
         description: 'Parallel cognitive analysis worker 2',
-        requiredDeterminism: 'probabilistic_creative',
-        requiredIntelligence: 'deep_reasoning'
+        requiredCapabilities: [],
+        determinismLevel: 'probabilistic_creative',
+        intelligenceLevel: 'deep_reasoning'
       }, 'agent');
 
       // 5. Certification Hook (Gate)
       addWorker({
         id: `${missionDirective.id}-cert-hook`,
         description: 'Final certification gate',
-        requiredDeterminism: 'strict_atomic',
-        requiredIntelligence: 'deterministic_code'
+        requiredCapabilities: [],
+        determinismLevel: 'strict_atomic',
+        intelligenceLevel: 'deterministic_code'
       }, 'hook');
 
       // Verify interfaces / Reject if incompatible
-      // Implicitly handled by strong typing, but we can do a mock capabilities check
+      // Implicitly handled by strong typing, but we can do a dummy capabilities check
       const allCapabilities = new Set(workers.flatMap(w => w.capabilities));
       if (allCapabilities.size === 0) {
           throw new Error('Swarm is completely incapable of any tasks');

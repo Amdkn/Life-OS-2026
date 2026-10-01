@@ -26,6 +26,9 @@ export function resolveIncarnation(taskProfile: B3TaskProfile): B3WorkerDescript
 
   if (isDeterministic) {
     return {
+      id: taskProfile.id,
+      intelligence: taskProfile.intelligenceLevel,
+      determinism: taskProfile.determinismLevel,
       incarnation: 'hook',
       capabilities: taskProfile.requiredCapabilities || [],
       tokenCost: null,
@@ -43,6 +46,9 @@ export function resolveIncarnation(taskProfile: B3TaskProfile): B3WorkerDescript
 
   if (isHybrid) {
     return {
+      id: taskProfile.id,
+      intelligence: taskProfile.intelligenceLevel,
+      determinism: taskProfile.determinismLevel,
       incarnation: 'composite',
       capabilities: taskProfile.requiredCapabilities || [],
       tokenCost: 1000,
@@ -59,7 +65,10 @@ export function resolveIncarnation(taskProfile: B3TaskProfile): B3WorkerDescript
 
   // 3. Fallback for other probabilistic or rule-based cases
   return {
-    incarnation: 'skill',
+    id: taskProfile.id,
+      intelligence: taskProfile.intelligenceLevel,
+      determinism: taskProfile.determinismLevel,
+      incarnation: 'skill',
     capabilities: taskProfile.requiredCapabilities || [],
     tokenCost: null,
     latency: 'medium',
