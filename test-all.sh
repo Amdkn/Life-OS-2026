@@ -2,6 +2,7 @@
 set -e
 
 # Run tests
+npx tsx tests/canary.test.ts
 npx tsx server/auth/middleware.test.ts
 npx tsx mcp/auth.test.ts
 npx tsx test-api-harness.ts
