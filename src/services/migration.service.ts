@@ -3,18 +3,26 @@ import { supabase } from '../lib/supabase';
 import type { MigrationResult, ValidationReport } from '../types/migration';
 import { MIGRATION_TABLES } from '../types/migration';
 
+const LD_TABLES = [
+  'ld01_business', 'ld02_finance', 'ld03_health', 'ld04_cognition',
+  'ld05_relations', 'ld06_habitat', 'ld07_creativity', 'ld08_impact'
+];
+
 export async function checkMigrationNeeded(): Promise<boolean> {
   try {
-    const { count, error } = await supabase
-      .from('ld01_business')
-      .select('*', { count: 'exact', head: true })
-      .is('user_id', null);
+    for (const table of LD_TABLES) {
+      const { count, error } = await supabase
+        .from(table)
+        .select('*', { count: 'exact', head: true })
+        .is('user_id', null);
 
-    if (error) {
-      console.warn('[Clara] Migration check failed — assuming not needed', error);
-      return false;
+      if (error) {
+        console.warn(`[Clara] Migration check failed for ${table} — assuming not needed`, error);
+        continue;
+      }
+      if ((count ?? 0) > 0) return true;
     }
-    return (count ?? 0) > 0;
+    return false;
   } catch (err) {
     console.warn('[Clara] Migration check exception', err);
     return false;
@@ -30,16 +38,24 @@ export async function runMigration(): Promise<MigrationResult> {
   const startMs = Date.now();
 
   try {
-    const { count, error } = await supabase
-      .from('ld01_business')
-      .select('*', { count: 'exact', head: true })
-      .is('user_id', null);
+    let hasOrphans = false;
+    for (const table of LD_TABLES) {
+      const { count, error } = await supabase
+        .from(table)
+        .select('*', { count: 'exact', head: true })
+        .is('user_id', null);
 
-    if (error) {
-       throw error;
+      if (error) {
+         throw error;
+      }
+
+      if ((count ?? 0) > 0) {
+        hasOrphans = true;
+        break;
+      }
     }
 
-    if ((count ?? 0) > 0) {
+    if (hasOrphans) {
        // A client must never claim ambiguous/orphaned durable rows.
        // This crosses the authority boundary.
        // We explicitly block and return a structured LOCAL_CANARY_REQUIRED error payload.
