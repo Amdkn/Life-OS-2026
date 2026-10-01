@@ -56,7 +56,7 @@ function persistEvidence(packet: CanaryEvidence): void {
 
 export async function runCanary(
   adapter: CanaryAdapter,
-  correlationId = randomUUID()
+  correlationId: string = randomUUID()
 ): Promise<CanaryEvidence> {
   const startedAt = new Date().toISOString();
   const packet: CanaryEvidence = {
