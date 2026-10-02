@@ -17,7 +17,7 @@ async function runTests() {
       if (getData.status !== 'disconnected' || !Array.isArray(getData.cashflowMilestones) || !Array.isArray(getData.deadlines)) {
         throw new Error(`GET response format invalid: ${JSON.stringify(getData)}`);
       }
-      console.log('âœ… GET /business-to-life returns explicit empty state');
+      console.log('✅ GET /business-to-life returns explicit empty state');
 
 
       // The canonical harness requires authentication and outputs an event.
@@ -31,7 +31,7 @@ async function runTests() {
       process.exit(0);
 
     } catch (e) {
-      console.error('âŒ TEST FAILED:', e);
+      console.error('❌ TEST FAILED:', e);
       server.close();
       process.exit(1);
     }
