@@ -8,10 +8,10 @@ export interface CronJobConfig {
 }
 
 export const A3_CRON_REGISTRY: CronJobConfig[] = [
-  { id: 'cron-telemetry', name: 'TÃ©lÃ©metrie (Yas / Kernel Core)', frequencyMs: 60 * 1000 },
+  { id: 'cron-telemetry', name: 'Télémetrie (Yas / Kernel Core)', frequencyMs: 60 * 1000 },
   { id: 'cron-weekly', name: 'Revue hebdomadaire Wx (Tendi & River Song)', frequencyMs: 7 * 24 * 60 * 60 * 1000 },
-  { id: 'cron-audit', name: 'Audit homÃ©ostasie cognitive (Hugh Culber & Rory)', frequencyMs: 24 * 60 * 60 * 1000 },
-  { id: 'cron-distillation', name: 'Distillation incrÃ©mentale 50_ (Graham & Rick)', frequencyMs: 24 * 60 * 60 * 1000 },
+  { id: 'cron-audit', name: 'Audit homéostasie cognitive (Hugh Culber & Rory)', frequencyMs: 24 * 60 * 60 * 1000 },
+  { id: 'cron-distillation', name: 'Distillation incrémentale 50_ (Graham & Rick)', frequencyMs: 24 * 60 * 60 * 1000 },
 ];
 
 const WORKSPACE_ID = 'cron-registry-workspace';
