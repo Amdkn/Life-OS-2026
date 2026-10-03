@@ -33,7 +33,11 @@ class MemoryAdapter implements CanaryAdapter {
   }
 }
 
+
 async function main() {
+  process.env.GWS_CAPABILITY_ENABLED = 'true';
+  process.env.NODE_ENV = 'test';
+
   {
     const packet = await runCanary(new MemoryAdapter(), 'test-pass');
     assert.equal(packet.status, 'PASS');

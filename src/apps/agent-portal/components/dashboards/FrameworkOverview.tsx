@@ -118,7 +118,7 @@ const FrameworkOverview: React.FC<FrameworkOverviewProps> = ({ data }) => {
               <div className="h-1 w-full bg-[var(--glass-l2-bg)] rounded-full overflow-hidden mt-auto">
                 <div 
                   className="h-full bg-[var(--brass)]/40 shadow-[0_0_8px_var(--brass)]" 
-                  style={{ width: `${Math.floor(Math.random() * 40) + 40}%` }} 
+                  style={{ width: `${((pillar.length * 5) % 40) + 40}%` }}
                 />
               </div>
             </motion.div>
