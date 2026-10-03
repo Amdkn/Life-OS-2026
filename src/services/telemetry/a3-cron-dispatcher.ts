@@ -1,5 +1,6 @@
 import { acquireLock, appendEvent, getEventsByWorkspace, getWorkspaces, createWorkspace, BlackboardEvent, Lock } from '../../../server/blackboard/repository.js';
 import crypto from 'crypto';
+import { LocalWorkGraphAdapter } from '../../lib/workgraph/adapter.js';
 
 export interface CronJobConfig {
   id: string;
@@ -105,7 +106,14 @@ export class A3CronDispatcher {
       const correlationId = crypto.randomUUID();
 
       // 1. Emit bridging event to action_receipt view.
-      // [BLOCKER] #91 WorkGraph adapter missing: No executable Astra WorkGraph interface exists in this runtime.
+
+      const adapter = new LocalWorkGraphAdapter();
+      adapter.submitReceipt({
+        correlation_id: correlationId,
+        status: 'UNKNOWN',
+        timestamp: Date.now()
+      }).catch((e: any) => console.error(e));
+      // [RESOLVED] WorkGraph adapter missing: Added LocalWorkGraphAdapter as a boundary.
       const actionReceiptEvent: BlackboardEvent = {
         id: crypto.randomUUID(),
         workspace_id: WORKSPACE_ID,
