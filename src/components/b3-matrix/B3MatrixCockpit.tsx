@@ -12,13 +12,7 @@ const DETERMINISM_LEVELS: DeterminismLevel[] = ['strict_atomic', 'gated_validati
 
 type BadgeStatus = 'Idle' | 'Running' | 'Gated' | 'Complete';
 
-interface MatrixWorker extends B3WorkerDescriptor {
-  status: BadgeStatus;
-  lastLogs: string;
-  measuredComputeTime?: number;
-  measuredBudgetTokens?: number;
-  triggers: string[];
-}
+type MatrixWorker = B3WorkerDescriptor;
 
 export default function B3MatrixCockpit() {
   const [events, setEvents] = useState<BlackboardEvent[]>([]);

@@ -1,3 +1,4 @@
+import { capabilityRegistry } from '../../src/lib/tooling/registry.js';
 import express from 'express';
 import cors from 'cors';
 import { z } from 'zod';
@@ -17,6 +18,19 @@ app.use(cors({
 app.use(express.json());
 app.use(sanitizePath);
 app.use(auditLog);
+
+// Capability Fabric HTTP Adapter
+app.post('/api/capabilities/execute', requireAuth(['write']), enforceTenant, async (req, res) => {
+  try {
+    const { capability, args } = req.body;
+    const def = capabilityRegistry.get(capability);
+    if (!def) return res.status(404).json({ error: 'Capability not found' });
+    const result = await def.handler(args, { source: 'http' });
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
 app.use(rateLimiter(100, 60000)); // 100 requests per minute
 
 // Validation schemas
@@ -25,7 +39,7 @@ const LifeToBusinessSchema = z.object({
   tenantId: z.string().optional(),
 });
 
-// Mock/Empty states according to PRD
+// Empty states according to PRD
 const EMPTY_BUSINESS_STATE = {
   cashflowMilestones: [],
   deadlines: [],
