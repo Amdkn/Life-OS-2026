@@ -29,7 +29,7 @@ const RelationDiagram: React.FC = () => {
 
   const simulateSignal = () => {
     addManualAnnotation({
-      id: Math.random().toString(),
+      id: globalThis.crypto.randomUUID(),
       elementLabel: 'Button#submit-order',
       content: 'Make the padding 24px and increase contrast of the font.',
       pageUrl: 'https://aspace.nexus',

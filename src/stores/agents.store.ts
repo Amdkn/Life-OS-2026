@@ -65,7 +65,7 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
   })),
 
   addLog: (log) => set(state => ({
-    logs: [{ ...log, id: Math.random().toString(36).substr(2, 9), timestamp: Date.now() }, ...state.logs].slice(0, 100)
+    logs: [{ ...log, id: globalThis.crypto.randomUUID(), timestamp: Date.now() }, ...state.logs].slice(0, 100)
   })),
 
   assignTask: (title, layer, ship) => {
@@ -84,7 +84,7 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
     }
 
     const newTask: Task = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: globalThis.crypto.randomUUID(),
       title,
       agentId: agent.id,
       progress: 0,
@@ -107,7 +107,7 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
     // Simulate progress and completion
     let currentProgress = 0;
     const interval = setInterval(() => {
-      currentProgress += Math.random() * 25;
+      currentProgress += 25;
       if (currentProgress >= 100) {
         clearInterval(interval);
         get().completeTask(newTask.id);
