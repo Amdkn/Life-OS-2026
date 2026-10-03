@@ -31,6 +31,11 @@ export interface B3WorkerDescriptor {
   authorizations: string[];
   executionVectors: string[];
   assembly?: B3CompositeAssembly;
+  status?: 'Idle' | 'Running' | 'Gated' | 'Complete'; // Added to fix UI contract drift
+  lastLogs?: string;                                // Added to fix UI contract drift
+  measuredComputeTime?: number;                     // Added to fix UI contract drift
+  measuredBudgetTokens?: number;                    // Added to fix UI contract drift
+  triggers?: string[];                              // Added to fix UI contract drift
 }
 
 export interface B3CompositeAssembly {

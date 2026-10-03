@@ -1,3 +1,4 @@
+import { RiverCapabilityAdapter } from '../capabilities/river-adapter.js';
 export interface ToolContext {
   userId?: string;
   tenantId?: string;
@@ -32,3 +33,23 @@ class ToolRegistry {
 }
 
 export const registry = new ToolRegistry();
+
+export const capabilityRegistry = new ToolRegistry();
+
+
+const gwsAdapter = new RiverCapabilityAdapter('river-test-fixture');
+
+capabilityRegistry.register({
+    name: 'gws_capability',
+    description: 'Executes an external GWS capability request via River',
+    handler: async (args: any, context: ToolContext) => {
+        const result = await gwsAdapter.executeGwsCapability({
+            id: crypto.randomUUID(),
+            capability: 'gws_generic',
+            payload: args,
+            requestedAt: Date.now(),
+            source: context.source || 'unknown'
+        });
+        return result;
+    }
+});

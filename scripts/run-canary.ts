@@ -300,7 +300,7 @@ async function main(): Promise<void> {
   const packet = await runCanary(adapter, correlationId);
   persistEvidence(packet);
   console.log(JSON.stringify(packet, null, 2));
-  process.exitCode = packet.status === 'PASS' ? 0 : packet.status === 'AUTH_REQUIRED' ? 2 : 1;
+  process.exitCode = packet.status === 'PASS' ? 0 : packet.status === 'AUTH_REQUIRED' ? 2 : packet.status === 'CONFIG_REQUIRED' ? 2 : 1;
 }
 
 const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : '';
