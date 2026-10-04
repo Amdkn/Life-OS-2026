@@ -1,6 +1,7 @@
 /** Agents Store — Central registry + Smart Task Logic (P5.1/P5.3) */
 import { create } from 'zustand';
 import { useShellStore } from './shell.store';
+import { riverAdapter } from '../lib/flow/river-adapter.js';
 
 export type AgentStatus = 'online' | 'idle' | 'busy' | 'warning' | 'offline';
 export type AgentLayer = 'A1' | 'A2' | 'A3';
@@ -38,7 +39,7 @@ interface AgentsState {
   agents: Agent[];
   logs: AgentLog[];
   tasks: Task[];
-  
+
   // Actions
   updateAgentStatus: (id: string, status: AgentStatus) => void;
   addLog: (log: Omit<AgentLog, 'id' | 'timestamp'>) => void;
@@ -72,13 +73,13 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
     const state = get();
     // Find available agent in that layer/ship
     const agent = state.agents.find(a => a.layer === layer && (ship ? a.ship === ship : true) && a.status !== 'busy');
-    
+
     if (!agent) {
-      get().addLog({ 
-        agentId: 'system', 
-        agentName: 'System', 
-        message: `Failed to assign task: No available ${layer} agents ${ship ? 'on ' + ship : ''}.`, 
-        type: 'warning' 
+      get().addLog({
+        agentId: 'system',
+        agentName: 'System',
+        message: `Failed to assign task: No available ${layer} agents ${ship ? 'on ' + ship : ''}.`,
+        type: 'warning'
       });
       return;
     }
@@ -97,26 +98,50 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
       agents: state.agents.map(a => a.id === agent.id ? { ...a, status: 'busy' } : a)
     }));
 
-    get().addLog({ 
-      agentId: agent.id, 
-      agentName: agent.name, 
-      message: `Executing task: ${title}`, 
-      type: 'command' 
+    get().addLog({
+      agentId: agent.id,
+      agentName: agent.name,
+      message: `Executing task: ${title}`,
+      type: 'command'
     });
 
-    // Simulate progress and completion
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-      currentProgress += Math.random() * 25;
-      if (currentProgress >= 100) {
-        clearInterval(interval);
+    // Invoke River Flow capabilities deterministically instead of simulating
+    const request = {
+      id: newTask.id,
+      domain: 'task' as const,
+      action: 'create' as const,
+      target: 'system',
+      payload: { title },
+      timestamp: Date.now()
+    };
+
+    riverAdapter.execute(request).then(receipt => {
+      if (receipt.status === 'SUCCESS') {
         get().completeTask(newTask.id);
       } else {
         set(state => ({
-          tasks: state.tasks.map(t => t.id === newTask.id ? { ...t, progress: Math.min(currentProgress, 99) } : t)
+          tasks: state.tasks.map(t => t.id === newTask.id ? { ...t, status: 'failed' } : t),
+          agents: state.agents.map(a => a.id === agent.id ? { ...a, status: 'online' } : a)
         }));
+        get().addLog({
+          agentId: agent.id,
+          agentName: agent.name,
+          message: `Task execution failed: ${receipt.error || 'Unknown error'}`,
+          type: 'error'
+        });
       }
-    }, 1500);
+    }).catch(err => {
+      set(state => ({
+        tasks: state.tasks.map(t => t.id === newTask.id ? { ...t, status: 'failed' } : t),
+        agents: state.agents.map(a => a.id === agent.id ? { ...a, status: 'online' } : a)
+      }));
+      get().addLog({
+        agentId: agent.id,
+        agentName: agent.name,
+        message: `Adapter error: ${err.message}`,
+        type: 'error'
+      });
+    });
   },
 
   completeTask: (taskId) => {
@@ -124,17 +149,17 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
     if (!task) return;
 
     const agent = get().agents.find(a => a.id === task.agentId);
-    
+
     set(state => ({
       tasks: state.tasks.map(t => t.id === taskId ? { ...t, status: 'completed', progress: 100 } : t),
       agents: state.agents.map(a => a.id === task.agentId ? { ...a, status: 'online' } : a)
     }));
 
-    get().addLog({ 
-      agentId: task.agentId, 
-      agentName: agent?.name || 'Unknown', 
-      message: `Task completed successfully: ${task.title}`, 
-      type: 'success' 
+    get().addLog({
+      agentId: task.agentId,
+      agentName: agent?.name || 'Unknown',
+      message: `Task completed successfully: ${task.title}`,
+      type: 'success'
     });
 
     // Notify shell (P1.9 integration)
