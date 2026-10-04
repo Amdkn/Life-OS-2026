@@ -1,19 +1,16 @@
-export interface WorkGraphReceipt {
-  correlation_id: string;
-  status: 'SCHEDULED' | 'CLAIMED' | 'EXECUTING' | 'EFFECT_OBSERVED' | 'UNKNOWN' | 'FAILED';
-  effect_evidence?: any;
-  error?: string;
-  timestamp: number;
-}
+import { EffectReceipt } from '../../types/capabilities.js';
+import { appendEvent } from '../blackboard/client.js';
 
-export interface WorkGraphAdapter {
-  submitReceipt(receipt: WorkGraphReceipt): Promise<void>;
-}
-
-export class LocalWorkGraphAdapter implements WorkGraphAdapter {
-  async submitReceipt(receipt: WorkGraphReceipt): Promise<void> {
-    // In M4, we just log to simulate the external boundary until the true integration is merged.
-    // This provides the executable boundary.
-    console.log('[WorkGraph] receipt submitted:', receipt);
+export class LocalWorkGraphAdapter {
+  static async submitReceipt(receipt: EffectReceipt): Promise<void> {
+    await appendEvent({
+      id: receipt.id,
+      workspace_id: null,
+      actor_id: 'river-flow',
+      actor_layer: 'system',
+      event_type: 'action_receipt',
+      payload_json: JSON.stringify({ receipt }),
+      timestamp: Date.now()
+    });
   }
 }

@@ -107,11 +107,12 @@ export class A3CronDispatcher {
 
       // 1. Emit bridging event to action_receipt view.
 
-      const adapter = new LocalWorkGraphAdapter();
-      adapter.submitReceipt({
-        correlation_id: correlationId,
+      LocalWorkGraphAdapter.submitReceipt({
+        id: crypto.randomUUID(),
+        requestId: correlationId,
         status: 'UNKNOWN',
-        timestamp: Date.now()
+        adapter: 'local-test',
+        timestamp: new Date().toISOString()
       }).catch((e: any) => console.error(e));
       // [RESOLVED] WorkGraph adapter missing: Added LocalWorkGraphAdapter as a boundary.
       const actionReceiptEvent: BlackboardEvent = {
