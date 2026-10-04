@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Send, Zap, X } from 'lucide-react';
 import { useGtdStore } from '../stores/fw-gtd.store';
+import { useShellStore } from '../stores/shell.store';
 
 export function OmniCaptureModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +36,7 @@ export function OmniCaptureModal() {
     setIsOpen(false);
     
     // Feedback minimaliste (toast) pourrait être ajouté ici 
+    useShellStore.getState().addToast({ type: "success", message: "Captured", source: "OmniCapture" });
     console.log("[A'Space] OmniCaptured to GTD Inbox :", content);
   };
 
