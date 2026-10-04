@@ -65,7 +65,7 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
   })),
 
   addLog: (log) => set(state => ({
-    logs: [{ ...log, id: Math.random().toString(36).substr(2, 9), timestamp: Date.now() }, ...state.logs].slice(0, 100)
+    logs: [{ ...log, id: globalThis.crypto.randomUUID(), timestamp: Date.now() }, ...state.logs].slice(0, 100)
   })),
 
   assignTask: (title, layer, ship) => {
@@ -84,7 +84,7 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
     }
 
     const newTask: Task = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: globalThis.crypto.randomUUID(),
       title,
       agentId: agent.id,
       progress: 0,
@@ -104,19 +104,40 @@ export const useAgentsStore = create<AgentsState>((set, get) => ({
       type: 'command' 
     });
 
-    // Simulate progress and completion
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-      currentProgress += Math.random() * 25;
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-        get().completeTask(newTask.id);
-      } else {
+    // Dispatch CapabilityRequest via River capability adapter instead of simulated progress
+    const capabilityReq: import('../types/capabilities').CapabilityRequest = {
+      id: globalThis.crypto.randomUUID(),
+      capability: 'task.create', // Defaulting to task.create for general agent tasks
+      payload: { title, layer, ship },
+      correlation_id: globalThis.crypto.randomUUID(),
+      source: 'agent-portal',
+      requested_at: new Date().toISOString()
+    };
+
+    import('../lib/capabilities/river-adapter').then(({ executeCapability }) => {
+      executeCapability(capabilityReq).then((receipt) => {
+        if (receipt.status === 'UNKNOWN' || receipt.status === 'SUCCESS') {
+          get().completeTask(newTask.id);
+        } else {
+          // Handle failure if needed, for now just update task status
+          set(state => ({
+            tasks: state.tasks.map(t => t.id === newTask.id ? { ...t, status: 'failed' } : t),
+            agents: state.agents.map(a => a.id === agent.id ? { ...a, status: 'online' } : a)
+          }));
+          get().addLog({
+            agentId: agent.id,
+            agentName: agent.name,
+            message: `Task failed: ${title} (${receipt.error || 'Unknown error'})`,
+            type: 'error'
+          });
+        }
+      }).catch(err => {
         set(state => ({
-          tasks: state.tasks.map(t => t.id === newTask.id ? { ...t, progress: Math.min(currentProgress, 99) } : t)
+          tasks: state.tasks.map(t => t.id === newTask.id ? { ...t, status: 'failed' } : t),
+          agents: state.agents.map(a => a.id === agent.id ? { ...a, status: 'online' } : a)
         }));
-      }
-    }, 1500);
+      });
+    });
   },
 
   completeTask: (taskId) => {

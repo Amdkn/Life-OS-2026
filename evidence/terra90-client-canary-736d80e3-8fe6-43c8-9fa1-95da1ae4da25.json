@@ -1,0 +1,17 @@
+{
+  "schema": "terra.m4.client-canary.v1",
+  "correlation_id": "736d80e3-8fe6-43c8-9fa1-95da1ae4da25",
+  "status": "CONFIG_REQUIRED",
+  "table": "ld01_business",
+  "record_id": null,
+  "user_id_sha256": null,
+  "started_at": "2026-10-04T11:14:36.873Z",
+  "completed_at": "2026-10-04T11:14:36.873Z",
+  "versions": [],
+  "readback": false,
+  "stale_update_blocked": false,
+  "tombstone_readback": false,
+  "stale_resurrection_blocked": false,
+  "cleanup": "NOT_ATTEMPTED",
+  "error": "SUPABASE_CLIENT_CONFIG_REQUIRED"
+}
