@@ -17,3 +17,6 @@ echo "Testing CLI with read token"
 CLI_AUTH_TOKEN="dXNlcjE6dGVuYW50QTpyZWFk" npx tsx cli/life-os.ts "blackboard events" 2>/dev/null >/dev/null && echo "PASS: CLI executed properly with read scope" || echo "PASS: CLI authenticated but failed due to no fetch server"
 
 echo "ALL TESTS PASSED"
+
+echo "Testing T7 Canary End-to-End Intent..."
+npx tsx scripts/run-t7-canary.ts && echo "✅ T7 Canary execution passed" || (echo "❌ T7 Canary execution failed" && false)
