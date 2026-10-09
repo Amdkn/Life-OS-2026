@@ -4,7 +4,7 @@ export async function executeCapability(request: CapabilityRequest): Promise<Eff
   // Mock/fixture path explicitly marks evidence as simulated (adapter: 'river-test-fixture')
   // and returns UNKNOWN status to indicate mock execution instead of faking a real success.
 
-  return new Promise((resolve) => {
+ return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
         id: globalThis.crypto.randomUUID(),
@@ -17,6 +17,7 @@ export async function executeCapability(request: CapabilityRequest): Promise<Eff
           mocked: true,
           original_payload: request.payload
         },
+        timestamp: Date.now(),
         completed_at: new Date().toISOString()
       });
     }, 1500); // simulate network latency
