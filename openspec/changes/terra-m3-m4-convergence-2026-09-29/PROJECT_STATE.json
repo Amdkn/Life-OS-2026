@@ -60,7 +60,7 @@
         "T6",
         "T7"
       ],
-      "status": "BLOCKED_BY_DEPENDENCY",
+      "status": "READY",
       "depends_on": [
         "T3",
         "T4",
@@ -130,7 +130,7 @@
     {
       "id": "T6",
       "name": "GWS Operational Projection",
-      "status": "WAITING",
+      "status": "READY",
       "cell": 93,
       "depends_on": [
         "T3",
