@@ -13,6 +13,9 @@ import 'fake-indexeddb/auto'; // Mock indexeddb for the frontend stores since it
 
 import { checkMcpAuth, getAuthToken } from "../../../../mcp/auth.js";
 import { a3McpClient } from "../../../services/mcp/a3-mcp-client.js";
+import { RiverBusinessAdapter } from '../../river/adapter.js';
+import { CapabilityRequest } from '../../../types/capabilities.js';
+
 
 export const life_os_get_tactics = async (week: number, cycleId?: string) => {
   const state = useTwelveWeekStore.getState();
@@ -271,7 +274,19 @@ export function createMCPServer() {
         const args = request.params.arguments as any;
         const result = await a3McpClient.LinearSyncTool(args);
         return { content: [{ type: "text", text: JSON.stringify(result) }] };
-      } else {
+      } else if (request.params.name === "life_os_business_sync") {
+        const args = request.params.arguments as any;
+        const adapter = new RiverBusinessAdapter();
+        const capRequest: CapabilityRequest = {
+            id: crypto.randomUUID(),
+            type: 'business.bandwidth.update',
+            payload: { availableBandwidthBlocks: args.blocks },
+            correlation_id: crypto.randomUUID(),
+            source: 'mcp'
+        };
+        const receipt = await adapter.handleRequest(capRequest, token);
+        return { content: [{ type: "text", text: JSON.stringify(receipt) }] };
+} else {
         throw new Error(`Unknown tool: ${request.params.name}`);
       }
     } catch (error: any) {

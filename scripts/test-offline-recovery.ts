@@ -8,8 +8,8 @@ import { DomainDB } from '../src/lib/idb';
 import { processOutbox } from '../src/lib/outbox/sync';
 import type { OutboxEntry } from '../src/lib/outbox/types';
 
-// Mock supabase dependency
-const mockSupabase = {
+// Stub supabase dependency
+const stubSupabase = {
   auth: {
     getSession: async () => ({
       data: { session: { user: { id: 'test-user-a' } } }
@@ -40,12 +40,13 @@ const mockSupabase = {
 // Override supabase module path or replace global
 import * as supabaseModule from "../src/lib/supabase";
 // we will overwrite methods instead
-Object.assign((supabaseModule as any).supabase, mockSupabase);
+Object.assign((supabaseModule as any).supabase, stubSupabase);
 
 // We use vitest/jest if available, but let's build a standalone script using tsx directly
 const testDB = new DomainDB('aspace_ld99_test', 2);
 
 async function runTest() {
+  await testDB.init();
   console.log('--- STARTING OFFLINE RECOVERY TESTS ---');
 
   // Test 1: Network cut -> Write -> Data & Outbox preserved
@@ -109,7 +110,7 @@ async function runTest() {
   } as any);
 
   // We manually call it to simulate the background sync picking it up, or app start
-  const dbReq = indexedDB.open('aspace_ld99_test', 2);
+  const dbReq = indexedDB.open('life-os_aspace_ld99_test', 2);
   const db = await new Promise<IDBDatabase>((resolve) => {
       dbReq.onsuccess = () => resolve(dbReq.result);
   });
@@ -145,7 +146,7 @@ async function runTest() {
   console.log('Test 3b: Replaying old server snapshot...');
 
   // Set up the fetch to return an old version of the item that is NOT deleted
-  mockSupabase.from = () => ({
+  stubSupabase.from = () => ({
     ...originalUpsert,
     select: () => ({
         eq: () => ({
@@ -225,7 +226,7 @@ async function runTest() {
 // Helpers for raw indexedDB access
 async function getOutboxEntries(): Promise<OutboxEntry[]> {
   return new Promise((resolve) => {
-    const req = indexedDB.open('aspace_ld99_test', 2);
+    const req = indexedDB.open('life-os_aspace_ld99_test', 2);
     req.onsuccess = () => {
         const db = req.result;
         const tx = db.transaction('outbox', 'readonly');
@@ -238,7 +239,7 @@ async function getOutboxEntries(): Promise<OutboxEntry[]> {
 
 async function getRawEntries(storeName: string): Promise<any[]> {
     return new Promise((resolve) => {
-      const req = indexedDB.open('aspace_ld99_test', 2);
+      const req = indexedDB.open('life-os_aspace_ld99_test', 2);
       req.onsuccess = () => {
           const db = req.result;
           const tx = db.transaction(storeName, 'readonly');

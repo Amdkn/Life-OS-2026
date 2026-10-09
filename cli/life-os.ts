@@ -19,6 +19,9 @@ import { useTwelveWeekStore } from '../src/stores/fw-12wy.store';
 import { useIkigaiStore } from '../src/stores/fw-ikigai.store';
 import { useParaStore } from '../src/stores/fw-para.store';
 import { getEvents } from '../src/lib/blackboard/client';
+import { RiverBusinessAdapter } from '../src/lib/river/adapter.js';
+import { CapabilityRequest } from '../src/types/capabilities.js';
+
 
 // 4. Register Tools
 
@@ -119,6 +122,35 @@ registry.register({
       // Return a simulated structured error or just throw
       throw new Error(`Failed to fetch events: ${e.message}`);
     }
+  }
+});
+
+
+registry.register({
+  name: 'business sync',
+  requiredScopes: ['write'],
+  description: 'Sync bandwidth via River Business Adapter',
+  validateArgs: (args: any) => {
+    if (!args.positional || args.positional.length !== 1 || isNaN(Number(args.positional[0]))) {
+      throw new Error("Command 'business sync' requires exactly one numeric argument for bandwidth blocks. Example: 'business sync 5'");
+    }
+  },
+  handler: async (args: any) => {
+    const adapter = new RiverBusinessAdapter();
+    const blocks = Number(args.positional[0]);
+    const request: CapabilityRequest = {
+      id: crypto.randomUUID(),
+      type: 'business.bandwidth.update',
+      payload: { availableBandwidthBlocks: blocks },
+      correlation_id: crypto.randomUUID(),
+      source: 'cli'
+    };
+
+    // Auth from real process env as per repository standard
+    const token = process.env.CLI_AUTH_TOKEN;
+
+    const receipt = await adapter.handleRequest(request, token);
+    return receipt;
   }
 });
 
