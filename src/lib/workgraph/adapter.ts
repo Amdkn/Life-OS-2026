@@ -4,7 +4,7 @@ import { appendEvent } from '../blackboard/client.js';
 export class LocalWorkGraphAdapter {
   static async submitReceipt(receipt: EffectReceipt): Promise<void> {
     await appendEvent({
-      id: receipt.id,
+      id: receipt.request_id,
       workspace_id: null,
       actor_id: 'river-flow',
       actor_layer: 'system',
