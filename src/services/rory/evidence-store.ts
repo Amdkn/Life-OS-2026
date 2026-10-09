@@ -4,10 +4,12 @@ import crypto from 'crypto';
 
 export class RoryEvidenceStore {
   async persistReceipt(correlationId: string, status: string, details: any, actorId: string, actorLayer: string) {
-    const adapter = new LocalWorkGraphAdapter();
-    await adapter.submitReceipt({
+    // LocalWorkGraphAdapter is static since #117 (canonical EffectReceipt) — no instantiation.
+    await LocalWorkGraphAdapter.submitReceipt({
+      request_id: correlationId,
       correlation_id: correlationId,
-      status: status as any,
+      status: status as 'SUCCESS' | 'FAILED' | 'UNKNOWN',
+      adapter: 'rory-evidence-store',
       timestamp: Date.now()
     }).catch((e: any) => console.error(e));
 
