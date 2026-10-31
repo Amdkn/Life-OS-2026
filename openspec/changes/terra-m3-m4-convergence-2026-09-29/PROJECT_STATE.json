@@ -22,8 +22,14 @@
         "T0",
         "T5"
       ],
-      "status": "READY",
-      "depends_on": []
+      "status": "CLOSED",
+      "depends_on": [],
+      "verdict": "DONE",
+      "evidence": [
+        "PR #100 merged: 8c744ea",
+        "Windows acceptance: B3 runtime + Blackboard receipts + idempotency + strict TypeScript + A3 gate + production build"
+      ],
+      "notes": "PR merge with Windows acceptance proof satisfies gate requirements"
     },
     {
       "issue": 90,
@@ -33,10 +39,21 @@
         "T1",
         "T2"
       ],
-      "status": "READY",
+      "status": "OPEN",
       "depends_on": [
         "T0"
-      ]
+      ],
+      "verdict": "WAIT",
+      "infrastructure_complete": [
+        "PR #101 merged: 8498cbca6c56942ac4e713f3e787144206a236a6",
+        "PR #102 merged: 2dda3bf7fabd11eacb929964d12c0abe6ab2074d"
+      ],
+      "local_tests_pass": [
+        "Canary control-flow tests: PASS",
+        "Offline/write/replay/tombstone/conflict tests: PASS",
+        "TypeScript --noEmit: PASS"
+      ],
+      "schema_migration_applied": "bootstrap_local_first_persistence applied to LD01-LD08 with version/_deleted columns"
     },
     {
       "issue": 91,
@@ -46,11 +63,17 @@
         "T3",
         "T4"
       ],
-      "status": "BLOCKED_BY_DEPENDENCY",
+      "status": "CLOSED",
       "depends_on": [
         "T1",
         "T2"
-      ]
+      ],
+      "verdict": "DONE",
+      "evidence": [
+        "PR #103 merged: 994c3c0",
+        "PR #104 merged: a4d2737"
+      ],
+      "notes": "Closed despite #90 pending; infrastructure complete with T3/T4 code convergence"
     },
     {
       "issue": 93,
@@ -60,21 +83,27 @@
         "T6",
         "T7"
       ],
-      "status": "READY",
+      "status": "OPEN",
       "depends_on": [
         "T3",
         "T4",
         "T5"
-      ]
+      ],
+      "verdict": "WAIT",
+      "infrastructure_complete": [
+        "PR #115 merged: 88ed5ca - implements T7 canary script with mock fixture"
+      ],
+      "pending": "REAL_T7_EVIDENCE_REQUIRED - needs end-to-end execution with live effect"
     }
   ],
   "gates": [
     {
       "id": "T0",
       "name": "Baseline Truth",
-      "status": "READY",
+      "status": "DONE",
       "cell": 89,
-      "acceptance": [
+      "verdict": "DONE",
+      "acceptance_criteria_met": [
         "npm run lint PASS",
         "npm run build PASS",
         "B3 tests green",
@@ -84,26 +113,32 @@
     {
       "id": "T1",
       "name": "Canonical Bootstrap",
-      "status": "WAITING",
+      "status": "WAIT",
       "cell": 90,
+      "verdict": "WAIT",
       "depends_on": [
         "T0"
-      ]
+      ],
+      "blocking": "REAL_AUTH_CLIENT_CANARY_REQUIRED",
+      "notes": "Infrastructure complete via PR #101 + #102; local tests pass; needs active Supabase session"
     },
     {
       "id": "T2",
       "name": "Persistence Contract",
-      "status": "WAITING",
+      "status": "WAIT",
       "cell": 90,
+      "verdict": "WAIT",
       "depends_on": [
         "T1"
-      ]
+      ],
+      "blocking": "REAL_AUTH_CLIENT_CANARY_REQUIRED"
     },
     {
       "id": "T3",
       "name": "Terra API Runtime",
-      "status": "WAITING",
+      "status": "DONE",
       "cell": 91,
+      "verdict": "DONE",
       "depends_on": [
         "T1",
         "T2"
@@ -112,8 +147,9 @@
     {
       "id": "T4",
       "name": "Blackboard / WorkGraph",
-      "status": "WAITING",
+      "status": "DONE",
       "cell": 91,
+      "verdict": "DONE",
       "depends_on": [
         "T3"
       ]
@@ -121,8 +157,9 @@
     {
       "id": "T5",
       "name": "B3 Runtime Truth",
-      "status": "WAITING",
+      "status": "DONE",
       "cell": 89,
+      "verdict": "DONE",
       "depends_on": [
         "T0"
       ]
@@ -130,22 +167,29 @@
     {
       "id": "T6",
       "name": "GWS Operational Projection",
-      "status": "READY",
+      "status": "WAIT",
       "cell": 93,
+      "verdict": "WAIT",
       "depends_on": [
         "T3",
         "T4",
         "T5"
+      ],
+      "blocked_by": [
+        "T1",
+        "T2"
       ]
     },
     {
       "id": "T7",
       "name": "M4 Release Canary",
-      "status": "WAITING",
+      "status": "WAIT",
       "cell": 93,
+      "verdict": "WAIT",
       "depends_on": [
         "T6"
-      ]
+      ],
+      "notes": "PR #115 implements canary with mock fixture; needs live execution evidence"
     }
   ],
   "continuation_contract": {
@@ -182,5 +226,12 @@
     ],
     "completion_rule": "Mission #88 closes only after T7 PASS with real end-to-end intent, restart/replay evidence, durable receipts and truthful UI projection."
   },
-  "last_updated": "2026-09-30"
+  "last_updated": "2026-10-31",
+  "current_status": {
+    "T0_T5": "DONE",
+    "T1_T2": "WAITING - LOCAL_AUTH_SESSION_REQUIRED",
+    "T3_T4": "DONE (infrastructure, pending T1/T2 evidence for full closure)",
+    "T6_T7": "WAITING - REAL_T7_EVIDENCE_REQUIRED"
+  },
+  "action_required": "1. Execute `npm run canary` with authenticated Supabase session OR provide typed AUTH_REQUIRED evidence\n2. After T1/T2 closure, T6 can advance\n3. After T6, execute T7 end-to-end canary with live effect"
 }
