@@ -31,6 +31,12 @@ export interface B3WorkerDescriptor {
   authorizations: string[];
   executionVectors: string[];
   assembly?: B3CompositeAssembly;
+  // UI runtime fields
+  status?: 'Idle' | 'Running' | 'Gated' | 'Complete';
+  lastLogs?: string;
+  measuredComputeTime?: number;
+  measuredBudgetTokens?: number;
+  triggers?: string[];
 }
 
 export interface B3CompositeAssembly {

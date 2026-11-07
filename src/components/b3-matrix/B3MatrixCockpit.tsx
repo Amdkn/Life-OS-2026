@@ -10,15 +10,7 @@ function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
 const INTELLIGENCE_LEVELS: IntelligenceLevel[] = ['deterministic_code', 'rule_based', 'light_llm', 'deep_reasoning'];
 const DETERMINISM_LEVELS: DeterminismLevel[] = ['strict_atomic', 'gated_validation', 'probabilistic_creative'];
 
-type BadgeStatus = 'Idle' | 'Running' | 'Gated' | 'Complete';
-
-interface MatrixWorker extends B3WorkerDescriptor {
-  status: BadgeStatus;
-  lastLogs: string;
-  measuredComputeTime?: number;
-  measuredBudgetTokens?: number;
-  triggers: string[];
-}
+type MatrixWorker = B3WorkerDescriptor;
 
 export default function B3MatrixCockpit() {
   const [events, setEvents] = useState<BlackboardEvent[]>([]);
