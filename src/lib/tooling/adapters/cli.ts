@@ -60,7 +60,12 @@ export class CliAdapter {
     if (tool.requiredScopes && tool.requiredScopes.length > 0) {
       if (!checkCliAuth(tool.requiredScopes)) {
         console.error("Unauthorized: Missing required scopes for CLI tool");
-        throw new Error("Unauthorized: Missing required scopes for CLI tool");
+        if (options.json) {
+          console.log(JSON.stringify({ error: "Unauthorized: Missing required scopes for CLI tool" }));
+        } else {
+          console.error("Unauthorized: Missing required scopes for CLI tool");
+        }
+        process.exit(1);
       }
     }
 

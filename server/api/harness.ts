@@ -25,18 +25,29 @@ const LifeToBusinessSchema = z.object({
   tenantId: z.string().optional(),
 });
 
-// Mock/Empty states according to PRD
-const EMPTY_BUSINESS_STATE = {
+// Business OS state (local persistence for demo mode)
+let businessState = {
   cashflowMilestones: [],
   deadlines: [],
   status: 'disconnected'
 };
+
+// Track if we've received data from Life OS
+let lifeToBusinessReceived = false;
 
 // POST /api/bridge/life-to-business
 // Requires 'write' scope
 app.post('/api/bridge/life-to-business', requireAuth(['write']), enforceTenant, (req, res) => {
   try {
     const data = LifeToBusinessSchema.parse(req.body);
+
+    // Update local Business OS state
+    businessState = {
+      cashflowMilestones: businessState.cashflowMilestones || [],
+      deadlines: businessState.deadlines || [],
+      status: 'connected'
+    };
+    lifeToBusinessReceived = true;
 
     // Create an event payload mimicking the CrossCategoryEvent structure
     const responseEvent = {
@@ -70,9 +81,17 @@ app.post('/api/bridge/life-to-business', requireAuth(['write']), enforceTenant, 
 // GET /api/bridge/business-to-life
 // Requires 'read' scope
 app.get('/api/bridge/business-to-life', requireAuth(['read']), enforceTenant, (req, res) => {
-  // Always returning empty state if Business OS is not natively connected.
-  // We don't hardcode or invent data.
-  res.status(200).json(EMPTY_BUSINESS_STATE);
+  // Return local Business OS state if we've received data from Life OS,
+  // otherwise return explicit disconnected state
+  if (lifeToBusinessReceived) {
+    res.status(200).json(businessState);
+  } else {
+    res.status(200).json({
+      cashflowMilestones: [],
+      deadlines: [],
+      status: 'disconnected'
+    });
+  }
 });
 
 // Export the app for testing
