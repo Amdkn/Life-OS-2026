@@ -1,0 +1,17 @@
+{
+  "schema": "terra.m4.client-canary.v1",
+  "correlation_id": "e03aae7d-989d-49d5-b652-2ea225a134fd",
+  "status": "AUTH_REQUIRED",
+  "table": "ld01_business",
+  "record_id": null,
+  "user_id_sha256": null,
+  "started_at": "2026-11-07T09:48:38.902Z",
+  "completed_at": "2026-11-07T09:48:38.908Z",
+  "versions": [],
+  "readback": false,
+  "stale_update_blocked": false,
+  "tombstone_readback": false,
+  "stale_resurrection_blocked": false,
+  "cleanup": "NOT_ATTEMPTED",
+  "error": "LOCAL_AUTH_SESSION_REQUIRED"
+}
