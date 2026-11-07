@@ -1,19 +1,29 @@
-/** IDB Wrapper — isolated IndexedDB per area (Invariant #3) */
+/** IDB Wrapper — isolated IndexedDB per area (Invariant #3)
+ *  Replication Contract v1:
+ *  - id: string (UUID)
+ *  - user_id: string (tenant/user scope)
+ *  - type: string (for multiplexed tables)
+ *  - version: number (optimistic concurrency)
+ *  - _deleted: boolean (tombstone)
+ *  - created_at: number (epoch ms)
+ *  - updated_at: number (epoch ms)
+ *  - idempotency_key: string (UUID for deduplication)
+ */
 import { supabase } from './supabase';
 
 import { getScopedIdbKey } from './storage/scoped';
 
+const DB_VERSION = 3; // Bumped for replication contract v1
+
 export class DomainDB {
   private dbName: string;
   private tableName: string;
-  private version: number;
   private db: IDBDatabase | null = null;
 
-  constructor(dbName: string, version: number = 2) {
+  constructor(dbName: string) {
     // Get tenant/user namespace if defined in a global or environment context, fallback to global for now
     const currentScope = (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('aspace-tenant-scope')) || 'life-os';
     this.dbName = getScopedIdbKey(currentScope, dbName);
-    this.version = version;
     this.tableName = dbName.replace('aspace_', '');
   }
 
@@ -21,14 +31,20 @@ export class DomainDB {
     if (this.db) return;
 
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version);
+      const request = indexedDB.open(this.dbName, DB_VERSION);
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
         const stores = ['projects', 'areas', 'resources', 'archives', 'metadata', 'items'];
         stores.forEach(s => {
           if (!db.objectStoreNames.contains(s)) {
-            db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });
+            const store = db.createObjectStore(s, { keyPath: s === 'metadata' ? 'key' : 'id' });
+            // Add indexes for replication contract fields
+            store.createIndex('user_id', 'user_id', { unique: false });
+            store.createIndex('type', 'type', { unique: false });
+            store.createIndex('version', 'version', { unique: false });
+            store.createIndex('updated_at', 'updated_at', { unique: false });
+            store.createIndex('idempotency_key', 'idempotency_key', { unique: false });
           }
         });
         if (!db.objectStoreNames.contains('outbox')) {
@@ -58,7 +74,7 @@ export class DomainDB {
 
   async getAll<T>(storeName: string): Promise<T[]> {
     await this.init();
-    
+
     // Background sync with Supabase
     (async () => {
       try {
@@ -91,12 +107,14 @@ export class DomainDB {
                const hasPendingLocal = pending.find(p => p.payload.id === item.id && p.storeName === storeName);
 
                if (!hasPendingLocal) {
-                 // Even without a pending local queue, do not blindly overwrite if local DB has a HIGHER version (e.g. outbox cleared but sync delay, or older server snapshot replayed)
+                 // Even without a pending local queue, do not blindly overwrite if local DB has a HIGHER version
                  const req = store.get(item.id);
                  req.onsuccess = () => {
                     const localItem = req.result;
                     if (!localItem || item.version >= (localItem.version || 0)) {
-                      store.put(item);
+                      // Ensure replication contract fields are present
+                      const enrichedItem = this.enrichWithReplicationFields(item, userId);
+                      store.put(enrichedItem);
                     }
                  };
                }
@@ -133,16 +151,45 @@ export class DomainDB {
     });
   }
 
-  async put<T extends { id?: string, version?: number }>(storeName: string, data: T): Promise<void> {
+  /** Enrich item with replication contract v1 fields */
+  private enrichWithReplicationFields(item: any, userId: string | null): any {
+    const now = Date.now();
+    return {
+      ...item,
+      user_id: item.user_id || userId,
+      type: item.type || this.tableName,
+      version: item.version ?? 0,
+      _deleted: item._deleted ?? false,
+      created_at: item.created_at ?? now,
+      updated_at: item.updated_at ?? now,
+      idempotency_key: item.idempotency_key || crypto.randomUUID(),
+    };
+  }
+
+  async put<T extends { id?: string; version?: number; user_id?: string; type?: string; created_at?: number; updated_at?: number; idempotency_key?: string }>(
+    storeName: string,
+    data: T
+  ): Promise<void> {
     await this.init();
-    
+
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
 
     const id = data.id || crypto.randomUUID();
+    const now = Date.now();
     const existing = await this.get<any>(storeName, id);
     const version = (existing?.version || 0) + 1;
-    const finalData = { ...data, id, version };
+
+    const finalData = this.enrichWithReplicationFields({
+      ...data,
+      id,
+      version,
+      user_id: data.user_id || userId,
+      type: data.type || storeName,
+      created_at: data.created_at ?? (existing?.created_at ?? now),
+      updated_at: now,
+      idempotency_key: data.idempotency_key || crypto.randomUUID(),
+    }, userId);
 
     await new Promise<void>((resolve, reject) => {
       const transaction = this.db!.transaction([storeName, 'outbox'], 'readwrite');
@@ -161,7 +208,7 @@ export class DomainDB {
            version,
            status: 'pending',
            retryCount: 0,
-           createdAt: Date.now()
+           createdAt: now
         };
         outboxStore.put(entry);
       }
@@ -178,15 +225,22 @@ export class DomainDB {
 
   async delete(storeName: string, id: string): Promise<void> {
     await this.init();
-    
+
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
 
     const existing = await this.get<any>(storeName, id);
     if (!existing) return; // Nothing to delete
 
+    const now = Date.now();
     const version = (existing.version || 0) + 1;
-    const tombstoneData = { ...existing, _deleted: true, version };
+    const tombstoneData = this.enrichWithReplicationFields({
+      ...existing,
+      _deleted: true,
+      version,
+      updated_at: now,
+      idempotency_key: crypto.randomUUID(),
+    }, userId);
 
 
     await new Promise<void>((resolve, reject) => {
@@ -201,13 +255,13 @@ export class DomainDB {
         const entry = {
            idempotencyKey: crypto.randomUUID(),
            storeName,
-           operation: 'delete', // Or put, since syncToSupabase treats them the same for upserting tombstones
+           operation: 'delete',
            payload: tombstoneData,
            userId,
            version,
            status: 'pending',
            retryCount: 0,
-           createdAt: Date.now()
+           createdAt: now
         };
         outboxStore.put(entry);
       }
@@ -226,7 +280,7 @@ export class DomainDB {
     await this.init();
     const stores = Array.from(this.db!.objectStoreNames);
     if (stores.length === 0) return;
-    
+
     const transaction = this.db!.transaction(stores, 'readwrite');
     stores.forEach(s => transaction.objectStore(s).clear());
     return new Promise((resolve) => {

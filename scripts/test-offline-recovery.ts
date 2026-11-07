@@ -43,7 +43,7 @@ import * as supabaseModule from "../src/lib/supabase";
 Object.assign((supabaseModule as any).supabase, stubSupabase);
 
 // We use vitest/jest if available, but let's build a standalone script using tsx directly
-const testDB = new DomainDB('aspace_ld99_test', 2);
+const testDB = new DomainDB('aspace_ld99_test');
 
 async function runTest() {
   await testDB.init();

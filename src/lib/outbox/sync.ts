@@ -4,6 +4,10 @@ import type { OutboxEntry, SyncResult } from './types';
 const MAX_RETRIES = 5;
 const BASE_BACKOFF_MS = 1000;
 
+/**
+ * Process outbox entries for a specific user and table.
+ * Implements idempotent replication with version-based conflict detection.
+ */
 export async function processOutbox(db: IDBDatabase, tableName: string, currentUserId: string | null): Promise<void> {
   if (!currentUserId) return;
 
@@ -80,38 +84,55 @@ async function processEntry(db: IDBDatabase, tableName: string, entry: OutboxEnt
   }
 }
 
+/**
+ * Sync a single outbox entry to Supabase using replication contract v1.
+ * Payload must include: id, user_id, type, version, _deleted, created_at, updated_at, idempotency_key
+ */
 async function syncToSupabase(tableName: string, entry: OutboxEntry): Promise<SyncResult> {
-  // We use updated_at as idempotency timestamp, and version for concurrency
-  const payload = {
-    ...entry.payload,
-    user_id: entry.userId,
-    type: entry.storeName,
-    updated_at: new Date(entry.createdAt).toISOString() // Use creation time of operation
+  const payload = entry.payload;
+
+  // Validate replication contract fields
+  if (!payload.id || typeof payload.version !== 'number') {
+    return { success: false, error: 'Invalid payload: missing id or version' };
+  }
+
+  // Use the payload's idempotency_key for server-side deduplication
+  const upsertPayload = {
+    ...payload,
+    // Ensure user_id is set (comes from entry.userId as fallback)
+    user_id: payload.user_id || entry.userId,
+    type: payload.type || entry.storeName,
+    // Use payload's updated_at (epoch ms) converted to ISO string
+    updated_at: payload.updated_at ? new Date(payload.updated_at).toISOString() : new Date(entry.createdAt).toISOString(),
   };
 
   if (entry.operation === 'put' || entry.operation === 'delete') {
-    // We treat logical deletes as puts to Supabase as well, passing the _deleted flag and version
-
     // First, check server version to prevent silent overwrites of newer data
     const { data: serverItem, error: fetchError } = await supabase
       .from(tableName)
-      .select('version')
+      .select('version, idempotency_key')
       .eq('id', payload.id)
       .maybeSingle();
 
-    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is multiple rows or zero rows sometimes depending on Postgrest
-        return { success: false, error: fetchError.message };
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      return { success: false, error: fetchError.message };
     }
 
-    if (serverItem && serverItem.version > entry.version) {
-       // Server has newer version. Conflict!
-       return { success: false, conflict: true };
+    // Idempotency check: if server already has this exact idempotency_key, consider it synced
+    if (serverItem && serverItem.idempotency_key === payload.idempotency_key) {
+      return { success: true }; // Already applied
+    }
+
+    // Version-based conflict detection
+    if (serverItem && serverItem.version > payload.version) {
+      // Server has newer version. Conflict!
+      return { success: false, conflict: true };
     }
 
     // Upsert payload (handles both inserts and updates)
     const { error } = await supabase
       .from(tableName)
-      .upsert(payload, { onConflict: 'id' }); // Assuming 'id' is unique constraint
+      .upsert(upsertPayload, { onConflict: 'id' });
 
     if (error) {
       return { success: false, error: error.message };
